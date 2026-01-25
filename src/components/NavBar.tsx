@@ -24,7 +24,10 @@ function NotificationButton() {
                 onClick={() => setIsOpen(!isOpen)}
                 title="알림"
             >
-                <span style={{ fontSize: '18px' }}>🔔</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
                 {unreadCount > 0 && (
                     <span className="badge-dot"></span>
                 )}
@@ -79,7 +82,7 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                 <div className="nav-island glass-card">
                     <Link href="/" className="nav-link-logo">
                         <div className="nav-logo-icon">
-                            <span style={{ fontSize: '20px' }}>🎓</span>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'white' }}>M</span>
                         </div>
                         <span className="nav-logo-text">모여라</span>
                     </Link>
@@ -127,9 +130,17 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                                 title={heroMode === 'network' ? '기본 뷰로 전환' : '네트워크 맵 보기'}
                             >
                                 {heroMode === 'network' ? (
-                                    <span style={{ fontSize: '18px' }}>🌐</span>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="2" y1="12" x2="22" y2="12" />
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                    </svg>
                                 ) : (
-                                    <span style={{ fontSize: '18px' }}>🧊</span>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                        <line x1="3" y1="9" x2="21" y2="9" />
+                                        <line x1="9" y1="21" x2="9" y2="9" />
+                                    </svg>
                                 )}
                             </button>
                         )}

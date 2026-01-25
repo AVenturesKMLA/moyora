@@ -15,12 +15,19 @@ export default function HomePage() {
   const { resolvedTheme } = useTheme();
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroMode, setHeroMode] = useState<'default' | 'network'>('default');
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch - wait until client-side theme is resolved
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleHeroToggle = () => {
     setHeroMode(prev => prev === 'default' ? 'network' : 'default');
   };
 
-  const isLight = resolvedTheme === 'light';
+  // Default to dark theme during SSR to prevent flash (most users prefer dark)
+  const isLight = mounted ? resolvedTheme === 'light' : false;
 
   // Dynamic Styles based on Theme
   const pageBg = isLight ? '#FFFFFF' : '#000000';
@@ -87,9 +94,6 @@ export default function HomePage() {
               className="hero-badge"
               style={{ background: badgeBg, borderColor: badgeBorder }}
             >
-              <span className="badge-icon">
-                {heroMode === 'default' ? '✨' : '🌐'}
-              </span>
               <span className="badge-text" style={{ color: badgeText }}>
                 {heroMode === 'default' ? '대한민국 No.1 고등학교 동아리 플랫폼' : '전국을 연결하는 네트워크'}
               </span>
@@ -98,7 +102,7 @@ export default function HomePage() {
 
           <h1 className="hero-title anim-title-reveal" style={{ color: textColor }}>
             동아리 활동의<br />
-            <span className="gradient-text shimmer-effect">새로운 차원.</span>
+            <span className="accent-text">새로운 차원.</span>
           </h1>
 
           <p className="hero-description anim-fade-up-delay" style={{ color: descColor }}>
@@ -155,12 +159,7 @@ export default function HomePage() {
       <section className="features" style={{ background: sectionBg }}>
         <div className="container">
           <div className="section-header">
-            <h2
-              className="section-title text-gradient-clip"
-              style={{
-                backgroundImage: isLight ? 'linear-gradient(135deg, #1d1d1f 0%, #666 100%)' : 'linear-gradient(135deg, #FFF 0%, #888 100%)'
-              }}
-            >
+            <h2 className="section-title" style={{ color: sectionTextPrimary }}>
               모여라의 기능
             </h2>
             <p className="section-subtitle" style={{ color: sectionTextSecondary }}>동아리 운영에 필요한 모든 도구.</p>
@@ -168,8 +167,7 @@ export default function HomePage() {
 
           <div className="bento-grid">
             {/* Main Feature: Contest */}
-            <div className="bento-card card-contest" style={{ background: isLight ? 'rgba(230, 240, 255, 0.8)' : 'linear-gradient(145deg, rgba(0, 122, 255, 0.1), rgba(0,0,0,0))', borderColor: cardBorder }}>
-              <div className="card-bg-glow"></div>
+            <div className="bento-card card-contest" style={{ background: cardBg, borderColor: cardBorder }}>
               <div className="card-content">
                 <div className="card-icon-box blue">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>
@@ -177,7 +175,6 @@ export default function HomePage() {
                 <h3 style={{ color: cardTitle }}>전국 대회</h3>
                 <p style={{ color: cardDesc }}>전국 규모의 동아리 대회에 참가하고<br />실력을 증명하세요.</p>
               </div>
-              <div className="card-visual-3d trophy-visual">🏆</div>
             </div>
 
             {/* Feature: Forum */}
@@ -222,12 +219,7 @@ export default function HomePage() {
       <section className="workflow-section" style={{ background: sectionBg }}>
         <div className="container">
           <div className="section-header-center">
-            <h2
-              className="section-title text-gradient-clip"
-              style={{
-                backgroundImage: isLight ? 'linear-gradient(135deg, #1d1d1f 0%, #666 100%)' : 'linear-gradient(135deg, #FFF 0%, #888 100%)'
-              }}
-            >
+            <h2 className="section-title" style={{ color: sectionTextPrimary }}>
               동아리 활동, 3단계면 충분합니다.
             </h2>
             <p className="section-subtitle" style={{ color: sectionTextSecondary }}>복잡한 절차 없이, 오직 활동에만 집중하세요.</p>
@@ -280,22 +272,22 @@ export default function HomePage() {
         <div className="container">
           <div className="features-inner-grid">
             <div className="feature-small">
-              <div className="feature-icon">🔍</div>
+              <div className="feature-number">01</div>
               <h4 style={{ color: sectionTextPrimary }}>스마트 검색</h4>
               <p style={{ color: sectionTextSecondary }}>키워드 하나로 내 활동 범주에 맞는 이벤트를 찾아보세요.</p>
             </div>
             <div className="feature-small">
-              <div className="feature-icon">🛡️</div>
+              <div className="feature-number">02</div>
               <h4 style={{ color: sectionTextPrimary }}>관리 시스템</h4>
               <p style={{ color: sectionTextSecondary }}>부장과 부원의 체계적인 권한 분리로 안전하게 운영하세요.</p>
             </div>
             <div className="feature-small">
-              <div className="feature-icon">📊</div>
+              <div className="feature-number">03</div>
               <h4 style={{ color: sectionTextPrimary }}>실시간 스탯</h4>
               <p style={{ color: sectionTextSecondary }}>우리 동아리의 활동 지수를 실시간으로 확인하고 분석하세요.</p>
             </div>
             <div className="feature-small">
-              <div className="feature-icon">🔔</div>
+              <div className="feature-number">04</div>
               <h4 style={{ color: sectionTextPrimary }}>푸시 알림</h4>
               <p style={{ color: sectionTextSecondary }}>신청 현황과 중요 공지사항을 놓치지 않고 확인하세요.</p>
             </div>
@@ -306,22 +298,17 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="cta-section" style={{ background: footerBg }}>
         <div className="container">
-          <div className="cta-card-glass" style={{ background: isLight ? 'rgba(255,255,255,0.8)' : 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', borderColor: cardBorder }}>
-            <h2
-              className="cta-title text-gradient-clip"
-              style={{
-                backgroundImage: isLight ? 'linear-gradient(to right, #1d1d1f, #666)' : 'linear-gradient(to right, #fff, #aaa)'
-              }}
-            >
+          <div className="cta-card-glass" style={{ background: cardBg, borderColor: cardBorder }}>
+            <h2 className="cta-title" style={{ color: sectionTextPrimary }}>
               지금 바로 시작하세요.
             </h2>
             <p className="cta-desc" style={{ color: sectionTextSecondary }}>전국의 100+ 동아리가 이미 활동 중입니다.</p>
             {!session && (
               <Link
                 href="/signup"
-                className="btn-main-cta transparent-variant"
+                className="btn-main-cta solid-btn"
               >
-                <span className="cta-content" style={{ color: isLight ? '#1d1d1f' : '#ffffff' }}>무료 가입하기</span>
+                <span className="cta-content">무료 가입하기</span>
               </Link>
             )}
           </div>
@@ -333,10 +320,10 @@ export default function HomePage() {
         <div className="container">
           <div className="footer-content">
             <div className="footer-brand">
-              <span className="brand-logo">🎓</span>
+              <span className="brand-logo">M</span>
               <span className="brand-name" style={{ color: sectionTextPrimary }}>모여라</span>
             </div>
-            <p className="copyright" style={{ color: sectionTextSecondary }}>© 2026 Moyeora. Designed with iOS 16 aesthetics.</p>
+            <p className="copyright" style={{ color: sectionTextSecondary }}>© 2026 Moyeora. All rights reserved.</p>
           </div>
         </div>
       </footer>
@@ -394,18 +381,21 @@ export default function HomePage() {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          padding: 8px 20px;
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 10px 24px;
+          background: var(--glass-bg);
+          border: 1px solid var(--glass-border);
           border-radius: 999px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .badge-text {
-          font-size: 15px;
+          font-size: 14px;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.9);
+          letter-spacing: -0.01em;
+        }
+
+        /* Accent Text - Clean, no shimmer */
+        .accent-text {
+          color: #007AFF;
         }
 
         .hero-title {
@@ -416,22 +406,7 @@ export default function HomePage() {
           margin-bottom: 24px;
         }
 
-        .gradient-text {
-            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            position: relative;
-            display: inline-block;
-        }
 
-        .shimmer-effect {
-            background-size: 200% auto;
-            animation: textShimmer 3s linear infinite;
-        }
-
-        @keyframes textShimmer {
-            to { background-position: 200% center; }
-        }
 
         .hero-description {
           font-size: 24px;
@@ -447,93 +422,61 @@ export default function HomePage() {
           gap: 20px;
         }
         
-        /* Premium Buttons */
-        /* Shared Button Styles */
+        /* Buttons - Fandom Style */
         .btn-main-cta {
           position: relative;
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 0 40px;
-          height: 56px; /* Fixed height for consistency */
-          background: #007AFF;
+          padding: 0 32px;
+          height: 52px;
+          background: #c8ff00;
           border-radius: 999px;
-          overflow: hidden;
-          transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+          transition: all 0.15s ease;
           text-decoration: none;
-          transform: translateZ(0);
-          box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
-          border: 1px solid transparent;
+          border: 2px solid transparent;
+          cursor: pointer;
         }
 
         .btn-main-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.5);
+          background: #b8ee00;
+          transform: scale(1.02);
         }
 
-        /* White Variant (e.g. for dark sections) */
-        .btn-main-cta.white {
-            background: white;
-            color: black;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-        }
-        .btn-main-cta.white:hover {
-             box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+        .btn-main-cta .cta-content {
+          font-size: 15px;
+          font-weight: 700;
+          color: #000000;
+          letter-spacing: 0.02em;
         }
 
-        /* Glass Variant (Secondary) */
+        /* Outlined Variant */
         .btn-main-cta.glass-variant {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: none;
+          background: transparent;
+          border: 2px solid rgba(255, 255, 255, 0.5);
         }
 
         .btn-main-cta.glass-variant:hover {
-            background: var(--hover-bg, rgba(255, 255, 255, 0.2));
-            border-color: rgba(255, 255, 255, 0.4);
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Transparent Variant (for text-only buttons) */
-        .btn-main-cta.transparent-variant {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            backdrop-filter: none !important;
+        .btn-main-cta.glass-variant .cta-content {
+          color: #ffffff;
         }
 
-        .btn-main-cta.transparent-variant:hover {
-            background: rgba(128, 128, 128, 0.1) !important;
-            box-shadow: none !important;
+        /* Blue Variant */
+        .btn-main-cta.solid-btn {
+          background: #007AFF;
+          border-color: #007AFF;
         }
 
-        .cta-content {
-          position: relative; /* Required for z-index to work */
-          font-size: 17px;
-          font-weight: 700;
-          color: white;
-          z-index: 2;
-        }
-        
-        .btn-main-cta.white .cta-content { color: black; }
-
-        /* Simplified Glow/Shine Effect */
-        .btn-main-cta::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-            pointer-events: none; /* Ensure clicks pass through */
+        .btn-main-cta.solid-btn:hover {
+          background: #0062cc;
         }
 
-        .btn-main-cta:hover::after {
-            left: 100%;
-            transition: left 0.7s ease-in-out;
+        .btn-main-cta.solid-btn .cta-content {
+          color: #ffffff;
         }
 
         /* === Bento Grid === */
@@ -545,9 +488,7 @@ export default function HomePage() {
 
         .section-title {
             font-size: 48px;
-            background: linear-gradient(135deg, #FFF 0%, #888 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 700;
             margin-bottom: 16px;
         }
 
@@ -650,23 +591,17 @@ export default function HomePage() {
         }
 
         .cta-card-glass {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 40px;
-            padding: 80px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 60px;
             text-align: center;
-            backdrop-filter: blur(20px);
-            position: relative;
-            overflow: hidden;
         }
 
         .cta-title {
             font-size: 48px;
             font-weight: 700;
             margin-bottom: 16px;
-            background: linear-gradient(to right, #fff, #aaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .cta-desc {
@@ -720,10 +655,8 @@ export default function HomePage() {
         .step-number-glow {
             font-size: 48px;
             font-weight: 800;
-            background: linear-gradient(to bottom, var(--color-blue), transparent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.5;
+            color: var(--color-blue);
+            opacity: 0.4;
         }
 
         .step-card h3 {
@@ -795,9 +728,12 @@ export default function HomePage() {
             gap: 16px;
         }
 
-        .feature-icon {
+        .feature-number {
             font-size: 32px;
+            font-weight: 800;
+            color: #333;
             margin-bottom: 8px;
+            letter-spacing: -0.02em;
         }
 
         .feature-small h4 {
@@ -812,21 +748,277 @@ export default function HomePage() {
             line-height: 1.5;
         }
 
-        .text-gradient-clip {
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            color: transparent; /* Fallback */
-            display: inline-block;
+
+
+        /* === Mobile Layout === */
+        @media (max-width: 768px) {
+            /* Hero - Mobile */
+            .hero {
+                min-height: 100svh;
+                padding-top: 100px;
+            }
+
+            .hero-badge-container {
+                margin-bottom: 24px;
+            }
+
+            .hero-badge {
+                padding: 8px 16px;
+            }
+
+            .badge-text {
+                font-size: 12px;
+            }
+
+            .hero-title {
+                font-size: 36px;
+                margin-bottom: 16px;
+            }
+
+            .hero-description {
+                font-size: 16px;
+                margin-bottom: 32px;
+                padding: 0 16px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+                max-width: 280px;
+                gap: 12px;
+            }
+
+            .btn-main-cta {
+                width: 100%;
+                height: 48px;
+                padding: 0 24px;
+            }
+
+            .cta-content {
+                font-size: 15px;
+            }
+
+            /* Features - Mobile */
+            .features {
+                padding: 60px 0;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .section-subtitle {
+                font-size: 16px;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: 12px;
+            }
+
+            .bento-card {
+                padding: 20px;
+                border-radius: 16px;
+                min-height: auto !important;
+                height: auto !important;
+            }
+
+            .card-contest, .card-research, .card-forum, .card-alert {
+                grid-column: span 1 !important;
+                grid-row: span 1 !important;
+                background: var(--glass-bg) !important;
+            }
+
+            .card-icon-box {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .card-icon-box svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            /* All cards use horizontal layout on mobile */
+            .bento-card .card-content {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .bento-card h3 {
+                font-size: 17px;
+                margin-bottom: 4px;
+            }
+
+            .bento-card p {
+                font-size: 14px;
+                line-height: 1.4;
+                margin: 0;
+            }
+
+            .card-research .text-group h3,
+            .card-research .text-group p {
+                margin: 0;
+            }
+
+            /* Workflow - Mobile */
+            .workflow-section {
+                padding: 60px 0;
+            }
+
+            .section-header-center {
+                margin-bottom: 40px;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .step-card {
+                padding: 24px;
+                text-align: left;
+            }
+
+            .step-number-glow {
+                font-size: 32px;
+            }
+
+            .step-card h3 {
+                font-size: 18px;
+            }
+
+            .step-card p {
+                font-size: 14px;
+            }
+
+            /* Stats - Mobile */
+            .stats-section {
+                padding: 40px 0;
+            }
+
+            .stats-glass-panel {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 24px;
+                padding: 32px 16px;
+                border-radius: 24px;
+            }
+
+            .stat-item {
+                flex: 1 1 80px;
+                min-width: 80px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .stat-divider-vertical {
+                display: none;
+            }
+
+            /* Features List - Mobile */
+            .detailed-features {
+                padding: 60px 0;
+            }
+
+            .features-inner-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+
+            .feature-number {
+                font-size: 24px;
+            }
+
+            .feature-small h4 {
+                font-size: 16px;
+            }
+
+            .feature-small p {
+                font-size: 13px;
+            }
+
+            /* CTA - Mobile */
+            .cta-section {
+                padding: 60px 0;
+            }
+
+            .cta-card-glass {
+                padding: 40px 24px;
+                border-radius: 24px;
+            }
+
+            .cta-title {
+                font-size: 28px;
+            }
+
+            .cta-desc {
+                font-size: 16px;
+                margin-bottom: 24px;
+            }
+
+            /* Footer - Mobile */
+            .footer {
+                padding: 32px 0;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+
+            .brand-logo {
+                font-size: 16px;
+            }
+
+            .brand-name {
+                font-size: 16px;
+            }
+
+            .copyright {
+                font-size: 12px;
+            }
         }
 
-        @media (max-width: 900px) {
-            .hero-title { font-size: 48px; }
-            .bento-grid, .steps-grid, .features-inner-grid { grid-template-columns: 1fr; }
-            .stats-glass-panel { flex-direction: column; gap: 40px; padding: 40px; }
-            .stat-divider-vertical { display: none; }
-            .card-contest, .card-research { grid-column: span 1; grid-row: auto; }
-            .card-research .card-content.horizontal { flex-direction: column; text-align: center; }
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .hero-description {
+                font-size: 14px;
+            }
+
+            .features-inner-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .cta-title {
+                font-size: 24px;
+            }
         }
       `}</style>
     </div>

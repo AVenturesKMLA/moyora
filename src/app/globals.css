@@ -29,13 +29,13 @@
   --color-text-secondary: #86868b;
   --color-text-tertiary: #1d1d1f;
 
-  /* Glass */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  /* Surfaces - Clean, Solid */
+  --glass-bg: #FFFFFF;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
-  /* Materials */
-  --material-thick: blur(20px) saturate(180%);
+  /* Materials - No blur for dry aesthetic */
+  --material-thick: none;
 
   /* Spacing & Radii */
   --radius-xs: 4px;
@@ -62,9 +62,9 @@
   --color-text-secondary: rgba(235, 235, 245, 0.75);
   --color-text-tertiary: rgba(235, 235, 245, 0.45);
 
-  --glass-bg: rgba(30, 30, 30, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  --glass-bg: #1C1C1E;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 
   --orb-opacity: 0.6;
 }
@@ -96,8 +96,6 @@ body {
 
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: var(--material-thick);
-  -webkit-backdrop-filter: var(--material-thick);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   border-radius: var(--radius-xl);

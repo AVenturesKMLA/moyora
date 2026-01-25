@@ -8,22 +8,22 @@ import { useTheme } from 'next-themes';
 
 const HERO_PALETTES = {
     dark: {
-        glassColor: '#c0dcff',
+        glassColor: '#6366f1',    // Indigo glass
         glassBg: '#050510',
-        orb1: '#007AFF', // Blue
-        orb2: '#AF52DE', // Purple
-        transmission: 0.95,
-        attenuation: '#ffffff',
-        bg: '#000000' // Match page background explicitly (Pure Black)
+        orb1: '#8b5cf6',          // Purple
+        orb2: '#a855f7',          // Lighter purple
+        transmission: 0.9,
+        attenuation: '#1a1a2e',
+        bg: '#000000'
     },
     light: {
-        glassColor: '#e0f2fe', // Lighter Cyan-ish
+        glassColor: '#c7d2fe',
         glassBg: '#ffffff',
-        orb1: '#00C7BE', // Teal
-        orb2: '#FF2D55', // Pink
-        transmission: 0.9,
-        attenuation: '#e0f2fe',
-        bg: '#FFFFFF' // Pure white to match sections below
+        orb1: '#6366f1',
+        orb2: '#a855f7',
+        transmission: 0.85,
+        attenuation: '#e0e7ff',
+        bg: '#FFFFFF'
     }
 };
 
