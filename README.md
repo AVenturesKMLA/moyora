@@ -69,35 +69,4 @@
 
 ---
 
-## ⚡ Getting Started
-
-### Prerequisites
-*   Node.js 18+
-*   npm or yarn
-
-### Installation
-
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/AVenturesKMLA/moyora.git
-    cd moyora
-    ```
-
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
-
-3.  **Set up Environment Variables**
-    Create a `.env.local` file in the root directory and add necessary variables (MongoDB URI, NextAuth Secret, etc.).
-
-4.  **Run the development server**
-    ```bash
-    npm run dev
-    ```
-
-    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
----
-
 © 2026 **AVentures**. All Rights Reserved.
