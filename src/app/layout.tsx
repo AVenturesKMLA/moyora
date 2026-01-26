@@ -16,6 +16,8 @@ export const metadata: Metadata = {
     keywords: ['동아리', '고등학교', '대회', '포럼', '공동연구', '모여라'],
 };
 
+import StyledJsxRegistry from '@/lib/registry';
+
 export default function RootLayout({
     children,
 }: {
@@ -24,11 +26,13 @@ export default function RootLayout({
     return (
         <html lang="ko" suppressHydrationWarning>
             <body className={notoSansKr.className}>
-                <Providers>
-                    <NotificationProvider>
-                        {children}
-                    </NotificationProvider>
-                </Providers>
+                <StyledJsxRegistry>
+                    <Providers>
+                        <NotificationProvider>
+                            {children}
+                        </NotificationProvider>
+                    </Providers>
+                </StyledJsxRegistry>
             </body>
         </html>
     );
