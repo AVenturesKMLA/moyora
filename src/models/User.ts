@@ -75,7 +75,6 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Index for faster lookups
-UserSchema.index({ email: 1 });
 UserSchema.index({ schoolId: 1 });
 UserSchema.index({ schoolName: 1 });
 

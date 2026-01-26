@@ -42,9 +42,9 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
 
             // 1. Request Identity Verification via PortOne V2 SDK
             const response = await PortOne.requestIdentityVerification({
-                storeId: 'store-4ff4af41-85e3-4559-8eb8-0d08a2c6ceec', // Sandbox Store ID (Placeholder)
+                storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID || 'store-4ff4af41-85e3-4559-8eb8-0d08a2c6ceec',
                 identityVerificationId,
-                channelKey: 'channel-key-841961ee-5e13-4354-9e32-a548b29f9df3', // Sandbox Channel Key (Placeholder)
+                channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || 'channel-key-841961ee-5e13-4354-9e32-a548b29f9df3',
             });
 
             if (response.code !== undefined) {
@@ -119,6 +119,21 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                         ) : '휴대폰 본인인증 시작하기'}
                     </button>
 
+                    <div className="test-bypass">
+                        <p>Credentials not ready? Use the simulator for testing:</p>
+                        <button
+                            type="button"
+                            onClick={() => onComplete({
+                                name: '이모여',
+                                phone: '010-1234-5678',
+                                birthday: '1995-01-01'
+                            })}
+                            className="btn-simulator"
+                        >
+                            인증 시뮬레이터 실행 (Test Bypass)
+                        </button>
+                    </div>
+
                     {error && (
                         <div className="error-message">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -138,6 +153,35 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
             </div>
 
             <style jsx>{`
+                .test-bypass {
+                    margin-top: -16px;
+                    padding: 16px;
+                    background: rgba(0, 0, 0, 0.03);
+                    border: 1px dashed rgba(0, 0, 0, 0.1);
+                    border-radius: 16px;
+                    text-align: center;
+                }
+                .test-bypass p {
+                    font-size: 12px;
+                    color: #8e8e93;
+                    margin-bottom: 8px;
+                }
+                .btn-simulator {
+                    width: 100%;
+                    padding: 10px;
+                    background: #f1f3f5;
+                    border: 1px solid #dee2e6;
+                    border-radius: 10px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #495057;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .btn-simulator:hover {
+                    background: #e9ecef;
+                    border-color: #ced4da;
+                }
                 .glass-card-container {
                     perspective: 1000px;
                 }
