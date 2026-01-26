@@ -75,11 +75,21 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
             const PortOne = (window as any).PortOne;
             const identityVerificationId = `identity-verification-${crypto.randomUUID()}`;
 
+            const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID;
+            const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY;
+
+            if (!storeId || !channelKey) {
+                console.error('PortOne configuration missing:', { storeId, channelKey });
+                setError('본인인증 설정(Store ID/Channel Key)이 누락되었습니다. Vercel에서 환경 변수 설정 후 새 배포가 필요할 수 있습니다.');
+                setIsVerifying(false);
+                return;
+            }
+
             // 1. Request Identity Verification via PortOne V2 SDK
             const response = await PortOne.requestIdentityVerification({
-                storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
+                storeId,
                 identityVerificationId,
-                channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
+                channelKey,
                 redirectUrl: window.location.origin + window.location.pathname,
             });
 
@@ -97,6 +107,11 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                 body: JSON.stringify({ identityVerificationId }),
             });
 
+            if (!verifyRes.ok) {
+                const errorData = await verifyRes.json();
+                throw new Error(errorData.message || '서버 인증 확인 실패');
+            }
+
             const verifyResult = await verifyRes.json();
 
             if (verifyResult.success) {
@@ -104,9 +119,9 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
             } else {
                 setError(verifyResult.message || '인증 확인 중 오류가 발생했습니다.');
             }
-        } catch (err) {
-            console.error('PortOne Verification Error:', err);
-            setError('인증 과정 중 예기치 못한 오류가 발생했습니다.');
+        } catch (err: any) {
+            console.error('PortOne Verification Error Details:', err);
+            setError(`오류 발생: ${err.message || '알 수 없는 오류가 발생했습니다.'}`);
         } finally {
             setIsVerifying(false);
         }
