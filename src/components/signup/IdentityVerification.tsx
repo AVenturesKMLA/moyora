@@ -42,13 +42,13 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
 
             // 1. Request Identity Verification via PortOne V2 SDK
             const response = await PortOne.requestIdentityVerification({
-                storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID || 'store-4ff4af41-85e3-4559-8eb8-0d08a2c6ceec',
+                storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
                 identityVerificationId,
-                channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || 'channel-key-841961ee-5e13-4354-9e32-a548b29f9df3',
+                channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
             });
 
+            // The code property is only present if an error occurred during the verification request
             if (response.code !== undefined) {
-                // Verification failed or canceled by user
                 setError(response.message || '인증이 취소되었거나 실패했습니다.');
                 setIsVerifying(false);
                 return;
