@@ -20,7 +20,7 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
         birthday: identityData?.birthday || '',
         phone: identityData?.phone || '',
         schoolName: studentIdData?.schoolName || '',
-        schoolId: studentIdData?.schoolId || 'MOCK_SCHOOL_ID',
+        schoolId: studentIdData?.schoolName || 'UNKNOWN_SCHOOL', // Fallback to schoolName
         agreedToTerms: false,
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MobileGuard from '@/components/signup/MobileGuard';
 import IdentityVerification from '@/components/signup/IdentityVerification';
 import StudentIDScanner from '@/components/signup/StudentIDScanner';
@@ -14,6 +14,13 @@ export default function SignupPage() {
   // State for data collected across steps
   const [identityData, setIdentityData] = useState<any>(null);
   const [studentIdData, setStudentIdData] = useState<any>(null);
+
+  // Safety check: Reset to step 1 if data is missing on refresh
+  useEffect(() => {
+    if (step > 1 && !identityData) {
+      setStep(1);
+    }
+  }, [step, identityData]);
 
   const handleIdentityComplete = (data: any) => {
     setIdentityData(data);
