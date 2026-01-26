@@ -5,7 +5,28 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-function LoginContent() {
+function LoginParams() {
+  const searchParams = useSearchParams();
+  const registered = searchParams.get('registered');
+
+  if (!registered) return null;
+
+  return (
+    <div className="auth-success">
+      <div className="success-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <div className="success-text">
+        <span className="success-title">회원가입 완료!</span>
+        <span className="success-desc">로그인하여 시작하세요.</span>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
@@ -13,9 +34,6 @@ function LoginContent() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const searchParams = useSearchParams();
-  const registered = searchParams.get('registered');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,7 +67,7 @@ function LoginContent() {
   };
 
   return (
-    <>
+    <div className="auth-page">
       <Link href="/" className="back-link">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="15 18 9 12 15 6"></polyline>
@@ -57,8 +75,16 @@ function LoginContent() {
         돌아가기
       </Link>
 
+      {/* Decorative Elements */}
+      <div className="auth-decorations">
+        <div className="decoration-circle decoration-1"></div>
+        <div className="decoration-circle decoration-2"></div>
+        <div className="decoration-circle decoration-3"></div>
+      </div>
+
       <div className="auth-container">
         <div className="auth-card fade-in">
+          {/* Logo & Header */}
           <div className="auth-header">
             <div className="auth-logo">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -72,20 +98,11 @@ function LoginContent() {
             <p className="auth-subtitle">고교 동아리 이벤트 플랫폼에 오신 것을 환영합니다</p>
           </div>
 
+          {/* Login Form */}
           <form className="auth-form" onSubmit={handleSubmit}>
-            {registered && (
-              <div className="auth-success">
-                <div className="success-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <div className="success-text">
-                  <span className="success-title">회원가입 완료!</span>
-                  <span className="success-desc">로그인하여 시작하세요.</span>
-                </div>
-              </div>
-            )}
+            <Suspense fallback={null}>
+              <LoginParams />
+            </Suspense>
 
             {error && (
               <div className="auth-error">
@@ -137,10 +154,12 @@ function LoginContent() {
             </button>
           </form>
 
+          {/* Divider */}
           <div className="auth-divider">
             <span>또는</span>
           </div>
 
+          {/* Sign Up Link */}
           <div className="auth-footer">
             <p>
               아직 계정이 없으신가요?{' '}
@@ -149,6 +168,7 @@ function LoginContent() {
           </div>
         </div>
 
+        {/* Floating Badge */}
         <div className="auth-badge">
           <div className="badge-icon">🎓</div>
           <div className="badge-text">
@@ -156,29 +176,6 @@ function LoginContent() {
             <span className="badge-subtitle">동아리를 위한 플랫폼</span>
           </div>
         </div>
-      </div>
-    </>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <div className="auth-page">
-      <Suspense fallback={
-        <div className="auth-container">
-          <div className="auth-card fade-in text-center p-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">로그인 정보를 불러오는 중...</p>
-          </div>
-        </div>
-      }>
-        <LoginContent />
-      </Suspense>
-
-      <div className="auth-decorations">
-        <div className="decoration-circle decoration-1"></div>
-        <div className="decoration-circle decoration-2"></div>
-        <div className="decoration-circle decoration-3"></div>
       </div>
 
       <style jsx>{`
@@ -417,8 +414,7 @@ export default function LoginPage() {
           text-decoration: none;
         }
 
-        /* Success Message */
-        .auth-success {
+        :global(.auth-success) {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -430,7 +426,7 @@ export default function LoginPage() {
             animation: slideDown 0.4s ease-out;
         }
 
-        .success-icon {
+        :global(.success-icon) {
             width: 32px;
             height: 32px;
             background: #4880EE;
@@ -442,18 +438,18 @@ export default function LoginPage() {
             flex-shrink: 0;
         }
 
-        .success-text {
+        :global(.success-text) {
             display: flex;
             flex-direction: column;
         }
 
-        .success-title {
+        :global(.success-title) {
             font-weight: 700;
             color: #1b5e20;
             font-size: 15px;
         }
 
-        .success-desc {
+        :global(.success-desc) {
             font-size: 13px;
             color: #2e7d32;
         }
