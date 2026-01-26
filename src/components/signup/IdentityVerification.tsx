@@ -17,7 +17,7 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
     const [error, setError] = useState('');
 
     useEffect(() => {
-        // Load PortOne V2 SDK
+        // 1. Load PortOne V2 SDK
         if (!document.getElementById('portone-sdk')) {
             const script = document.createElement('script');
             script.id = 'portone-sdk';
@@ -25,7 +25,42 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
             script.async = true;
             document.body.appendChild(script);
         }
-    }, []);
+
+        // 2. Handle redirect return
+        const handleRedirectReturn = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const identityVerificationId = params.get('identityVerificationId');
+            const code = params.get('code');
+            const message = params.get('message');
+
+            if (identityVerificationId && !code) {
+                setIsVerifying(true);
+                try {
+                    const verifyRes = await fetch('/api/auth/verify-identity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identityVerificationId }),
+                    });
+
+                    const verifyResult = await verifyRes.json();
+                    if (verifyResult.success) {
+                        onComplete(verifyResult.data);
+                    } else {
+                        setError(verifyResult.message || '인증 확인 중 오류가 발생했습니다.');
+                    }
+                } catch (err) {
+                    console.error('Redirect verification error:', err);
+                    setError('인증 확인 중 오류가 발생했습니다.');
+                } finally {
+                    setIsVerifying(false);
+                }
+            } else if (code) {
+                setError(message || '인증이 취소되었거나 실패했습니다.');
+            }
+        };
+
+        handleRedirectReturn();
+    }, [onComplete]);
 
     const handlePortOneVerify = async () => {
         if (!(window as any).PortOne) {
@@ -45,6 +80,7 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                 storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
                 identityVerificationId,
                 channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
+                redirectUrl: window.location.origin + window.location.pathname,
             });
 
             // The code property is only present if an error occurred during the verification request
