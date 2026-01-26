@@ -6,6 +6,7 @@ export { default as CoResearch } from './CoResearch';
 export { default as Schedule } from './Schedule';
 export { default as Notification } from './Notification';
 export { default as Participant } from './Participant';
+export { default as ClubMember } from './ClubMember';
 
 export type { IUser } from './User';
 export type { IClub } from './Club';
@@ -15,3 +16,4 @@ export type { ICoResearch } from './CoResearch';
 export type { ISchedule, EventType } from './Schedule';
 export type { INotification, ReminderDays } from './Notification';
 export type { IParticipant } from './Participant';
+export type { IClubMember } from './ClubMember';

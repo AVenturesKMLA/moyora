@@ -2,34 +2,26 @@
 
 import { useState } from 'react';
 import MobileGuard from '@/components/signup/MobileGuard';
-import RoleSelection from '@/components/signup/RoleSelection';
 import IdentityVerification from '@/components/signup/IdentityVerification';
 import StudentIDScanner from '@/components/signup/StudentIDScanner';
-import ClubRegistrationForm from '@/components/signup/ClubRegistrationForm';
-import ClubSearchForm from '@/components/signup/ClubSearchForm';
+import UserRegistrationForm from '@/components/signup/UserRegistrationForm';
 import Link from 'next/link';
 
 export default function SignupPage() {
   const [step, setStep] = useState<number>(1);
-  const [role, setRole] = useState<'MEMBER' | 'CHIEF' | null>(null);
 
   // State for data collected across steps
   const [identityData, setIdentityData] = useState<any>(null);
   const [studentIdData, setStudentIdData] = useState<any>(null);
 
-  const handleRoleSelect = (selectedRole: 'MEMBER' | 'CHIEF') => {
-    setRole(selectedRole);
-    setStep(2); // Move to Identity Verification
-  };
-
   const handleIdentityComplete = (data: any) => {
     setIdentityData(data);
-    setStep(3); // Move to Student ID Scanner
+    setStep(2); // Move to Student ID Scanner
   };
 
   const handleScanComplete = (data: any) => {
     setStudentIdData(data);
-    setStep(4); // Move to Final Registration Form
+    setStep(3); // Move to Final Registration Form
   };
 
   return (
@@ -43,10 +35,9 @@ export default function SignupPage() {
             </svg>
           </Link>
           <h1 className="header-title">
-            {step === 1 && '회원가입'}
-            {step === 2 && '본인 인증'}
-            {step === 3 && '학생증 인증'}
-            {step === 4 && '정보 입력'}
+            {step === 1 && '본인 인증'}
+            {step === 2 && '학생증 인증'}
+            {step === 3 && '정보 입력'}
           </h1>
           <div className="placeholder-w24"></div>
         </div>
@@ -56,7 +47,7 @@ export default function SignupPage() {
           <div className="progress-track">
             <div
               className="progress-fill"
-              style={{ width: `${(step / 4) * 100}%` }}
+              style={{ width: `${(step / 3) * 100}%` }}
             ></div>
           </div>
         </div>
@@ -64,35 +55,22 @@ export default function SignupPage() {
         {/* Step Content */}
         <main className="signup-content">
           {step === 1 && (
-            <RoleSelection onSelectRole={handleRoleSelect} />
-          )}
-
-          {step === 2 && (
             <IdentityVerification
               onComplete={handleIdentityComplete}
             />
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <StudentIDScanner
               onComplete={handleScanComplete}
             />
           )}
 
-          {step === 4 && (
-            <div className="w-full">
-              {role === 'CHIEF' ? (
-                <ClubRegistrationForm
-                  identityData={identityData}
-                  studentIdData={studentIdData}
-                />
-              ) : (
-                <ClubSearchForm
-                  identityData={identityData}
-                  studentIdData={studentIdData}
-                />
-              )}
-            </div>
+          {step === 3 && (
+            <UserRegistrationForm
+              identityData={identityData}
+              studentIdData={studentIdData}
+            />
           )}
         </main>
 

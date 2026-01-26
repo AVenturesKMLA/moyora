@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface ICoResearch extends Document {
     _id: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
+    schoolId: string;
     researchName: string;
     researchType: string;
     researchDate: Date;
@@ -22,6 +23,11 @@ const CoResearchSchema = new Schema<ICoResearch>(
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: [true, '사용자 정보가 필요합니다'],
+        },
+        schoolId: {
+            type: String,
+            required: [true, '학교 고유 ID가 필요합니다'],
+            index: true,
         },
         researchName: {
             type: String,
@@ -73,6 +79,7 @@ const CoResearchSchema = new Schema<ICoResearch>(
 
 // Indexes
 CoResearchSchema.index({ userId: 1 });
+CoResearchSchema.index({ schoolId: 1 });
 CoResearchSchema.index({ researchDate: 1 });
 CoResearchSchema.index({ researchName: 'text', description: 'text' });
 

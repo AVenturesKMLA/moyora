@@ -20,9 +20,15 @@ export const signupSchema = z.object({
     birthday: z
         .string()
         .refine((date) => !isNaN(Date.parse(date)), '올바른 날짜를 입력해주세요'),
+    phone: z
+        .string()
+        .min(10, '올바른 전화번호를 입력해주세요'),
     schoolName: z
         .string()
         .min(2, '학교명을 입력해주세요'),
+    schoolId: z
+        .string()
+        .min(1, '학교 고유 ID가 필요합니다'),
     agreedToTerms: z
         .boolean()
         .refine((val) => val === true, '이용약관에 동의해주세요'),
@@ -46,6 +52,9 @@ export const clubSchema = z.object({
     schoolName: z
         .string()
         .min(2, '학교명을 입력해주세요'),
+    schoolId: z
+        .string()
+        .min(1, '학교 고유 ID가 필요합니다'),
     clubTheme: z
         .string()
         .min(2, '동아리 분야를 입력해주세요'),
@@ -75,6 +84,9 @@ export const contestSchema = z.object({
     contestName: z
         .string()
         .min(2, '대회명을 입력해주세요'),
+    schoolId: z
+        .string()
+        .min(1, '학교 고유 ID가 필요합니다'),
     contestType: z
         .string()
         .min(1, '대회 유형을 선택해주세요'),
@@ -108,6 +120,9 @@ export const forumSchema = z.object({
     forumName: z
         .string()
         .min(2, '포럼명을 입력해주세요'),
+    schoolId: z
+        .string()
+        .min(1, '학교 고유 ID가 필요합니다'),
     forumType: z
         .string()
         .min(1, '포럼 유형을 선택해주세요'),
@@ -141,6 +156,9 @@ export const coResearchSchema = z.object({
     researchName: z
         .string()
         .min(2, '공동연구명을 입력해주세요'),
+    schoolId: z
+        .string()
+        .min(1, '학교 고유 ID가 필요합니다'),
     researchType: z
         .string()
         .min(1, '연구 분야를 선택해주세요'),

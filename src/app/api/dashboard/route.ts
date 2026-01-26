@@ -1,23 +1,34 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
-import { Contest, Forum, CoResearch, User, Participant, Club, Notification } from '@/models';
+import { Contest, Forum, CoResearch, User, Participant, Club, Notification, ClubMember } from '@/models';
 import { authOptions } from '@/lib/auth';
 
 // GET - Fetch comprehensive dashboard data for the current user
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
+        if (!session?.user) {
             return NextResponse.json(
                 { success: false, message: '로그인이 필요합니다' },
                 { status: 401 }
             );
         }
 
+        const userSession = session.user as { schoolId?: string; id?: string; email?: string };
+        if (!userSession.schoolId) {
+            return NextResponse.json(
+                { success: false, message: '학교 정보가 없습니다. 다시 로그인해주세요.' },
+                { status: 403 }
+            );
+        }
+
         await connectDB();
 
-        const user = await User.findOne({ email: session.user.email }).select('-password');
+        const user = await User.findOne({
+            email: userSession.email,
+            schoolId: userSession.schoolId
+        }).select('-password');
         if (!user) {
             return NextResponse.json(
                 { success: false, message: '사용자를 찾을 수 없습니다' },
@@ -25,14 +36,22 @@ export async function GET() {
             );
         }
 
-        // Fetch clubs
-        const clubs = await Club.find({ userId: user._id }).lean();
+        // Fetch club associations through ClubMember
+        const clubAssociations = await ClubMember.find({
+            userId: user._id,
+            schoolId: userSession.schoolId
+        }).populate('clubId').lean();
+
+        const clubs = clubAssociations.map((assoc: any) => ({
+            ...assoc.clubId,
+            role: assoc.role
+        })).filter((c: any) => c._id);
 
         // Fetch hosted events
         const [hostedContests, hostedForums, hostedCoResearch] = await Promise.all([
-            Contest.find({ userId: user._id }).lean(),
-            Forum.find({ userId: user._id }).lean(),
-            CoResearch.find({ userId: user._id }).lean(),
+            Contest.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
+            Forum.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
+            CoResearch.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
         ]);
 
         const hostedEvents = [
@@ -60,7 +79,11 @@ export async function GET() {
         ].sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
 
         // Fetch participations with event details
-        const participations = await Participant.find({ userId: user._id }).lean();
+        // Note: Participant model also needs schoolId for full isolation
+        const participations = await Participant.find({
+            userId: user._id,
+            schoolId: userSession.schoolId
+        }).lean();
 
         const participationsWithDetails = await Promise.all(
             participations.map(async (p: any) => {
@@ -107,6 +130,7 @@ export async function GET() {
         // Fetch unread notifications
         const notifications = await Notification.find({
             userId: user._id,
+            schoolId: userSession.schoolId,
             isRead: false,
         })
             .sort({ createdAt: -1 })

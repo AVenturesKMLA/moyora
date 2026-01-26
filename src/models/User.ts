@@ -6,7 +6,9 @@ export interface IUser extends Document {
     email: string;
     password: string;
     birthday: Date;
+    phone: string;
     schoolName: string;
+    schoolId: string;
     role: 'user' | 'admin' | 'superadmin';
     agreedToTerms: boolean;
     createdAt: Date;
@@ -37,6 +39,11 @@ const UserSchema = new Schema<IUser>(
             required: [true, '비밀번호를 입력해주세요'],
             minlength: [8, '비밀번호는 8자 이상이어야 합니다'],
         },
+        phone: {
+            type: String,
+            required: [true, '전화번호가 필요합니다'],
+            unique: true,
+        },
         birthday: {
             type: Date,
             required: [true, '생년월일을 입력해주세요'],
@@ -45,6 +52,11 @@ const UserSchema = new Schema<IUser>(
             type: String,
             required: [true, '학교명을 입력해주세요'],
             trim: true,
+        },
+        schoolId: {
+            type: String,
+            required: [true, '학교 고유 ID가 필요합니다'],
+            index: true,
         },
         role: {
             type: String,
@@ -64,6 +76,7 @@ const UserSchema = new Schema<IUser>(
 
 // Index for faster lookups
 UserSchema.index({ email: 1 });
+UserSchema.index({ schoolId: 1 });
 UserSchema.index({ schoolName: 1 });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

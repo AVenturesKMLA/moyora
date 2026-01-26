@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IContest extends Document {
     _id: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
+    schoolId: string;
     contestName: string;
     contestType: string;
     contestDate: Date;
@@ -22,6 +23,11 @@ const ContestSchema = new Schema<IContest>(
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: [true, '사용자 정보가 필요합니다'],
+        },
+        schoolId: {
+            type: String,
+            required: [true, '학교 고유 ID가 필요합니다'],
+            index: true,
         },
         contestName: {
             type: String,
@@ -73,6 +79,7 @@ const ContestSchema = new Schema<IContest>(
 
 // Indexes
 ContestSchema.index({ userId: 1 });
+ContestSchema.index({ schoolId: 1 });
 ContestSchema.index({ contestDate: 1 });
 ContestSchema.index({ contestName: 'text', description: 'text' });
 

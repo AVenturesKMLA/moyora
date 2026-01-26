@@ -10,6 +10,7 @@ export interface ISchedule extends Document {
     eventDate: Date;
     eventPlace: string;
     isPublic: boolean;
+    schoolId: string;
     userId?: mongoose.Types.ObjectId; // For private schedule entries
     createdAt: Date;
     updatedAt: Date;
@@ -45,6 +46,11 @@ const ScheduleSchema = new Schema<ISchedule>(
             type: Boolean,
             default: true,
         },
+        schoolId: {
+            type: String,
+            required: [true, '학교 고유 ID가 필요합니다'],
+            index: true,
+        },
         userId: {
             type: Schema.Types.ObjectId,
             ref: 'User',
@@ -57,7 +63,8 @@ const ScheduleSchema = new Schema<ISchedule>(
 
 // Indexes for efficient queries
 ScheduleSchema.index({ eventDate: 1 });
-ScheduleSchema.index({ isPublic: 1, eventDate: 1 });
+ScheduleSchema.index({ schoolId: 1, eventDate: 1 });
+ScheduleSchema.index({ isPublic: 1, schoolId: 1, eventDate: 1 });
 ScheduleSchema.index({ userId: 1, eventDate: 1 });
 ScheduleSchema.index({ eventType: 1, eventDate: 1 });
 

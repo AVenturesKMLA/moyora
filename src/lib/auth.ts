@@ -37,6 +37,7 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     name: user.name,
                     schoolName: user.schoolName,
+                    schoolId: user.schoolId,
                 };
             },
         }),
@@ -46,6 +47,7 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.schoolName = (user as { schoolName?: string }).schoolName;
+                token.schoolId = (user as { schoolId?: string }).schoolId;
             }
             return token;
         },
@@ -53,6 +55,7 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 (session.user as { id?: string }).id = token.id as string;
                 (session.user as { schoolName?: string }).schoolName = token.schoolName as string;
+                (session.user as { schoolId?: string }).schoolId = token.schoolId as string;
             }
             return session;
         },

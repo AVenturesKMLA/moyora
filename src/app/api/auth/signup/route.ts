@@ -21,15 +21,18 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { name, email, password, birthday, schoolName, agreedToTerms } = validationResult.data;
+        const { name, email, password, birthday, phone, schoolName, schoolId, agreedToTerms } = validationResult.data;
 
         await connectDB();
 
         // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({
+            $or: [{ email }, { phone }]
+        });
         if (existingUser) {
+            const conflictField = existingUser.email === email ? '이메일' : '전화번호';
             return NextResponse.json(
-                { success: false, message: '이미 등록된 이메일입니다' },
+                { success: false, message: `이미 등록된 ${conflictField}입니다` },
                 { status: 409 }
             );
         }
@@ -43,7 +46,9 @@ export async function POST(request: NextRequest) {
             email,
             password: hashedPassword,
             birthday: new Date(birthday),
+            phone,
             schoolName,
+            schoolId,
             agreedToTerms,
         });
 

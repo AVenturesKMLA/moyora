@@ -22,6 +22,7 @@ interface Club {
     clubName: string;
     schoolName: string;
     clubTheme: string;
+    role: 'chief' | 'member';
 }
 
 interface Notification {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
-import Club from '@/models/Club';
+import { Club, ClubMember } from '@/models';
 import { clubSchema } from '@/lib/validations';
 import { authOptions } from '@/lib/auth';
 
@@ -11,25 +11,26 @@ let indexesChecked = false;
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
+        if (!session?.user) {
             return NextResponse.json(
                 { success: false, message: '로그인이 필요합니다' },
                 { status: 401 }
             );
         }
 
-        await connectDB();
-
-        const { User } = await import('@/models');
-        const user = await User.findOne({ email: session.user.email });
-        if (!user) {
+        const userSession = session.user as { schoolId?: string; id?: string };
+        if (!userSession.schoolId) {
             return NextResponse.json(
-                { success: false, message: '사용자를 찾을 수 없습니다' },
-                { status: 404 }
+                { success: false, message: '학교 정보가 없습니다. 다시 로그인해주세요.' },
+                { status: 403 }
             );
         }
 
-        const clubs = await Club.find({ userId: user._id }).sort({ createdAt: -1 });
+        await connectDB();
+
+        const clubs = await Club.find({
+            schoolId: userSession.schoolId
+        }).sort({ createdAt: -1 });
 
         return NextResponse.json({
             success: true,
@@ -85,28 +86,83 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { User } = await import('@/models');
-        const user = await User.findOne({ email: session.user.email });
-        if (!user) {
+        const userSession = session.user as { schoolId?: string; id?: string };
+        if (!userSession.schoolId || !userSession.id) {
             return NextResponse.json(
-                { success: false, message: '사용자를 찾을 수 없습니다' },
-                { status: 404 }
+                { success: false, message: '학교 정보가 없습니다. 다시 로그인해주세요.' },
+                { status: 403 }
             );
         }
 
-        const club = await Club.create({
-            userId: user._id,
-            ...validationResult.data,
+        const {
+            clubName,
+            clubTheme,
+            presidentName,
+            presidentEmail,
+            presidentPhone,
+            clubEmail
+        } = validationResult.data;
+
+        // Check if club already exists in this school
+        let club = await Club.findOne({
+            schoolId: userSession.schoolId,
+            clubName: { $regex: new RegExp(`^${clubName}$`, 'i') }
         });
 
-        return NextResponse.json(
-            {
-                success: true,
-                message: '동아리가 등록되었습니다',
-                club,
-            },
-            { status: 201 }
-        );
+        if (club) {
+            // Check if user is already a member
+            const existingMember = await ClubMember.findOne({
+                userId: userSession.id,
+                clubId: club._id
+            });
+
+            if (existingMember) {
+                return NextResponse.json(
+                    { success: false, message: '이미 이 동아리의 회원입니다' },
+                    { status: 409 }
+                );
+            }
+
+            // Add as member
+            await ClubMember.create({
+                userId: userSession.id,
+                clubId: club._id,
+                schoolId: userSession.schoolId,
+                role: 'member'
+            });
+
+            return NextResponse.json(
+                {
+                    success: true,
+                    message: `기존 동아리 '${club.clubName}'의 회원으로 등록되었습니다`,
+                    club,
+                },
+                { status: 200 }
+            );
+        } else {
+            // Create new club and add as chief
+            club = await Club.create({
+                ...validationResult.data,
+                userId: userSession.id,
+                schoolId: userSession.schoolId,
+            });
+
+            await ClubMember.create({
+                userId: userSession.id,
+                clubId: club._id,
+                schoolId: userSession.schoolId,
+                role: 'chief'
+            });
+
+            return NextResponse.json(
+                {
+                    success: true,
+                    message: '새로운 동아리가 등록되었습니다',
+                    club,
+                },
+                { status: 201 }
+            );
+        }
     } catch (error) {
         const err = error as Error;
         console.error('Create club error:', err.message);

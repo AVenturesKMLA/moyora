@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
@@ -49,7 +49,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page">
+    <>
       <Link href="/" className="back-link">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="15 18 9 12 15 6"></polyline>
@@ -57,16 +57,8 @@ export default function LoginPage() {
         돌아가기
       </Link>
 
-      {/* Decorative Elements */}
-      <div className="auth-decorations">
-        <div className="decoration-circle decoration-1"></div>
-        <div className="decoration-circle decoration-2"></div>
-        <div className="decoration-circle decoration-3"></div>
-      </div>
-
       <div className="auth-container">
         <div className="auth-card fade-in">
-          {/* Logo & Header */}
           <div className="auth-header">
             <div className="auth-logo">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -80,7 +72,6 @@ export default function LoginPage() {
             <p className="auth-subtitle">고교 동아리 이벤트 플랫폼에 오신 것을 환영합니다</p>
           </div>
 
-          {/* Login Form */}
           <form className="auth-form" onSubmit={handleSubmit}>
             {registered && (
               <div className="auth-success">
@@ -146,12 +137,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
           <div className="auth-divider">
             <span>또는</span>
           </div>
 
-          {/* Sign Up Link */}
           <div className="auth-footer">
             <p>
               아직 계정이 없으신가요?{' '}
@@ -160,7 +149,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Floating Badge */}
         <div className="auth-badge">
           <div className="badge-icon">🎓</div>
           <div className="badge-text">
@@ -168,6 +156,29 @@ export default function LoginPage() {
             <span className="badge-subtitle">동아리를 위한 플랫폼</span>
           </div>
         </div>
+      </div>
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <div className="auth-page">
+      <Suspense fallback={
+        <div className="auth-container">
+          <div className="auth-card fade-in text-center p-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-500">로그인 정보를 불러오는 중...</p>
+          </div>
+        </div>
+      }>
+        <LoginContent />
+      </Suspense>
+
+      <div className="auth-decorations">
+        <div className="decoration-circle decoration-1"></div>
+        <div className="decoration-circle decoration-2"></div>
+        <div className="decoration-circle decoration-3"></div>
       </div>
 
       <style jsx>{`

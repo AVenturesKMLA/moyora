@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IForum extends Document {
     _id: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
+    schoolId: string;
     forumName: string;
     forumType: string;
     forumDate: Date;
@@ -22,6 +23,11 @@ const ForumSchema = new Schema<IForum>(
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: [true, '사용자 정보가 필요합니다'],
+        },
+        schoolId: {
+            type: String,
+            required: [true, '학교 고유 ID가 필요합니다'],
+            index: true,
         },
         forumName: {
             type: String,
@@ -73,6 +79,7 @@ const ForumSchema = new Schema<IForum>(
 
 // Indexes
 ForumSchema.index({ userId: 1 });
+ForumSchema.index({ schoolId: 1 });
 ForumSchema.index({ forumDate: 1 });
 ForumSchema.index({ forumName: 'text', description: 'text' });
 

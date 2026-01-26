@@ -4,6 +4,7 @@ export interface IClub extends Document {
     _id: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
     schoolName: string;
+    schoolId: string;
     clubTheme: string;
     clubName: string;
     presidentName: string;
@@ -25,6 +26,11 @@ const ClubSchema = new Schema<IClub>(
             type: String,
             required: [true, '학교명을 입력해주세요'],
             trim: true,
+        },
+        schoolId: {
+            type: String,
+            required: [true, '학교 고유 ID가 필요합니다'],
+            index: true,
         },
         clubTheme: {
             type: String,
