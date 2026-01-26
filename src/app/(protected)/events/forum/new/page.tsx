@@ -346,19 +346,19 @@ export default function NewForumPage() {
                 .input-field-apple input:focus,
                 .input-field-apple select:focus,
                 .input-field-apple textarea:focus {
-                    border-color: #007AFF;
+                    border-color: #1F4EF5;
                     outline: none;
                 }
 
                 .input-field-apple input.error,
                 .input-field-apple select.error,
                 .input-field-apple textarea.error {
-                    border-color: #FF3B30;
+                    border-color: #1F4EF5;
                     background: #FFF9F9;
                 }
 
                 .error-hint {
-                    color: #FF3B30;
+                    color: #1F4EF5;
                     font-size: 0.8rem;
                     font-weight: 600;
                     padding-left: 4px;
@@ -414,7 +414,7 @@ export default function NewForumPage() {
 
                 .toast-apple.error {
                     background: #FFF2F2;
-                    color: #FF3B30;
+                    color: #1F4EF5;
                     border: 1px solid rgba(255,59,48,0.1);
                 }
 

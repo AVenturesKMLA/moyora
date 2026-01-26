@@ -127,7 +127,7 @@ export default function ClubRegisterPage() {
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        background: #F2F2F7;
+                        background: #D6DADF;
                         padding: 24px;
                     }
                     .success-island {
@@ -139,17 +139,17 @@ export default function ClubRegisterPage() {
                     .check-icon-box {
                         width: 80px;
                         height: 80px;
-                        background: #34C759;
+                        background: #4880EE;
                         color: white;
                         border-radius: 50%;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         margin: 0 auto 24px;
-                        box-shadow: 0 10px 30px rgba(52, 199, 89, 0.3);
+                        box-shadow: 0 10px 30px rgba(72, 128, 238, 0.3);
                     }
-                    h1 { font-size: 1.8rem; font-weight: 800; color: #111; margin-bottom: 12px; }
-                    p { color: #666; font-size: 1.05rem; }
+                    h1 { font-size: 1.8rem; font-weight: 800; color: #1A1E27; margin-bottom: 12px; }
+                    p { color: #505866; font-size: 1.05rem; }
                     .loading-bar {
                         margin-top: 32px;
                         height: 4px;
@@ -159,7 +159,7 @@ export default function ClubRegisterPage() {
                     }
                     .loading-progress {
                         height: 100%;
-                        background: #34C759;
+                        background: #4880EE;
                         width: 100%;
                         animation: progress 1.5s linear forwards;
                     }
@@ -428,17 +428,17 @@ export default function ClubRegisterPage() {
 
                 .input-field-apple input:focus,
                 .input-field-apple select:focus {
-                    border-color: #007AFF;
+                    border-color: #1F4EF5;
                     outline: none;
                 }
 
                 .input-field-apple input.error {
-                    border-color: #FF3B30;
+                    border-color: #1F4EF5;
                     background: #FFF9F9;
                 }
 
                 .error-hint {
-                    color: #FF3B30;
+                    color: #1F4EF5;
                     font-size: 0.8rem;
                     font-weight: 600;
                     padding-left: 4px;
@@ -494,7 +494,7 @@ export default function ClubRegisterPage() {
 
                 .toast-apple.error {
                     background: #FFF2F2;
-                    color: #FF3B30;
+                    color: #1F4EF5;
                     border: 1px solid rgba(255,59,48,0.1);
                 }
 

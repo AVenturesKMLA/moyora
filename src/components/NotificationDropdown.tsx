@@ -124,7 +124,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                 }
 
                 .notification-item.unread {
-                    background: rgba(0, 122, 255, 0.05);
+                    background: rgba(31, 78, 245, 0.05);
                 }
 
                 .notification-icon {

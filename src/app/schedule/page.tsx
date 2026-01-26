@@ -481,22 +481,22 @@ export default function SchedulePage() {
                     justify-content: center;
                 }
 
-                .type-icon-box.contest { background: rgba(52, 199, 89, 0.1); color: var(--color-green); }
-                .type-icon-box.forum { background: rgba(0, 122, 255, 0.1); color: var(--color-blue); }
+                .type-icon-box.contest { background: rgba(72, 128, 238, 0.1); color: var(--color-green); }
+                .type-icon-box.forum { background: rgba(31, 78, 245, 0.1); color: var(--color-blue); }
                 .type-icon-box.research { background: rgba(175, 82, 222, 0.1); color: var(--color-purple); }
 
                 .d-day-tag {
                     font-size: 13px;
                     font-weight: 600;
                     color: var(--color-green);
-                    background: rgba(52, 199, 89, 0.1);
+                    background: rgba(72, 128, 238, 0.1);
                     padding: 4px 10px;
                     border-radius: 99px;
                 }
 
                 .d-day-tag.urgent {
                     color: var(--color-red);
-                    background: rgba(255, 59, 48, 0.1);
+                    background: rgba(31, 78, 245, 0.1);
                 }
 
                 .event-name {
@@ -698,7 +698,7 @@ export default function SchedulePage() {
                 .apple-input:focus {
                     outline: none;
                     border-color: var(--color-blue);
-                    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+                    box-shadow: 0 0 0 4px rgba(31, 78, 245, 0.1);
                 }
 
                 .status-pill-big {
@@ -710,7 +710,7 @@ export default function SchedulePage() {
                     font-size: 17px;
                 }
 
-                .status-pill-big.approved { background: rgba(52, 199, 89, 0.1); color: var(--color-green); }
+                .status-pill-big.approved { background: rgba(72, 128, 238, 0.1); color: var(--color-green); }
                 .status-pill-big.pending { background: rgba(255, 149, 0, 0.1); color: var(--color-orange); }
 
                 .empty-state-apple {

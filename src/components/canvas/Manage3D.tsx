@@ -36,14 +36,14 @@ function NestedCubes() {
                         thickness={0.2}
                         ior={1.2}
                         chromaticAberration={0.02}
-                        color="#d0ffca"
+                        color="#83B4F9"
                     />
                 </mesh>
 
                 {/* Inner Cube */}
                 <mesh ref={innerRef} scale={0.8}>
                     <boxGeometry args={[1, 1, 1]} />
-                    <meshStandardMaterial color="#34C759" emissive="#34C759" emissiveIntensity={0.5} roughness={0.2} metalness={0.8} />
+                    <meshStandardMaterial color="#1F4EF5" emissive="#1F4EF5" emissiveIntensity={0.5} roughness={0.2} metalness={0.8} />
                 </mesh>
 
                 {/* Decorative Points */}

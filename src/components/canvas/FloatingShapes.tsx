@@ -54,10 +54,8 @@ function Shape({ position, color, speed, rotationIntensity, floatIntensity, scal
 
 export default function FloatingShapes() {
     const shapes = useMemo(() => [
-        { id: 1, type: 'sphere', position: [4, 2, -5], color: '#c0dcff', scale: 1.2, speed: 1 },
-        { id: 2, type: 'torus', position: [-5, -3, -4], color: '#e0c0ff', scale: 1.5, speed: 1.2 },
-        { id: 3, type: 'sphere', position: [6, -4, -6], color: '#ffffff', scale: 0.8, speed: 1.5 },
-        { id: 4, type: 'torus', position: [-7, 3, -7], color: '#c0ffdf', scale: 0.9, speed: 0.8 },
+        { id: 2, type: 'torus', position: [-5, -3, -4], color: '#4880EE', scale: 1.5, speed: 1.2 },
+        { id: 4, type: 'torus', position: [-7, 3, -7], color: '#83B4F9', scale: 0.9, speed: 0.8 },
     ], []);
 
     return (

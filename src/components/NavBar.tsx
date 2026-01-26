@@ -57,7 +57,7 @@ function NotificationButton() {
                     right: 8px;
                     width: 6px;
                     height: 6px;
-                    background-color: var(--color-red);
+                    background-color: var(--color-blue-primary);
                     border-radius: 50%;
                     border: 1px solid var(--color-bg);
                 }
@@ -66,14 +66,14 @@ function NotificationButton() {
     );
 }
 
-export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMode }: NavBarProps) {
+export default function NavBar({ showDashboardLink = true }: NavBarProps) {
     const { data: session, status } = useSession();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const isLoading = status === 'loading';
     const isLoggedIn = !!session?.user;
 
     const handleSignOut = async () => {
-        await signOut({ callbackUrl: '/login' });
+        await signOut({ callbackUrl: window.location.origin + '/login' });
     };
 
     return (
@@ -122,28 +122,6 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
 
                         <NotificationButton />
                         <ThemeToggle />
-
-                        {onHeroToggle && (
-                            <button
-                                className="nav-btn-icon"
-                                onClick={onHeroToggle}
-                                title={heroMode === 'network' ? '기본 뷰로 전환' : '네트워크 맵 보기'}
-                            >
-                                {heroMode === 'network' ? (
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <circle cx="12" cy="12" r="10" />
-                                        <line x1="2" y1="12" x2="22" y2="12" />
-                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                                    </svg>
-                                ) : (
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                        <line x1="3" y1="9" x2="21" y2="9" />
-                                        <line x1="9" y1="21" x2="9" y2="9" />
-                                    </svg>
-                                )}
-                            </button>
-                        )}
 
                         <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -204,6 +182,15 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                     max-width: 960px;
                     margin: 0 auto;
                 }
+                
+                @media (max-width: 400px) {
+                    .nav-island {
+                        padding: 0 4px 0 12px;
+                    }
+                    .nav-logo-text {
+                        font-size: 15px;
+                    }
+                }
 
                 .nav-link-logo {
                     display: flex;
@@ -215,13 +202,13 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                 .nav-logo-icon {
                     width: 32px;
                     height: 32px;
-                    background: linear-gradient(135deg, var(--color-green), #28a745);
+                    background: linear-gradient(135deg, var(--color-blue-primary), var(--color-blue-secondary));
                     border-radius: 8px; /* Slightly squircle */
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     color: white;
-                    box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+                    box-shadow: 0 2px 8px rgba(31, 78, 245, 0.3);
                 }
 
                 .nav-logo-text {
@@ -248,7 +235,7 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
 
                 .nav-item:hover {
                     color: var(--color-text-primary);
-                    background: rgba(0, 0, 0, 0.05);
+                    background: rgba(0, 0, 0, 0.03);
                 }
 
                 .nav-actions {
@@ -267,8 +254,8 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                 .avatar {
                     width: 36px;
                     height: 36px;
-                    background: #E5E5EA;
-                    color: #1c1c1e;
+                    background: var(--color-gray-light);
+                    color: var(--color-text-primary);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
@@ -281,10 +268,10 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                 .logout-btn {
                     width: 36px;
                     height: 36px;
-                    background: rgba(118, 118, 128, 0.12);
+                    background: rgba(118, 118, 128, 0.08);
                     border-radius: 50%;
                     border: none;
-                    color: var(--color-gray);
+                    color: var(--color-text-secondary);
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -293,7 +280,7 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                 }
 
                 .logout-btn:hover {
-                    background: rgba(255, 59, 48, 0.1);
+                    background: rgba(31, 78, 245, 0.1);
                     color: var(--color-red);
                 }
 
@@ -318,12 +305,12 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                 }
 
                 .nav-btn-link.primary {
-                    background: var(--color-blue);
+                    background: var(--color-blue-primary);
                     color: white;
                 }
 
                 .nav-btn-link.primary:hover {
-                    background: #0062cc;
+                    background: var(--color-blue-secondary);
                 }
 
                 .mobile-menu-btn {
@@ -412,7 +399,7 @@ export default function NavBar({ showDashboardLink = true, onHeroToggle, heroMod
                 .loading-mini {
                     width: 20px;
                     height: 20px;
-                    border: 2px solid #E5E5EA;
+                    border: 2px solid #D6DADF;
                     border-top-color: var(--color-blue);
                     border-radius: 50%;
                     animation: spin 0.8s linear infinite;

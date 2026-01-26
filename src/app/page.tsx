@@ -7,14 +7,12 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
 
-const Hero3D = dynamic(() => import('@/components/canvas/Hero3D'), { ssr: false });
 const NetworkMap3D = dynamic(() => import('@/components/canvas/NetworkMap3D'), { ssr: false });
 
 export default function HomePage() {
   const { data: session } = useSession();
   const { resolvedTheme } = useTheme();
   const heroRef = useRef<HTMLDivElement>(null);
-  const [heroMode, setHeroMode] = useState<'default' | 'network'>('default');
   const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch - wait until client-side theme is resolved
@@ -22,46 +20,40 @@ export default function HomePage() {
     setMounted(true);
   }, []);
 
-  const handleHeroToggle = () => {
-    setHeroMode(prev => prev === 'default' ? 'network' : 'default');
-  };
-
   // Default to dark theme during SSR to prevent flash (most users prefer dark)
   const isLight = mounted ? resolvedTheme === 'light' : false;
 
-  // Dynamic Styles based on Theme
+  // Dynamic Styles based on Theme (New Brand Palette)
   const pageBg = isLight ? '#FFFFFF' : '#000000';
-  const textColor = isLight ? '#1d1d1f' : '#ffffff';
-  const descColor = isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
-  const badgeBg = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)';
-  const badgeBorder = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)';
-  const badgeText = isLight ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)';
+  const textColor = isLight ? '#1A1E27' : '#FFFFFF';
+  const descColor = isLight ? '#505866' : '#B1B8C0';
+  const badgeBg = isLight ? '#D6DADF' : 'rgba(255,255,255,0.05)';
+  const badgeBorder = isLight ? '#D6DADF' : 'rgba(255,255,255,0.1)';
+  const badgeText = isLight ? '#505866' : '#FFFFFF';
 
   // Button Styles
-  // Secondary (Glass) - Fully Transparent
   const glassBtnBg = 'transparent';
-  const glassBtnBorder = 'transparent'; // No border as requested "no box line"
-  const glassBtnText = isLight ? '#1d1d1f' : '#ffffff';
-  const glassBtnHover = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255, 255, 255, 0.1)';
+  const glassBtnBorder = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.2)';
+  const glassBtnText = isLight ? '#1A1E27' : '#FFFFFF';
+  const glassBtnHover = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.1)';
 
-  // Primary Button - Fully Transparent
-  const primaryBtnBg = 'transparent';
-  const primaryBtnBorder = 'transparent'; // No border
-  const primaryBtnTextResponsive = isLight ? '#1d1d1f' : '#ffffff'; // High contrast
+  // Primary Button
+  const primaryBtnBg = '#1F4EF5';
+  const primaryBtnTextResponsive = '#FFFFFF';
 
   // Section Theme Variables
-  const sectionBg = isLight ? '#FFFFFF' : '#050505';
-  const sectionTextPrimary = isLight ? '#1d1d1f' : '#ffffff';
-  const sectionTextSecondary = isLight ? '#666666' : '#888888';
+  const sectionBg = isLight ? '#FFFFFF' : '#000000';
+  const sectionTextPrimary = isLight ? '#1A1E27' : '#FFFFFF';
+  const sectionTextSecondary = isLight ? '#505866' : '#B1B8C0';
 
   // Card Theme Variables
-  const cardBg = isLight ? 'rgba(240, 240, 245, 0.8)' : 'rgba(20, 20, 20, 0.6)';
-  const cardBorder = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
-  const cardTitle = isLight ? '#1d1d1f' : '#ffffff';
-  const cardDesc = isLight ? '#4a4a4a' : '#aaaaaa';
+  const cardBg = isLight ? '#D6DADF' : '#1A1E27';
+  const cardBorder = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.1)';
+  const cardTitle = isLight ? '#1A1E27' : '#FFFFFF';
+  const cardDesc = isLight ? '#505866' : '#B1B8C0';
 
   // Stats & Footer
-  const glassPanelBg = isLight ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.05)';
+  const glassPanelBg = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.03)';
   const footerBg = isLight ? '#FFFFFF' : '#000000';
 
   useEffect(() => {
@@ -79,12 +71,12 @@ export default function HomePage() {
 
   return (
     <div className="home-page" style={{ background: pageBg, color: textColor }}>
-      <NavBar onHeroToggle={handleHeroToggle} heroMode={heroMode} />
+      <NavBar />
 
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-background" ref={heroRef}>
-          {heroMode === 'default' ? <Hero3D /> : <NetworkMap3D />}
+          <NetworkMap3D />
           <div className="grid-overlay"></div>
         </div>
 
@@ -95,7 +87,7 @@ export default function HomePage() {
               style={{ background: badgeBg, borderColor: badgeBorder }}
             >
               <span className="badge-text" style={{ color: badgeText }}>
-                {heroMode === 'default' ? '대한민국 No.1 고등학교 동아리 플랫폼' : '전국을 연결하는 네트워크'}
+                전국을 연결하는 네트워크
               </span>
             </div>
           </div>
@@ -118,7 +110,8 @@ export default function HomePage() {
                 style={{
                   background: primaryBtnBg,
                   color: primaryBtnTextResponsive,
-                  border: 'none', // Removed box line
+                  border: 'none',
+                  borderRadius: '999px',
                   backdropFilter: 'none'
                 }}
               >
@@ -131,11 +124,12 @@ export default function HomePage() {
                 style={{
                   background: primaryBtnBg,
                   color: primaryBtnTextResponsive,
-                  border: 'none', // Removed box line
+                  border: 'none',
+                  borderRadius: '999px',
                   backdropFilter: 'none'
                 }}
               >
-                <span className="cta-content" style={{ color: primaryBtnTextResponsive }}>무료로 시작하기</span>
+                <span className="cta-content" style={{ color: primaryBtnTextResponsive }}>회원 가입하기</span>
               </Link>
             )}
             <Link
@@ -144,9 +138,9 @@ export default function HomePage() {
               style={{
                 background: glassBtnBg,
                 borderColor: glassBtnBorder,
+                borderRadius: '999px',
                 color: glassBtnText,
-                '--hover-bg': glassBtnHover,
-                borderWidth: '0px'
+                '--hover-bg': glassBtnHover
               } as React.CSSProperties}
             >
               <span className="cta-content" style={{ color: glassBtnText }}>일정 둘러보기</span>
@@ -162,7 +156,6 @@ export default function HomePage() {
             <h2 className="section-title" style={{ color: sectionTextPrimary }}>
               모여라의 기능
             </h2>
-            <p className="section-subtitle" style={{ color: sectionTextSecondary }}>동아리 운영에 필요한 모든 도구.</p>
           </div>
 
           <div className="bento-grid">
@@ -172,8 +165,10 @@ export default function HomePage() {
                 <div className="card-icon-box blue">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>
                 </div>
-                <h3 style={{ color: cardTitle }}>전국 대회</h3>
-                <p style={{ color: cardDesc }}>전국 규모의 동아리 대회에 참가하고<br />실력을 증명하세요.</p>
+                <div className="text-group">
+                  <h3 style={{ color: cardTitle }}>통합 대회</h3>
+                  <p style={{ color: cardDesc }}>전국 규모의 동아리 대회에 참가하고 실력을 증명하세요.</p>
+                </div>
               </div>
             </div>
 
@@ -183,30 +178,22 @@ export default function HomePage() {
                 <div className="card-icon-box green">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                 </div>
-                <h3 style={{ color: cardTitle }}>소통 포럼</h3>
-                <p style={{ color: cardDesc }}>다른 학교와 아이디어를 공유하고 토론하세요.</p>
+                <div className="text-group">
+                  <h3 style={{ color: cardTitle }}>연합 포럼</h3>
+                  <p style={{ color: cardDesc }}>다른 학교와 아이디어를 공유하고 토론하세요.</p>
+                </div>
               </div>
             </div>
 
-            {/* Feature: Alerts */}
-            <div className="bento-card card-alert" style={{ background: cardBg, borderColor: cardBorder }}>
-              <div className="card-content">
-                <div className="card-icon-box purple">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
-                </div>
-                <h3 style={{ color: cardTitle }}>스마트 알림</h3>
-                <p style={{ color: cardDesc }}>중요한 일정을 놓치지 않도록 미리 알려드립니다.</p>
-              </div>
-            </div>
 
             {/* Feature: Co-Research */}
-            <div className="bento-card card-research" style={{ background: cardBg, borderColor: cardBorder }}>
-              <div className="card-content horizontal">
+            <div className="bento-card card-alert" style={{ background: cardBg, borderColor: cardBorder }}>
+              <div className="card-content">
                 <div className="card-icon-box indigo">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                 </div>
                 <div className="text-group">
-                  <h3 style={{ color: cardTitle }}>공동 연구 프로젝트</h3>
+                  <h3 style={{ color: cardTitle }}>공동 연구</h3>
                   <p style={{ color: cardDesc }}>관심 분야가 같은 여러 동아리와 함께 프로젝트를 진행해보세요.</p>
                 </div>
               </div>
@@ -220,7 +207,7 @@ export default function HomePage() {
         <div className="container">
           <div className="section-header-center">
             <h2 className="section-title" style={{ color: sectionTextPrimary }}>
-              동아리 활동, 3단계면 충분합니다.
+              모여라 플랫폼, 3단계면 충분합니다.
             </h2>
             <p className="section-subtitle" style={{ color: sectionTextSecondary }}>복잡한 절차 없이, 오직 활동에만 집중하세요.</p>
           </div>
@@ -228,18 +215,24 @@ export default function HomePage() {
           <div className="steps-grid">
             <div className="step-card glass-card" style={{ background: cardBg }}>
               <div className="step-number-glow">01</div>
-              <h3 style={{ color: cardTitle }}>간편한 가입/등록</h3>
-              <p style={{ color: cardDesc }}>학교 정보를 입력하고 단 1분 만에 동아리를 모여라에 등록하세요.</p>
+              <div className="text-group">
+                <h3 style={{ color: cardTitle }}>신원 검증 기반 회원가입</h3>
+                <p style={{ color: cardDesc }}>학생증을 통한 본인인증으로 신뢰가는 이용을 시작하세요!</p>
+              </div>
             </div>
             <div className="step-card glass-card" style={{ background: cardBg }}>
               <div className="step-number-glow">02</div>
-              <h3 style={{ color: cardTitle }}>활동 탐색 및 신청</h3>
-              <p style={{ color: cardDesc }}>전국의 다양한 대회와 포럼을 탐색하고 터치 한 번으로 참가를 신청하세요.</p>
+              <div className="text-group">
+                <h3 style={{ color: cardTitle }}>활동 등록 및 참여</h3>
+                <p style={{ color: cardDesc }}>전국 곳곳 고등학교 동아리들과 탄탄한 스펙을 쌓아가세요!</p>
+              </div>
             </div>
             <div className="step-card glass-card" style={{ background: cardBg }}>
               <div className="step-number-glow">03</div>
-              <h3 style={{ color: cardTitle }}>협력과 성장</h3>
-              <p style={{ color: cardDesc }}>다른 동아리와 소통하고 프로젝트를 진행하며 꿈을 실현하세요.</p>
+              <div className="text-group">
+                <h3 style={{ color: cardTitle }}>동아리 평가</h3>
+                <p style={{ color: cardDesc }}>다음에도 함께하고 싶은 동아리였나요? 여러분이 평가해주세요!</p>
+              </div>
             </div>
           </div>
         </div>
@@ -251,45 +244,17 @@ export default function HomePage() {
           <div className="stats-glass-panel glass-card" style={{ background: glassPanelBg, borderColor: cardBorder }}>
             <div className="stat-item">
               <span className="stat-value" style={{ color: sectionTextPrimary }}>120+</span>
-              <span className="stat-label">등록된 동아리</span>
+              <span className="stat-label">함께하는 동아리</span>
             </div>
             <div className="stat-divider-vertical" style={{ background: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}></div>
             <div className="stat-item">
               <span className="stat-value" style={{ color: sectionTextPrimary }}>1,500+</span>
-              <span className="stat-label">활발한 학생들</span>
+              <span className="stat-label">모여라 회원</span>
             </div>
             <div className="stat-divider-vertical" style={{ background: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}></div>
             <div className="stat-item">
               <span className="stat-value" style={{ color: sectionTextPrimary }}>340+</span>
-              <span className="stat-label">진행된 프로젝트</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Detailed Features List */}
-      <section className="detailed-features" style={{ background: sectionBg }}>
-        <div className="container">
-          <div className="features-inner-grid">
-            <div className="feature-small">
-              <div className="feature-number">01</div>
-              <h4 style={{ color: sectionTextPrimary }}>스마트 검색</h4>
-              <p style={{ color: sectionTextSecondary }}>키워드 하나로 내 활동 범주에 맞는 이벤트를 찾아보세요.</p>
-            </div>
-            <div className="feature-small">
-              <div className="feature-number">02</div>
-              <h4 style={{ color: sectionTextPrimary }}>관리 시스템</h4>
-              <p style={{ color: sectionTextSecondary }}>부장과 부원의 체계적인 권한 분리로 안전하게 운영하세요.</p>
-            </div>
-            <div className="feature-small">
-              <div className="feature-number">03</div>
-              <h4 style={{ color: sectionTextPrimary }}>실시간 스탯</h4>
-              <p style={{ color: sectionTextSecondary }}>우리 동아리의 활동 지수를 실시간으로 확인하고 분석하세요.</p>
-            </div>
-            <div className="feature-small">
-              <div className="feature-number">04</div>
-              <h4 style={{ color: sectionTextPrimary }}>푸시 알림</h4>
-              <p style={{ color: sectionTextSecondary }}>신청 현황과 중요 공지사항을 놓치지 않고 확인하세요.</p>
+              <span className="stat-label">성사된 교류</span>
             </div>
           </div>
         </div>
@@ -308,7 +273,7 @@ export default function HomePage() {
                 href="/signup"
                 className="btn-main-cta solid-btn"
               >
-                <span className="cta-content">무료 가입하기</span>
+                <span className="cta-content">회원 가입하기</span>
               </Link>
             )}
           </div>
@@ -323,7 +288,7 @@ export default function HomePage() {
               <span className="brand-logo">M</span>
               <span className="brand-name" style={{ color: sectionTextPrimary }}>모여라</span>
             </div>
-            <p className="copyright" style={{ color: sectionTextSecondary }}>© 2026 Moyeora. All rights reserved.</p>
+            <p className="copyright" style={{ color: sectionTextSecondary }}>© 2026 Moyora. All rights reserved.</p>
           </div>
         </div>
       </footer>
@@ -395,7 +360,7 @@ export default function HomePage() {
 
         /* Accent Text - Clean, no shimmer */
         .accent-text {
-          color: #007AFF;
+          color: #1F4EF5;
         }
 
         .hero-title {
@@ -404,9 +369,8 @@ export default function HomePage() {
           line-height: 1.1;
           letter-spacing: -0.03em;
           margin-bottom: 24px;
+          word-break: keep-all;
         }
-
-
 
         .hero-description {
           font-size: 24px;
@@ -415,6 +379,7 @@ export default function HomePage() {
           max-width: 680px;
           margin-bottom: 48px;
           font-weight: 500;
+          word-break: keep-all;
         }
 
         .hero-buttons {
@@ -430,49 +395,48 @@ export default function HomePage() {
           justify-content: center;
           padding: 0 32px;
           height: 52px;
-          background: #c8ff00;
+          background: #1F4EF5;
           border-radius: 999px;
           transition: all 0.15s ease;
           text-decoration: none;
-          border: 2px solid transparent;
+          border: none;
           cursor: pointer;
         }
 
         .btn-main-cta:hover {
-          background: #b8ee00;
-          transform: scale(1.02);
+          background: #4880EE;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(31, 78, 245, 0.2);
         }
 
         .btn-main-cta .cta-content {
           font-size: 15px;
           font-weight: 700;
-          color: #000000;
+          color: #FFFFFF;
           letter-spacing: 0.02em;
         }
 
         /* Outlined Variant */
         .btn-main-cta.glass-variant {
           background: transparent;
-          border: 2px solid rgba(255, 255, 255, 0.5);
+          border: 1px solid #D6DADF;
         }
 
         .btn-main-cta.glass-variant:hover {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.8);
+          background: #D6DADF;
+          border-color: #B1B8C0;
         }
 
         .btn-main-cta.glass-variant .cta-content {
-          color: #ffffff;
+          color: #1A1E27;
         }
 
-        /* Blue Variant */
         .btn-main-cta.solid-btn {
-          background: #007AFF;
-          border-color: #007AFF;
+          background: #1F4EF5;
         }
 
         .btn-main-cta.solid-btn:hover {
-          background: #0062cc;
+          background: #4880EE;
         }
 
         .btn-main-cta.solid-btn .cta-content {
@@ -483,7 +447,7 @@ export default function HomePage() {
         .features {
             position: relative;
             padding: 100px 0;
-            background: #050505;
+            background: #1A1E27;
         }
 
         .section-title {
@@ -494,7 +458,7 @@ export default function HomePage() {
 
         .section-subtitle {
             font-size: 22px;
-            color: #888;
+            color: #505866;
         }
 
         .bento-grid {
@@ -525,7 +489,7 @@ export default function HomePage() {
         .card-contest {
             grid-column: span 2;
             grid-row: span 2;
-            background: linear-gradient(145deg, rgba(0, 122, 255, 0.1), rgba(0,0,0,0));
+            background: linear-gradient(145deg, rgba(31, 78, 245, 0.1), rgba(0,0,0,0));
         }
 
         .card-visual-3d {
@@ -553,10 +517,10 @@ export default function HomePage() {
             color: white;
             font-size: 32px;
         }
-        .blue { background: #007AFF; box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3); }
-        .green { background: #34C759; box-shadow: 0 10px 30px rgba(52, 199, 89, 0.3); }
-        .purple { background: #AF52DE; box-shadow: 0 10px 30px rgba(175, 82, 222, 0.3); }
-        .indigo { background: #5856D6; box-shadow: 0 10px 30px rgba(88, 86, 214, 0.3); }
+        .blue { background: #1F4EF5; box-shadow: 0 10px 30px rgba(31, 78, 245, 0.3); }
+        .green { background: #4880EE; box-shadow: 0 10px 30px rgba(72, 128, 238, 0.3); }
+        .purple { background: #64768C; box-shadow: 0 10px 30px rgba(100, 118, 140, 0.3); }
+        .indigo { background: #505866; box-shadow: 0 10px 30px rgba(80, 88, 102, 0.3); }
 
         .bento-card h3 {
             font-size: 32px;
@@ -587,7 +551,7 @@ export default function HomePage() {
         /* === CTA Section === */
         .cta-section {
             padding: 120px 0;
-            background: #000;
+            background: #000000;
         }
 
         .cta-card-glass {
@@ -606,7 +570,7 @@ export default function HomePage() {
 
         .cta-desc {
             font-size: 24px;
-            color: #888;
+            color: #505866;
             margin-bottom: 40px;
         }
 
@@ -623,7 +587,7 @@ export default function HomePage() {
         /* === Workflow & Extension Sections === */
         .workflow-section {
             padding: 120px 0;
-            background: #000;
+            background: #000000;
             position: relative;
         }
 
@@ -667,13 +631,13 @@ export default function HomePage() {
 
         .step-card p {
             font-size: 16px;
-            color: #888;
+            color: #505866;
             line-height: 1.6;
         }
 
         .stats-section {
             padding: 60px 0;
-            background: #000;
+            background: #000000;
         }
 
         .stats-glass-panel {
@@ -713,7 +677,7 @@ export default function HomePage() {
 
         .detailed-features {
             padding: 120px 0;
-            background: #000;
+            background: #000000;
         }
 
         .features-inner-grid {
@@ -731,7 +695,7 @@ export default function HomePage() {
         .feature-number {
             font-size: 32px;
             font-weight: 800;
-            color: #333;
+            color: #1A1E27;
             margin-bottom: 8px;
             letter-spacing: -0.02em;
         }
@@ -860,6 +824,20 @@ export default function HomePage() {
                 font-size: 14px;
                 line-height: 1.4;
                 margin: 0;
+                word-break: keep-all;
+            }
+
+            .text-group {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .section-title {
+                font-size: 28px;
+                word-break: keep-all;
+                overflow-wrap: break-word;
             }
 
             .card-research .text-group h3,

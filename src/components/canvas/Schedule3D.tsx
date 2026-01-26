@@ -57,7 +57,7 @@ function RotatingRings() {
             {[1.8, 2.2, 2.6].map((radius, i) => (
                 <mesh key={i} rotation={[Math.PI / (i + 1.5), Math.PI / (i + 2), 0]}>
                     <torusGeometry args={[radius, 0.02, 16, 100]} />
-                    <meshStandardMaterial color="#007AFF" emissive="#007AFF" emissiveIntensity={0.5} opacity={0.3} transparent />
+                    <meshStandardMaterial color="#1F4EF5" emissive="#1F4EF5" emissiveIntensity={0.5} opacity={0.3} transparent />
                 </mesh>
             ))}
         </group>

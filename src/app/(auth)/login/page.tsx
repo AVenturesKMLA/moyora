@@ -290,7 +290,7 @@ export default function LoginPage() {
           justify-content: center;
           color: white;
           margin: 0 auto 24px;
-          box-shadow: 0 8px 16px rgba(0, 122, 255, 0.2);
+          box-shadow: 0 8px 16px rgba(31, 78, 245, 0.2);
         }
 
         .auth-title {
@@ -366,7 +366,7 @@ export default function LoginPage() {
         .btn-primary:hover {
           opacity: 0.9;
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
+          box-shadow: 0 8px 20px rgba(31, 78, 245, 0.2);
         }
 
         .btn-lg {
@@ -412,8 +412,8 @@ export default function LoginPage() {
             align-items: center;
             gap: 12px;
             padding: 16px;
-            background: rgba(52, 199, 89, 0.1);
-            border: 1px solid rgba(52, 199, 89, 0.3);
+            background: rgba(72, 128, 238, 0.1);
+            border: 1px solid rgba(72, 128, 238, 0.3);
             border-radius: 16px;
             margin-bottom: 24px;
             animation: slideDown 0.4s ease-out;
@@ -422,7 +422,7 @@ export default function LoginPage() {
         .success-icon {
             width: 32px;
             height: 32px;
-            background: #34C759;
+            background: #4880EE;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -511,7 +511,21 @@ export default function LoginPage() {
             display: none;
           }
           .auth-card {
-            padding: 24px;
+            padding: 24px 16px;
+          }
+          .auth-title {
+            font-size: 20px;
+          }
+          .auth-subtitle {
+            font-size: 13px;
+          }
+        }
+        @media (max-width: 360px) {
+          .auth-page {
+            padding: 12px;
+          }
+          .auth-card {
+            padding: 20px 12px;
           }
         }
       `}</style>

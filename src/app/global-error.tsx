@@ -11,12 +11,12 @@ export default function GlobalError({
         <html>
             <body style={{ padding: '40px', textAlign: 'center', fontFamily: 'system-ui' }}>
                 <h2>시스템 오류가 발생했습니다</h2>
-                <p style={{ color: '#666' }}>{error.message}</p>
+                <p style={{ color: '#505866' }}>{error.message}</p>
                 <button
                     onClick={() => reset()}
                     style={{
                         padding: '10px 20px',
-                        background: '#007AFF',
+                        background: '#1F4EF5',
                         color: 'white',
                         border: 'none',
                         borderRadius: '8px',

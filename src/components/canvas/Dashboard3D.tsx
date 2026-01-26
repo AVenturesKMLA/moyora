@@ -36,7 +36,7 @@ function DashboardShape() {
                     temporalDistortion={0.1}
                     attenuationDistance={0.5}
                     attenuationColor="#ffffff"
-                    color="#a0d8ef"
+                    color="#1F4EF5"
                     background={new THREE.Color('#000000')}
                 />
             </mesh>

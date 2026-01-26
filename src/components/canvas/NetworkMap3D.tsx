@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 
 // Simplified continent polygons (lon, lat pairs) - derived from Natural Earth 110m
@@ -115,17 +115,17 @@ const CITIES = [
 const PALETTES = {
     dark: {
         bg: 'transparent',
-        landDot: '#8b5cf6',       // Subtle purple like Fandom
-        oceanDot: '#111118',     // Almost invisible
-        node: '#a855f7',         // Purple accent
-        line: '#a855f7',         // Purple accent
+        landDot: '#B1B8C0',       // Brand Gray
+        oceanDot: '#111118',
+        node: '#1F4EF5',         // Brand Blue
+        line: '#4880EE',         // Brand Sub Blue
     },
     light: {
         bg: 'transparent',
-        landDot: '#6366f1',      // Indigo
+        landDot: '#64768C',      // Sub Gray
         oceanDot: '#f1f5f9',
-        node: '#8b5cf6',
-        line: '#8b5cf6',
+        node: '#1F4EF5',
+        line: '#83B4F9',
     }
 };
 
@@ -141,11 +141,21 @@ export default function NetworkMap3D() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const rotationRef = useRef(0);
     const connectionsRef = useRef<Connection[]>([]);
+    const [mounted, setMounted] = useState(false);
     const { resolvedTheme } = useTheme();
-    const isDark = resolvedTheme !== 'light';
+
+    // Wait for mount to avoid hydration issues via tunnel
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Default to dark if theme not resolved yet (common with tunnels)
+    const isDark = !mounted || resolvedTheme !== 'light';
     const palette = isDark ? PALETTES.dark : PALETTES.light;
 
     useEffect(() => {
+        if (!mounted) return; // Don't render until mounted
+
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -332,7 +342,7 @@ export default function NetworkMap3D() {
             window.removeEventListener('resize', resize);
             cancelAnimationFrame(animationId);
         };
-    }, [palette, isDark]);
+    }, [palette, isDark, mounted]);
 
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}>

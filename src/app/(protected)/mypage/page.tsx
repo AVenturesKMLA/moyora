@@ -373,7 +373,7 @@ export default function MyPage() {
                     justify-content: center;
                     font-size: 3rem;
                     font-weight: 800;
-                    box-shadow: 0 20px 40px rgba(52, 199, 89, 0.2);
+                    box-shadow: 0 20px 40px rgba(72, 128, 238, 0.2);
                 }
 
                 .avatar-edit-overlay {
@@ -382,7 +382,7 @@ export default function MyPage() {
                     right: -8px;
                     width: 40px;
                     height: 40px;
-                    background: #000;
+                    background: #000000;
                     color: white;
                     border-radius: 50%;
                     display: flex;
@@ -413,8 +413,8 @@ export default function MyPage() {
                     text-transform: uppercase;
                 }
 
-                .role-sa { background: rgba(52, 199, 89, 0.15); color: var(--color-green); }
-                .role-admin { background: rgba(0, 122, 255, 0.15); color: var(--color-blue); }
+                .role-sa { background: rgba(72, 128, 238, 0.15); color: var(--color-green); }
+                .role-admin { background: rgba(31, 78, 245, 0.15); color: var(--color-blue); }
                 .role-user { background: var(--glass-border); color: var(--color-text-secondary); }
 
                 .user-email-text {
@@ -510,13 +510,13 @@ export default function MyPage() {
 
                 .input-group-apple input:focus {
                     border-color: var(--color-blue);
-                    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+                    box-shadow: 0 0 0 4px rgba(31, 78, 245, 0.1);
                     outline: none;
                 }
 
                 .input-group-apple input.error {
                     border-color: var(--color-red);
-                    background: rgba(255, 59, 48, 0.05);
+                    background: rgba(31, 78, 245, 0.05);
                 }
 
                 .error-text {
@@ -554,8 +554,8 @@ export default function MyPage() {
                     align-items: center;
                 }
 
-                .toast-apple.success { background: rgba(52, 199, 89, 0.1); color: var(--color-green); border: 1px solid rgba(52,199,89,0.2); }
-                .toast-apple.error { background: rgba(255, 59, 48, 0.1); color: var(--color-red); border: 1px solid rgba(255,59,48,0.2); }
+                .toast-apple.success { background: rgba(72, 128, 238, 0.1); color: var(--color-green); border: 1px solid rgba(52,199,89,0.2); }
+                .toast-apple.error { background: rgba(31, 78, 245, 0.1); color: var(--color-red); border: 1px solid rgba(255,59,48,0.2); }
 
                 .anim-fade-in {
                     animation: fadeIn 0.4s ease-out;
