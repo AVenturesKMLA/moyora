@@ -135,14 +135,6 @@ export default function HomePage() {
             <Link
               href="/schedule"
               className="btn-main-cta"
-              style={{
-                background: primaryBtnBg,
-                color: primaryBtnTextResponsive,
-                height: '56px',
-                border: 'none',
-                borderRadius: '999px',
-                padding: '0 40px',
-              }}
             >
               <span className="cta-content" style={{ color: primaryBtnTextResponsive }}>일정 둘러보기</span>
             </Link>
@@ -344,7 +336,7 @@ export default function HomePage() {
             {!session && (
               <Link
                 href="/signup"
-                className="btn-main-cta solid-btn"
+                className="btn-main-cta"
               >
                 <span className="cta-content">회원 가입하기</span>
               </Link>
@@ -465,14 +457,16 @@ export default function HomePage() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 0 40px; /* Increased padding */
-          height: 56px; /* Uniform height */
+          padding: 0 40px;
+          height: 56px;
           background: #1F4EF5;
           border-radius: 999px;
           transition: all 0.15s ease;
           text-decoration: none;
           border: none;
           cursor: pointer;
+          white-space: nowrap;
+          width: fit-content;
         }
 
         .btn-main-cta:hover {

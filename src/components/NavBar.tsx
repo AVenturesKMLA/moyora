@@ -423,12 +423,14 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     .mobile-menu-btn { display: flex; }
                     .auth-btns { display: none; } /* Hide auth btns on mobile nav bar, show in menu */
                     .user-profile { display: none; }
+                    .nav-right-group { gap: 8px; }
                 }
 
                 .nav-right-group {
                     display: flex;
                     align-items: center;
                     gap: 32px;
+                    margin-left: auto;
                 }
             `}</style>
         </nav>

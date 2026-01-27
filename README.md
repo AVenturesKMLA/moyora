@@ -29,9 +29,10 @@
 *   ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) **TypeScript**: 정적 타입 안정성 확보
 *   ![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) **React 18**: 컴포넌트 기반 UI 라이브러리
 
-### Styling & UI/UX
+### Styling & Rendering
 *   ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) **Tailwind CSS**: 유틸리티 퍼스트 CSS 프레임워크
-*   ![Three.js](https://img.shields.io/badge/Three.js-black?style=for-the-badge&logo=three.js&logoColor=white) **Three.js / R3F**: `@react-three/fiber`, `@react-three/drei`를 활용한 3D 웹 인터랙션 구현
+*   ![WebGL](https://img.shields.io/badge/WebGL-990000?style=for-the-badge&logo=webgl&logoColor=white) **WebGL / Three.js**: `@react-three/fiber`, `@react-three/drei`를 활용한 고성능 3D 모션 그래픽 및 인터랙션 구현
+*   ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white) **Vercel**: 최적화된 프론트엔드 배포 및 호스팅 인프라
 
 ### Backend & Database
 *   ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) **MongoDB**: 유연한 도큐먼트 기반 NoSQL 데이터베이스
