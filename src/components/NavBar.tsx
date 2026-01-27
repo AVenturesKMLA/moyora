@@ -241,7 +241,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                 .nav-actions {
                     display: flex;
                     align-items: center;
-                    gap: 8px;
+                    gap: 2px; /* Tightened gap as requested */
                 }
 
                 .user-profile {

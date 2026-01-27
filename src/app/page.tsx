@@ -455,8 +455,8 @@ export default function HomePage() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 0 32px;
-          height: 52px;
+          padding: 0 40px; /* Increased padding */
+          height: 56px; /* Uniform height */
           background: #1F4EF5;
           border-radius: 999px;
           transition: all 0.15s ease;
@@ -832,13 +832,17 @@ export default function HomePage() {
 
         .plan-btn {
             width: 100%;
-            padding: 14px;
+            height: 48px; /* Uniform height for plan buttons */
+            padding: 0 24px;
             border-radius: 999px;
             background: transparent;
             border: 1px solid;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .plan-btn:hover {
