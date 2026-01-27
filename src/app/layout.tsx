@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Noto_Sans_KR } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import Providers from '@/components/Providers';
 import { NotificationProvider } from '@/context/NotificationContext';
 import './globals.css';
@@ -33,6 +34,7 @@ export default function RootLayout({
                         </NotificationProvider>
                     </Providers>
                 </StyledJsxRegistry>
+                <Analytics />
             </body>
         </html>
     );
