@@ -89,6 +89,7 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
             }
 
             // 1. Request Identity Verification via PortOne V2 SDK
+            console.log('Requesting PortOne V2 with:', { storeId, channelKey, identityVerificationId });
             const response = await PortOne.requestIdentityVerification({
                 storeId,
                 identityVerificationId,
@@ -96,8 +97,11 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                 redirectUrl: window.location.origin + window.location.pathname,
             });
 
+            console.log('PortOne Response:', response);
+
             // The code property is only present if an error occurred during the verification request
             if (response.code !== undefined) {
+                console.error('PortOne Error Code:', response.code, 'Message:', response.message);
                 setError(response.message || '인증이 취소되었거나 실패했습니다.');
                 setIsVerifying(false);
                 return;

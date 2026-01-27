@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
 
 interface IdentityData {
     name?: string;
@@ -142,30 +142,26 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>이름</Label>
-                            <Input
-                                value={formData.name}
-                                readOnly
-                                className="bg-muted text-muted-foreground"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label>생년월일</Label>
+                                <Label htmlFor="name">이름</Label>
                                 <Input
-                                    value={formData.birthday}
-                                    readOnly
-                                    className="bg-muted text-muted-foreground"
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    className="bg-background"
                                 />
                             </div>
+
                             <div className="space-y-2">
-                                <Label>휴대폰번호</Label>
+                                <Label htmlFor="birthday">생년월일</Label>
                                 <Input
-                                    value={formData.phone}
-                                    readOnly
-                                    className="bg-muted text-muted-foreground"
+                                    id="birthday"
+                                    name="birthday"
+                                    value={formData.birthday}
+                                    onChange={handleChange}
+                                    className="bg-background"
                                 />
                             </div>
                         </div>
