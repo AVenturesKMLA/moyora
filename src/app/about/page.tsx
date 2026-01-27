@@ -1,14 +1,16 @@
+'use client';
+
 import React from 'react';
 
 export default function AboutPage() {
-    return (
-        <div className="about-page">
-            <div className="container">
-                <h1>Company Introduction</h1>
-                <p>어벤처스(AVentures)는 교내/교외 모든 활동의 시작과 끝을 함께합니다.</p>
-                <p>더 많은 정보가 곧 업데이트될 예정입니다.</p>
-            </div>
-            <style jsx>{`
+  return (
+    <div className="about-page">
+      <div className="container">
+        <h1>Company Introduction</h1>
+        <p>어벤처스(AVentures)는 교내/교외 모든 활동의 시작과 끝을 함께합니다.</p>
+        <p>더 많은 정보가 곧 업데이트될 예정입니다.</p>
+      </div>
+      <style jsx>{`
         .about-page {
           min-height: 100vh;
           background: #000000;
@@ -34,6 +36,6 @@ export default function AboutPage() {
           margin-bottom: 1rem;
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }
