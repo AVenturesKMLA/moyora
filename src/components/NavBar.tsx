@@ -87,47 +87,50 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                         <span className="nav-logo-text">모여라</span>
                     </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="nav-menu-desktop">
-                        <Link href="/#features" className="nav-item">회사소개</Link>
-                        <Link href="/#plans" className="nav-item">플랜</Link>
-                        {isLoggedIn && (
-                            <>
-                                <Link href="/dashboard" className="nav-item">대시보드</Link>
-                                <Link href="/schedule" className="nav-item">일정</Link>
-                            </>
-                        )}
-                    </div>
+                    {/* Grouped Right Side: Menu + Actions */}
+                    <div className="nav-right-group">
+                        {/* Desktop Navigation */}
+                        <div className="nav-menu-desktop">
+                            <Link href="/#features" className="nav-item">회사소개</Link>
+                            <Link href="/#plans" className="nav-item">플랜</Link>
+                            {isLoggedIn && (
+                                <>
+                                    <Link href="/dashboard" className="nav-item">대시보드</Link>
+                                    <Link href="/schedule" className="nav-item">일정</Link>
+                                </>
+                            )}
+                        </div>
 
-                    <div className="nav-actions">
-                        {isLoading ? (
-                            <div className="loading-mini"></div>
-                        ) : isLoggedIn ? (
-                            <div className="user-profile">
-                                <Link href="/mypage" className="user-trigger">
-                                    <div className="avatar">{session.user?.name?.charAt(0) || 'U'}</div>
-                                </Link>
-                                <button className="logout-btn" onClick={handleSignOut} title="로그아웃">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="auth-btns">
-                                <Link href="/login" className="nav-btn-link blue-rounded">로그인</Link>
-                                <Link href="/signup" className="nav-btn-link blue-rounded primary">회원가입</Link>
-                            </div>
-                        )}
+                        <div className="nav-actions">
+                            {isLoading ? (
+                                <div className="loading-mini"></div>
+                            ) : isLoggedIn ? (
+                                <div className="user-profile">
+                                    <Link href="/mypage" className="user-trigger">
+                                        <div className="avatar">{session.user?.name?.charAt(0) || 'U'}</div>
+                                    </Link>
+                                    <button className="logout-btn" onClick={handleSignOut} title="로그아웃">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="auth-btns">
+                                    <Link href="/login" className="nav-btn-link blue-rounded">로그인</Link>
+                                    <Link href="/signup" className="nav-btn-link blue-rounded primary">회원가입</Link>
+                                </div>
+                            )}
 
-                        <NotificationButton />
-                        <ThemeToggle />
+                            <NotificationButton />
+                            <ThemeToggle />
 
-                        <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
-                            </svg>
-                        </button>
+                            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -420,6 +423,12 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     .mobile-menu-btn { display: flex; }
                     .auth-btns { display: none; } /* Hide auth btns on mobile nav bar, show in menu */
                     .user-profile { display: none; }
+                }
+
+                .nav-right-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 32px;
                 }
             `}</style>
         </nav>

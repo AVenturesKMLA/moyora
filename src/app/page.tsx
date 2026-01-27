@@ -134,16 +134,17 @@ export default function HomePage() {
             )}
             <Link
               href="/schedule"
-              className="btn-main-cta glass-variant"
+              className="btn-main-cta"
               style={{
-                background: glassBtnBg,
-                borderColor: glassBtnBorder,
+                background: primaryBtnBg,
+                color: primaryBtnTextResponsive,
+                height: '56px',
+                border: 'none',
                 borderRadius: '999px',
-                color: glassBtnText,
-                '--hover-bg': glassBtnHover
-              } as React.CSSProperties}
+                padding: '0 40px',
+              }}
             >
-              <span className="cta-content" style={{ color: glassBtnText }}>일정 둘러보기</span>
+              <span className="cta-content" style={{ color: primaryBtnTextResponsive }}>일정 둘러보기</span>
             </Link>
           </div>
         </div>
@@ -285,7 +286,16 @@ export default function HomePage() {
                 <li style={{ color: sectionTextSecondary }}>✓ 교내 대회 참가</li>
                 <li style={{ color: sectionTextSecondary }}>✓ 기본 커뮤니티 접근</li>
               </ul>
-              <button className="plan-btn" style={{ borderColor: badgeBorder, color: sectionTextPrimary }}>현재 이용중</button>
+              <button
+                className="plan-btn"
+                style={{
+                  background: '#1F4EF5',
+                  color: 'white',
+                  border: 'none'
+                }}
+              >
+                {session ? "현재 이용중" : "무료로 가입하기"}
+              </button>
             </div>
 
             {/* Plus Plan */}
@@ -317,7 +327,7 @@ export default function HomePage() {
                 <li style={{ color: sectionTextSecondary }}>✓ 멘토링 매칭 서비스</li>
                 <li style={{ color: sectionTextSecondary }}>✓ 전문가 피드백</li>
               </ul>
-              <button className="plan-btn" style={{ borderColor: badgeBorder, color: sectionTextPrimary }}>문의하기</button>
+              <button className="plan-btn" style={{ background: '#1F4EF5', color: 'white', border: 'none' }}>문의하기</button>
             </div>
           </div>
         </div>

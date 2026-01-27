@@ -16,7 +16,7 @@
     - [x] 서비스 도메인 확보 및 호스팅 설정 (Gabia, Vercel)
     - [x] Next.js 14 (App Router) 기반 아키텍처 구축
     - [x] MongoDB 데이터베이스 연동 및 Mongoose 스키마 설계
-    - [x] 3D 인터랙티브 대시보드 및 네트워크 맵 구현
+    - [ ] PortOne 본인인증 & 결제 시스템 구축
     - [ ] 2월 교내 배포 및 베타 테스팅 (Beta Testing)
     - [ ] 2026-1학기 중 정식 서비스 런칭 (Official Launch)
 
@@ -32,7 +32,6 @@
 ### Styling & UI/UX
 *   ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) **Tailwind CSS**: 유틸리티 퍼스트 CSS 프레임워크
 *   ![Three.js](https://img.shields.io/badge/Three.js-black?style=for-the-badge&logo=three.js&logoColor=white) **Three.js / R3F**: `@react-three/fiber`, `@react-three/drei`를 활용한 3D 웹 인터랙션 구현
-*   **Glassmorphism & Cyberpunk Aesthetic**: 모던하고 몰입감 있는 사용자 경험 제공 (Loki Mode, Dark Mode 지원)
 
 ### Backend & Database
 *   ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) **MongoDB**: 유연한 도큐먼트 기반 NoSQL 데이터베이스
@@ -52,7 +51,6 @@
 
 1.  **3D Interaction**: `Dashboard3D`, `NetworkMap3D` 등 React Three Fiber를 활용한 인터랙티브한 시각 요소를 통해 정보의 직관성을 높였습니다.
 2.  **Adaptive Theming**: `next-themes`를 활용하여 라이트/다크 모드를 완벽하게 지원하며, 각 모드에 최적화된 가독성과 심미성을 제공합니다.
-3.  **Modern Aesthetic**: 글래스모피즘(Glassmorphism)과 네온 엑센트(Cyberpunk touches)를 조화롭게 사용하여 세련되고 미래지향적인 UI를 구축했습니다.
 
 ---
 
