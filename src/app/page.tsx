@@ -107,36 +107,22 @@ export default function HomePage() {
               <Link
                 href="/dashboard"
                 className="btn-main-cta"
-                style={{
-                  background: primaryBtnBg,
-                  color: primaryBtnTextResponsive,
-                  border: 'none',
-                  borderRadius: '999px',
-                  backdropFilter: 'none'
-                }}
               >
-                <span className="cta-content" style={{ color: primaryBtnTextResponsive }}>대시보드 열기</span>
+                대시보드 열기
               </Link>
             ) : (
               <Link
                 href="/signup"
                 className="btn-main-cta"
-                style={{
-                  background: primaryBtnBg,
-                  color: primaryBtnTextResponsive,
-                  border: 'none',
-                  borderRadius: '999px',
-                  backdropFilter: 'none'
-                }}
               >
-                <span className="cta-content" style={{ color: primaryBtnTextResponsive }}>회원 가입하기</span>
+                회원 가입하기
               </Link>
             )}
             <Link
               href="/schedule"
               className="btn-main-cta"
             >
-              <span className="cta-content" style={{ color: primaryBtnTextResponsive }}>일정 둘러보기</span>
+              일정 둘러보기
             </Link>
           </div>
         </div>
@@ -336,9 +322,9 @@ export default function HomePage() {
             {!session && (
               <Link
                 href="/signup"
-                className="btn-main-cta"
+                className="hero-text-link"
               >
-                <span className="cta-content">회원 가입하기</span>
+                회원 가입하기
               </Link>
             )}
           </div>
@@ -451,62 +437,57 @@ export default function HomePage() {
           gap: 20px;
         }
         
-        /* Buttons - Fandom Style */
+        /* Hero Text Links */
+        .hero-text-link {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--color-text-primary); /* Contrast to theme */
+          text-decoration: underline;
+          text-underline-offset: 6px;
+          transition: all 0.2s;
+          cursor: pointer;
+          background: none;
+          border: none;
+          padding: 8px 12px;
+        }
+
+        .hero-text-link:hover {
+          color: #1F4EF5; /* Blue on hover */
+          transform: translateY(-2px);
+        }
+
+        .hero-text-link.secondary {
+           font-weight: 500;
+           color: var(--color-text-secondary);
+           text-decoration: none;
+        }
+        
+        .hero-text-link.secondary:hover {
+           color: var(--color-text-primary);
+           text-decoration: underline;
+        }
+
+        /* Main CTA Buttons - Uniform with Plan Buttons */
         .btn-main-cta {
-          position: relative;
-          display: inline-flex;
+          height: 48px;
+          padding: 0 32px;
+          border-radius: 999px;
+          background: #1F4EF5;
+          color: white;
+          font-weight: 600;
+          display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0 40px;
-          height: 56px;
-          background: #1F4EF5;
-          border-radius: 999px;
-          transition: all 0.15s ease;
-          text-decoration: none;
+          transition: all 0.2s;
           border: none;
-          cursor: pointer;
-          white-space: nowrap;
-          width: fit-content;
+          font-size: 16px;
         }
 
         .btn-main-cta:hover {
           background: #4880EE;
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(31, 78, 245, 0.2);
-        }
-
-        .btn-main-cta .cta-content {
-          font-size: 15px;
-          font-weight: 700;
-          color: #FFFFFF;
-          letter-spacing: 0.02em;
-        }
-
-        /* Outlined Variant */
-        .btn-main-cta.glass-variant {
-          background: transparent;
-          border: 1px solid #D6DADF;
-        }
-
-        .btn-main-cta.glass-variant:hover {
-          background: #D6DADF;
-          border-color: #B1B8C0;
-        }
-
-        .btn-main-cta.glass-variant .cta-content {
-          color: #1A1E27;
-        }
-
-        .btn-main-cta.solid-btn {
-          background: #1F4EF5;
-        }
-
-        .btn-main-cta.solid-btn:hover {
-          background: #4880EE;
-        }
-
-        .btn-main-cta.solid-btn .cta-content {
-          color: #ffffff;
+          color: white;
+          opacity: 1;
         }
 
         /* === Bento Grid === */

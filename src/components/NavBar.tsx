@@ -91,7 +91,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     <div className="nav-right-group">
                         {/* Desktop Navigation */}
                         <div className="nav-menu-desktop">
-                            <Link href="/#features" className="nav-item">회사소개</Link>
+                            <Link href="/about" className="nav-item">회사소개</Link>
                             <Link href="/#plans" className="nav-item">플랜</Link>
                             {isLoggedIn && (
                                 <>
@@ -405,32 +405,36 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     to { transform: translate(-50%, 0); opacity: 1; }
                 }
 
-                .loading-mini {
-                    width: 20px;
-                    height: 20px;
-                    border: 2px solid #D6DADF;
-                    border-top-color: var(--color-blue);
-                    border-radius: 50%;
-                    animation: spin 0.8s linear infinite;
+                .nav-right-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 20px; /* Uniform spacing for everything */
+                    margin-left: auto;
                 }
 
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
+                .nav-menu-desktop {
+                    display: flex;
+                    gap: 20px; /* Same gap as parent */
+                    align-items: center;
+                }
+
+                .nav-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 20px; /* Same uniform gap */
                 }
 
                 @media (max-width: 800px) {
                     .nav-menu-desktop { display: none; }
                     .mobile-menu-btn { display: flex; }
-                    .auth-btns { display: none; } /* Hide auth btns on mobile nav bar, show in menu */
+                    .auth-btns { display: none; }
                     .user-profile { display: none; }
-                    .nav-right-group { gap: 8px; }
+                    .nav-right-group { gap: 12px; }
                 }
 
-                .nav-right-group {
+                .auth-btns {
                     display: flex;
-                    align-items: center;
-                    gap: 32px;
-                    margin-left: auto;
+                    gap: 20px; /* Keep uniform */
                 }
             `}</style>
         </nav>

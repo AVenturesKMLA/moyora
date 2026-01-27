@@ -1,10 +1,10 @@
-# 🛠 핵심 프로젝트: 모여라 (MOYORA) | 2026 A:Ventures | 개발 최도윤
+# 모여라 (MOYORA) | 2026 A:Ventures | CTO 최도윤
 
-> **"교내 모든 활동의 시작과 끝"**
+> **"교내/교외 모든 활동의 시작과 끝"**
 >
 > **The Start and End of All School Activities**
 
-현재 어벤처스(AVentures)는 교내 클럽 및 커뮤니티 통합 플랫폼인 **'모여라(MOYORA)'**의 고도화 및 정식 런칭을 최우선 과제로 삼고 있습니다. 학생들의 자발적인 참여를 이끌어내고, 동아리 활동과 교내 이벤트를 혁신적으로 연결하는 허브 플랫폼입니다.
+현재 어벤처스(AVentures)는 클럽 및 커뮤니티 통합 플랫폼인 **'모여라(MOYORA)'**의 고도화 및 정식 런칭을 최우선 과제로 삼고 있습니다. 학생들의 자발적인 참여를 이끌어내고, 동아리 활동과 교내/교외 이벤트를 혁신적으로 연결하는 허브 플랫폼입니다.
 
 ---
 
@@ -17,7 +17,7 @@
     - [x] Next.js 14 (App Router) 기반 아키텍처 구축
     - [x] MongoDB 데이터베이스 연동 및 Mongoose 스키마 설계
     - [ ] PortOne 본인인증 & 결제 시스템 구축
-    - [ ] 2월 교내 배포 및 베타 테스팅 (Beta Testing)
+    - [ ] 2월 민족사관고등학교 배포 및 베타 테스팅 (Beta Testing)
     - [ ] 2026-1학기 중 정식 서비스 런칭 (Official Launch)
 
 ---
@@ -68,4 +68,4 @@
 
 ---
 
-© 2026 **AVentures**. All Rights Reserved.
+© 2026 **A:Ventures**. All Rights Reserved.
