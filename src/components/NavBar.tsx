@@ -89,12 +89,12 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
 
                     {/* Desktop Navigation */}
                     <div className="nav-menu-desktop">
+                        <Link href="/#features" className="nav-item">회사소개</Link>
+                        <Link href="/#plans" className="nav-item">플랜</Link>
                         {isLoggedIn && (
                             <>
                                 <Link href="/dashboard" className="nav-item">대시보드</Link>
                                 <Link href="/schedule" className="nav-item">일정</Link>
-                                <Link href="/events/manage" className="nav-item">관리</Link>
-                                <Link href="/mypage" className="nav-item">마이페이지</Link>
                             </>
                         )}
                     </div>
@@ -115,8 +115,8 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                             </div>
                         ) : (
                             <div className="auth-btns">
-                                <Link href="/login" className="nav-btn-link">로그인</Link>
-                                <Link href="/signup" className="nav-btn-link primary">회원가입</Link>
+                                <Link href="/login" className="nav-btn-link blue-rounded">로그인</Link>
+                                <Link href="/signup" className="nav-btn-link blue-rounded primary">회원가입</Link>
                             </div>
                         )}
 
@@ -291,26 +291,32 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                 }
 
                 .nav-btn-link {
-                    padding: 8px 18px;
-                    border-radius: var(--radius-pill);
+                    padding: 8px 20px;
+                    border-radius: 999px;
                     font-size: 14px;
                     font-weight: 600;
                     text-decoration: none;
-                    color: var(--color-text-primary);
+                    color: white;
+                    background: var(--color-blue-primary);
                     transition: all 0.2s;
+                    display: flex;
+                    align-items: center;
+                    height: 36px;
                 }
 
                 .nav-btn-link:hover {
-                    background: rgba(0,0,0,0.05);
-                }
-
-                .nav-btn-link.primary {
-                    background: var(--color-blue-primary);
-                    color: white;
-                }
-
-                .nav-btn-link.primary:hover {
                     background: var(--color-blue-secondary);
+                    transform: translateY(-1px);
+                }
+
+                .nav-btn-link.blue-rounded {
+                    background: #1F4EF5;
+                    color: white;
+                    border-radius: 999px;
+                }
+
+                .nav-btn-link.blue-rounded:hover {
+                    background: #4880EE;
                 }
 
                 .mobile-menu-btn {

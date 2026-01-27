@@ -150,7 +150,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Bento Grid */}
-      <section className="features" style={{ background: sectionBg }}>
+      <section id="features" className="features" style={{ background: sectionBg }}>
         <div className="container">
           <div className="section-header">
             <h2 className="section-title" style={{ color: sectionTextPrimary }}>
@@ -167,7 +167,7 @@ export default function HomePage() {
                 </div>
                 <div className="text-group">
                   <h3 style={{ color: cardTitle }}>통합 대회</h3>
-                  <p style={{ color: cardDesc }}>전국 규모의 동아리 대회에 참가하고 실력을 증명하세요.</p>
+                  <p style={{ color: cardDesc }}>전국 규모의 동아리 대회에<br />참가하고 실력을 증명하세요.</p>
                 </div>
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function HomePage() {
                 </div>
                 <div className="text-group">
                   <h3 style={{ color: cardTitle }}>연합 포럼</h3>
-                  <p style={{ color: cardDesc }}>다른 학교와 아이디어를 공유하고 토론하세요.</p>
+                  <p style={{ color: cardDesc }}>다른 학교와 아이디어를<br />공유하고 토론하세요.</p>
                 </div>
               </div>
             </div>
@@ -194,7 +194,7 @@ export default function HomePage() {
                 </div>
                 <div className="text-group">
                   <h3 style={{ color: cardTitle }}>공동 연구</h3>
-                  <p style={{ color: cardDesc }}>관심 분야가 같은 여러 동아리와 함께 프로젝트를 진행해보세요.</p>
+                  <p style={{ color: cardDesc }}>관심 분야가 같은 여러 동아리와<br />함께 프로젝트를 진행해보세요.</p>
                 </div>
               </div>
             </div>
@@ -217,21 +217,21 @@ export default function HomePage() {
               <div className="step-number-glow">01</div>
               <div className="text-group">
                 <h3 style={{ color: cardTitle }}>신원 검증 기반 회원가입</h3>
-                <p style={{ color: cardDesc }}>학생증을 통한 본인인증으로 신뢰가는 이용을 시작하세요!</p>
+                <p style={{ color: cardDesc }}>학생증을 통한 본인인증으로<br />신뢰가는 이용을 시작하세요!</p>
               </div>
             </div>
             <div className="step-card glass-card" style={{ background: cardBg }}>
               <div className="step-number-glow">02</div>
               <div className="text-group">
                 <h3 style={{ color: cardTitle }}>활동 등록 및 참여</h3>
-                <p style={{ color: cardDesc }}>전국 곳곳 고등학교 동아리들과 탄탄한 스펙을 쌓아가세요!</p>
+                <p style={{ color: cardDesc }}>전국 곳곳 고등학교 동아리들과<br />탄탄한 스펙을 쌓아가세요!</p>
               </div>
             </div>
             <div className="step-card glass-card" style={{ background: cardBg }}>
               <div className="step-number-glow">03</div>
               <div className="text-group">
                 <h3 style={{ color: cardTitle }}>동아리 평가</h3>
-                <p style={{ color: cardDesc }}>다음에도 함께하고 싶은 동아리였나요? 여러분이 평가해주세요!</p>
+                <p style={{ color: cardDesc }}>다음에도 함께하고 싶은 동아리였나요?<br />여러분이 평가해주세요!</p>
               </div>
             </div>
           </div>
@@ -255,6 +255,69 @@ export default function HomePage() {
             <div className="stat-item">
               <span className="stat-value" style={{ color: sectionTextPrimary }}>340+</span>
               <span className="stat-label">성사된 교류</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Plans Section */}
+      <section id="plans" className="plans-section" style={{ background: sectionBg, padding: '100px 0' }}>
+        <div className="container">
+          <div className="section-header-center">
+            <h2 className="section-title" style={{ color: sectionTextPrimary }}>
+              멤버십 플랜
+            </h2>
+            <p className="section-subtitle" style={{ color: sectionTextSecondary }}>
+              동아리의 규모와 필요에 맞는 플랜을 선택하세요.
+            </p>
+          </div>
+
+          <div className="plans-grid">
+            {/* Basic Plan */}
+            <div className="plan-card" style={{ background: cardBg, borderColor: cardBorder }}>
+              <div className="plan-header">
+                <h3 style={{ color: cardTitle }}>Basic</h3>
+                <div className="plan-price" style={{ color: sectionTextPrimary }}>Free</div>
+                <p style={{ color: cardDesc }}>모든 동아리를 위한<br />기본적인 활동 지원</p>
+              </div>
+              <ul className="plan-features">
+                <li style={{ color: sectionTextSecondary }}>✓ 동아리 프로필 생성</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 교내 대회 참가</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 기본 커뮤니티 접근</li>
+              </ul>
+              <button className="plan-btn" style={{ borderColor: badgeBorder, color: sectionTextPrimary }}>현재 이용중</button>
+            </div>
+
+            {/* Plus Plan */}
+            <div className="plan-card featured" style={{ background: 'rgba(31, 78, 245, 0.1)', borderColor: '#1F4EF5' }}>
+              <div className="plan-header">
+                <h3 style={{ color: '#1F4EF5' }}>Plus</h3>
+                <div className="plan-price" style={{ color: sectionTextPrimary }}>₩4,900<span className="period">/월</span></div>
+                <p style={{ color: cardDesc }}>더 넓은 교류를 원하는<br />성장하는 동아리</p>
+              </div>
+              <ul className="plan-features">
+                <li style={{ color: sectionTextSecondary }}>✓ Basic의 모든 기능</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 연합 포럼 참여권</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 공동 연구 프로젝트 제안</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 활동 통계 분석</li>
+              </ul>
+              <button className="plan-btn primary" style={{ background: '#1F4EF5', color: 'white', border: 'none' }}>시작하기</button>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="plan-card" style={{ background: cardBg, borderColor: cardBorder }}>
+              <div className="plan-header">
+                <h3 style={{ color: '#A855F7' }}>Pro</h3>
+                <div className="plan-price" style={{ color: sectionTextPrimary }}>₩9,900<span className="period">/월</span></div>
+                <p style={{ color: cardDesc }}>전국구 활동을 위한<br />전문적인 지원</p>
+              </div>
+              <ul className="plan-features">
+                <li style={{ color: sectionTextSecondary }}>✓ Plus의 모든 기능</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 전국 대회 우선 참가</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 멘토링 매칭 서비스</li>
+                <li style={{ color: sectionTextSecondary }}>✓ 전문가 피드백</li>
+              </ul>
+              <button className="plan-btn" style={{ borderColor: badgeBorder, color: sectionTextPrimary }}>문의하기</button>
             </div>
           </div>
         </div>
@@ -285,7 +348,6 @@ export default function HomePage() {
         <div className="container">
           <div className="footer-content">
             <div className="footer-brand">
-              <span className="brand-logo">M</span>
               <span className="brand-name" style={{ color: sectionTextPrimary }}>모여라</span>
             </div>
             <p className="copyright" style={{ color: sectionTextSecondary }}>© 2026 Moyora. All rights reserved.</p>
@@ -620,7 +682,7 @@ export default function HomePage() {
             font-size: 48px;
             font-weight: 800;
             color: var(--color-blue);
-            opacity: 0.4;
+            opacity: 0.9;
         }
 
         .step-card h3 {
@@ -710,6 +772,78 @@ export default function HomePage() {
             font-size: 15px;
             color: #777;
             line-height: 1.5;
+        }
+
+        /* === Plans Section === */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .plan-card {
+            padding: 40px 32px;
+            border-radius: 24px;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            transition: all 0.3s;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .plan-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .plan-price {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .plan-price .period {
+            font-size: 16px;
+            font-weight: 500;
+            color: #888;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .plan-features li {
+            font-size: 15px;
+        }
+
+        .plan-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 999px;
+            background: transparent;
+            border: 1px solid;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .plan-btn:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
         }
 
 
@@ -957,10 +1091,6 @@ export default function HomePage() {
                 flex-direction: column;
                 gap: 8px;
                 text-align: center;
-            }
-
-            .brand-logo {
-                font-size: 16px;
             }
 
             .brand-name {
