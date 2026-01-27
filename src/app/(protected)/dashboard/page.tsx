@@ -5,6 +5,11 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import dynamic from 'next/dynamic';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Users, Trophy, MessageSquare, Microscope, ChevronRight, PlusCircle, Activity } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 const Dashboard3D = dynamic(() => import('@/components/canvas/Dashboard3D'), { ssr: false });
 const FloatingShapes = dynamic(() => import('@/components/canvas/FloatingShapes'), { ssr: false });
@@ -66,7 +71,6 @@ export default function DashboardPage() {
     const { data: session, status } = useSession();
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -88,33 +92,21 @@ export default function DashboardPage() {
         }
     };
 
-    const handleSignOut = async () => {
-        await signOut({ callbackUrl: '/login' });
-    };
-
-    const getEventTypeInfo = (type: string) => {
-        switch (type) {
-            case 'contest':
-                return { label: '대회', color: '#3b82f6' };
-            case 'forum':
-                return { label: '포럼', color: '#10b981' };
-            case 'co-research':
-                return { label: '공동연구', color: '#8b5cf6' };
-            default:
-                return { label: type, color: '#6b7280' };
+    const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+        switch (status) {
+            case 'pending': return 'secondary'; // Yellow-ish usually manually handled, but secondary is grey. 
+            case 'approved': return 'default'; // Green/Blue
+            case 'rejected': return 'destructive'; // Red
+            default: return 'outline';
         }
     };
 
-    const getStatusInfo = (status: string) => {
+    const getStatusLabel = (status: string) => {
         switch (status) {
-            case 'pending':
-                return { label: '승인 대기 중', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' };
-            case 'approved':
-                return { label: '승인 완료', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' };
-            case 'rejected':
-                return { label: '참가 거절됨', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' };
-            default:
-                return { label: status, color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)' };
+            case 'pending': return '승인 대기';
+            case 'approved': return '참가 확정';
+            case 'rejected': return '거절됨';
+            default: return status;
         }
     };
 
@@ -127,416 +119,232 @@ export default function DashboardPage() {
         }).format(date);
     };
 
-    const isSuperAdmin = dashboardData?.user?.role === 'superadmin';
-
     if (status === 'loading' || isLoading) {
         return (
-            <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-                <div className="loading-spinner" />
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
         );
     }
 
     return (
-        <div className="dashboard-page">
+        <div className="min-h-screen bg-background pb-20">
             <NavBar />
-            <FloatingShapes />
 
-            {/* Main Bento Layout */}
-            <main className="bento-container container">
-                <div className="bento-grid">
-                    {/* 1. Welcome Card (Span 2x1) - expanded to span 3 to maximize space */}
-                    <div className="bento-item welcome-card glass-card">
-                        <div className="card-content">
-                            <h1 className="welcome-title">안녕하세요, {session?.user?.name || '부장'}님!</h1>
-                            <p className="welcome-text">오늘도 동아리와 함께 성장하는 하루 보내세요.</p>
-                            <div className="welcome-actions">
-                                <Link href="/schedule" className="btn btn-primary btn-pill">일정 확인</Link>
+            {/* 3D Elements container - kept subtle */}
+            <div className="fixed inset-0 pointer-events-none z-0 opacity-40">
+                <FloatingShapes />
+            </div>
+
+            <main className="container relative z-10 mx-auto max-w-7xl px-4 pt-6 md:px-6 md:pt-10">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+
+                    {/* 1. Welcome Card (Span 4 on mobile, 2 on lg) */}
+                    <Card className="col-span-1 overflow-hidden border-none bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg md:col-span-2 lg:col-span-3">
+                        <div className="relative flex h-full flex-col justify-between p-6 sm:p-8">
+                            <div className="relative z-10 space-y-4">
+                                <div className="space-y-2">
+                                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                                        안녕하세요, {session?.user?.name || '부장'}님!
+                                    </h1>
+                                    <p className="text-blue-100 sm:text-lg max-w-[500px]">
+                                        오늘도 {dashboardData?.user?.schoolName || '우리 학교'} 동아리와 함께 성장하는 하루 보내세요.
+                                    </p>
+                                </div>
+                                <div className="pt-4">
+                                    <Link href="/schedule">
+                                        <Button variant="secondary" className="rounded-full px-6 font-semibold shadow-md active:scale-95 transition-transform">
+                                            <Calendar className="mr-2 h-4 w-4" />
+                                            전체 일정 확인
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {/* 3D Visual Positioned Absolute */}
+                            <div className="absolute -bottom-8 -right-8 h-48 w-48 opacity-90 sm:h-64 sm:w-64 md:-right-12 md:bottom-[-20%]">
+                                <Dashboard3D />
                             </div>
                         </div>
-                        <div className="welcome-visual">
-                            <Dashboard3D />
-                        </div>
-                    </div>
+                    </Card>
 
-                    {/* 2. Stats Grid (Span 1x1) */}
-                    <div className="bento-item stats-bento ios-card">
-                        <div className="stats-header">
-                            <h3 className="card-title">내 활동</h3>
-                        </div>
-                        <div className="stats-mini-grid">
-                            <div className="stat-row">
-                                <span className="stat-label">소속 동아리</span>
-                                <span className="stat-num">{dashboardData?.stats.clubCount || 0}</span>
+                    {/* 2. Stats Card (Span 1) */}
+                    <Card className="col-span-1 flex flex-col justify-center border-border/40 shadow-sm transition-all hover:shadow-md">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                                <Activity className="h-4 w-4" />
+                                내 활동 현황
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between border-b pb-4">
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium text-muted-foreground">소속 동아리</p>
+                                    <p className="text-2xl font-bold text-foreground">{dashboardData?.stats.clubCount || 0}</p>
+                                </div>
+                                <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center dark:bg-blue-900/30 dark:text-blue-400">
+                                    <Users className="h-5 w-5" />
+                                </div>
                             </div>
-                            <div className="stat-divider"></div>
-                            <div className="stat-row">
-                                <span className="stat-label">참여 이벤트</span>
-                                <span className="stat-num">{dashboardData?.stats.participationCount || 0}</span>
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium text-muted-foreground">참여 이벤트</p>
+                                    <p className="text-2xl font-bold text-foreground">{dashboardData?.stats.participationCount || 0}</p>
+                                </div>
+                                <div className="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center dark:bg-green-900/30 dark:text-green-400">
+                                    <Trophy className="h-5 w-5" />
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
 
-                    {/* 3. Quick Actions (Vertical Span 1x2) */}
-                    <div className="bento-item quick-actions-bento ios-card">
-                        <h3 className="card-title">바로가기</h3>
-                        <div className="quick-grid">
-                            <Link href="/club/register" className="action-item">
-                                <div className="action-icon-box blue">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>
-                                </div>
-                                <span>동아리 등록</span>
+                    {/* 3. Participated Events (Span 2) */}
+                    <Card className="col-span-1 md:col-span-2 border-border/40 shadow-sm h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-lg font-bold">참여 예정 이벤트</CardTitle>
+                            <Link href="/schedule" className="text-xs text-muted-foreground hover:text-primary flex items-center">
+                                더보기 <ChevronRight className="ml-1 h-3 w-3" />
                             </Link>
-                            <Link href="/events/contest/new" className="action-item">
-                                <div className="action-icon-box orange">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>
-                                </div>
-                                <span>대회 개최</span>
-                            </Link>
-                            <Link href="/events/forum/new" className="action-item">
-                                <div className="action-icon-box green">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                                </div>
-                                <span>포럼 개설</span>
-                            </Link>
-                            <Link href="/events/co-research/new" className="action-item">
-                                <div className="action-icon-box purple">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                                </div>
-                                <span>공동연구 등록</span>
-                            </Link>
-                        </div>
-                    </div>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                            {dashboardData?.participations && dashboardData.participations.length > 0 ? (
+                                <div className="space-y-4">
+                                    {dashboardData.participations.slice(0, 3).map((p) => {
+                                        const badgeVariant = getStatusBadgeVariant(p.status);
 
-                    {/* 4. My Participated Events (Span 2x2) */}
-                    <div className="bento-item participations-bento ios-card">
-                        <h3 className="card-title">참여 예정 이벤트</h3>
-                        {dashboardData?.participations && dashboardData.participations.length > 0 ? (
-                            <div className="bento-list">
-                                {dashboardData.participations.slice(0, 3).map((p) => {
-                                    const statusInfo = getStatusInfo(p.status);
-                                    return (
-                                        <div key={p._id} className="list-item">
-                                            <div className="item-left">
-                                                <div className="item-info">
-                                                    <span className="item-name">{p.eventName}</span>
-                                                    <div className="item-meta-row">
-                                                        <span className="item-date">{p.eventDate ? formatDate(p.eventDate) : '-'}</span>
-                                                        <span
-                                                            className="status-badge-small"
-                                                            style={{
-                                                                color: statusInfo.color,
-                                                                background: statusInfo.bg
-                                                            }}
-                                                        >
-                                                            {statusInfo.label}
-                                                        </span>
+                                        // Custom colors for non-standard badge variants
+                                        let statusColorClass = "";
+                                        if (p.status === 'pending') statusColorClass = "bg-yellow-100 text-yellow-700 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400";
+                                        else if (p.status === 'approved') statusColorClass = "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400";
+                                        else if (p.status === 'rejected') statusColorClass = "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400";
+
+                                        return (
+                                            <div key={p._id} className="flex items-start justify-between rounded-lg border p-3 transition-colors hover:bg-accent/50">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-semibold">{p.eventName}</span>
+                                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
+                                                            {p.eventType === 'contest' ? '대회' : p.eventType === 'forum' ? '포럼' : '연구'}
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                        <Calendar className="h-3 w-3" />
+                                                        <span>{p.eventDate ? formatDate(p.eventDate) : '-'}</span>
                                                     </div>
                                                 </div>
+                                                <Badge className={cn("text-[10px] sm:text-xs", statusColorClass)} variant={badgeVariant === 'default' ? 'default' : 'secondary'}>
+                                                    {getStatusLabel(p.status)}
+                                                </Badge>
                                             </div>
-                                            <span className={`type-badge badge-${p.eventType}`}>
-                                                {p.eventType === 'contest' ? '대회' : p.eventType === 'forum' ? '포럼' : '연구'}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div className="empty-bento">
-                                <span>예정된 일정이 없습니다.</span>
-                            </div>
-                        )}
-                    </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+                                    <p className="text-sm">예정된 일정이 없습니다.</p>
+                                    <Link href="/events/contest" className="mt-2 text-xs text-primary underline">
+                                        새로운 활동 찾아보기
+                                    </Link>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
-                    {/* 5. My Hosted Events (Span 1x1) */}
-                    <div className="bento-item hosted-bento ios-card">
-                        <h3 className="card-title">주최한 이벤트</h3>
-                        {dashboardData?.hostedEvents && dashboardData.hostedEvents.length > 0 ? (
-                            <div className="bento-list scrollable">
-                                {dashboardData.hostedEvents.slice(0, 3).map((e) => (
-                                    <div key={e._id} className="list-item-simple">
-                                        <div className="item-info">
-                                            <span className="item-name">{e.eventName}</span>
-                                            <span className="item-date">{formatDateShort(e.eventDate)}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-bento">주최한 내역이 없습니다.</div>
-                        )}
-                    </div>
+                    {/* 4. My Functions / Quick Actions (Span 1) - Vertical Layout */}
+                    <Card className="col-span-1 row-span-2 border-border/40 shadow-sm">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-bold">바로가기</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid gap-4">
+                            <QuickActionLink
+                                href="/club/register"
+                                icon={<PlusCircle className="h-5 w-5" />}
+                                label="동아리 등록"
+                                colorClass="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                            />
+                            <QuickActionLink
+                                href="/events/contest/new"
+                                icon={<Trophy className="h-5 w-5" />}
+                                label="대회 개최"
+                                colorClass="bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
+                            />
+                            <QuickActionLink
+                                href="/events/forum/new"
+                                icon={<MessageSquare className="h-5 w-5" />}
+                                label="포럼 개설"
+                                colorClass="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                            />
+                            <QuickActionLink
+                                href="/events/co-research/new"
+                                icon={<Microscope className="h-5 w-5" />}
+                                label="공동연구 등록"
+                                colorClass="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                            />
+                        </CardContent>
+                    </Card>
 
-                    {/* 6. My Clubs (Span 1x1) */}
-                    <div className="bento-item clubs-bento ios-card">
-                        <h3 className="card-title">내 동아리</h3>
-                        {dashboardData?.clubs && dashboardData.clubs.length > 0 ? (
-                            <div className="bento-list scrollable">
-                                {dashboardData.clubs.map((c) => (
-                                    <div key={c._id} className="list-item-simple">
-                                        <span className="club-emoji">🏫</span>
-                                        <span className="club-name">{c.clubName}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-bento">가입된 동아리가 없습니다.</div>
-                        )}
-                    </div>
+                    {/* 5. My Hosted Events (Span 1) */}
+                    <Card className="col-span-1 border-border/40 shadow-sm">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-lg font-bold">주최한 이벤트</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {dashboardData?.hostedEvents && dashboardData.hostedEvents.length > 0 ? (
+                                <ul className="space-y-3">
+                                    {dashboardData.hostedEvents.slice(0, 3).map((e) => (
+                                        <li key={e._id} className="flex items-center justify-between text-sm">
+                                            <span className="truncate font-medium">{e.eventName}</span>
+                                            <span className="text-xs text-muted-foreground shrink-0">{formatDateShort(e.eventDate)}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-sm text-muted-foreground py-4 text-center">주최한 내역이 없습니다.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* 6. My Clubs (Span 1) */}
+                    <Card className="col-span-1 border-border/40 shadow-sm">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-lg font-bold">내 동아리</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {dashboardData?.clubs && dashboardData.clubs.length > 0 ? (
+                                <ul className="space-y-3">
+                                    {dashboardData.clubs.map((c) => (
+                                        <li key={c._id} className="flex items-center gap-3 text-sm">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-base">🏫</div>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-foreground">{c.clubName}</span>
+                                                <span className="text-xs text-muted-foreground">{c.role === 'chief' ? '대표' : '부원'}</span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-sm text-muted-foreground py-4 text-center">가입된 동아리가 없습니다.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+
                 </div>
-            </main >
-
-            <style jsx>{`
-                .dashboard-page {
-                    min-height: 100vh;
-                    background-color: var(--color-bg);
-                    color: var(--color-text-primary);
-                    padding-bottom: 80px;
-                }
-
-                .bento-container {
-                    padding-top: 24px;
-                    position: relative;
-                    z-index: 10;
-                }
-
-                .bento-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    grid-auto-rows: minmax(180px, auto);
-                    gap: 20px;
-                }
-
-                .bento-item {
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                /* Bento Spans */
-                .welcome-card { grid-column: span 3; }
-                .stats-bento { grid-column: span 1; }
-                .quick-actions-bento { grid-column: span 1; grid-row: span 2; }
-                .participations-bento { grid-column: span 2; grid-row: span 2; }
-                .hosted-bento { grid-column: span 1; }
-                .clubs-bento { grid-column: span 1; }
-
-                /* Card Styles */
-                .card-title {
-                    font-size: 17px;
-                    font-weight: 700;
-                    margin-bottom: 16px;
-                    color: var(--color-text-primary);
-                }
-
-                /* Welcome Card */
-                .welcome-card {
-                    background: linear-gradient(135deg, var(--color-blue) 0%, #5AC8FA 100%);
-                    color: white;
-                    padding: 32px;
-                    justify-content: space-between;
-                    position: relative;
-                    /* overflow: hidden; Removed to allow 3D pop-out */
-                    border: none;
-                    z-index: 5;
-                }
-                
-                .card-content { z-index: 1; }
-
-                .welcome-title {
-                    font-size: 28px;
-                    font-weight: 800;
-                    margin-bottom: 8px;
-                    color: white;
-                }
-
-                .welcome-text {
-                    font-size: 17px;
-                    opacity: 0.9;
-                    margin-bottom: 24px;
-                    color: rgba(255, 255, 255, 0.9);
-                }
-
-                .btn-pill {
-                    background: white;
-                    color: var(--color-blue);
-                    padding: 10px 24px;
-                    border-radius: 99px;
-                    font-weight: 700;
-                    text-decoration: none;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                    transition: all 0.2s;
-                }
-
-                .btn-pill:hover {
-                    transform: scale(1.05);
-                }
-
-                .welcome-visual {
-                    position: absolute;
-                    right: -20px;
-                    bottom: -40px;
-                    width: 300px;
-                    height: 300px;
-                    z-index: 0;
-                }
-
-                /* Stats */
-                .stats-mini-grid {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    flex: 1;
-                    gap: 12px;
-                }
-
-                .stat-row {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-
-                .stat-label { font-size: 15px; color: var(--color-text-secondary); }
-                .stat-num { font-size: 20px; font-weight: 700; color: var(--color-text-primary); }
-                
-                .stat-divider { height: 1px; background: var(--glass-border); }
-
-                /* Quick Actions */
-                .quick-grid {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-
-                .action-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    text-decoration: none;
-                    color: var(--color-text-primary);
-                    font-weight: 500;
-                    font-size: 15px;
-                    transition: transform 0.2s;
-                }
-
-                .action-item:hover { transform: translateX(4px); }
-
-                .action-icon-box {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                }
-
-                .blue { background: var(--color-blue); }
-                .orange { background: var(--color-orange); }
-                .green { background: var(--color-green); }
-                .purple { background: var(--color-purple); }
-
-                /* Participations */
-                .bento-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-
-                .list-item {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 12px;
-                    background: var(--glass-border);
-                    border-radius: 12px;
-                }
-
-                .item-left {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                }
-
-                .status-dot {
-                    width: 10px;
-                    height: 10px;
-                    border-radius: 50%;
-                }
-                .status-dot.approved { background: var(--color-green); }
-                .status-dot.pending { background: var(--color-orange); }
-                .status-dot.rejected { background: var(--color-red); }
-
-                .item-info { display: flex; flex-direction: column; gap: 4px; }
-                .item-name { font-weight: 600; font-size: 15px; color: var(--color-text-primary); }
-                
-                .item-meta-row {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-
-                .item-date { font-size: 13px; color: var(--color-text-secondary); }
-
-                .status-badge-small {
-                    font-size: 11px;
-                    font-weight: 700;
-                    padding: 2px 8px;
-                    border-radius: 6px;
-                }
-
-                .type-badge {
-                    font-size: 12px;
-                    font-weight: 600;
-                    padding: 4px 8px;
-                    border-radius: 6px;
-                }
-                .badge-contest { color: var(--color-blue); background: rgba(0,122,255,0.1); }
-                .badge-forum { color: var(--color-green); background: rgba(52,199,89,0.1); }
-                .badge-co-research { color: var(--color-purple); background: rgba(175,82,222,0.1); }
-
-                .list-item-simple {
-                    padding: 10px 0;
-                    border-bottom: 1px solid var(--glass-border);
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                .list-item-simple:last-child { border-bottom: none; }
-                
-                .club-emoji { font-size: 20px; }
-                .club-name { font-weight: 600; font-size: 15px; color: var(--color-text-primary); }
-
-                .empty-bento {
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: var(--color-text-secondary);
-                    font-size: 14px;
-                }
-
-                @media (max-width: 900px) {
-                    .bento-grid {
-                        grid-template-columns: repeat(2, 1fr);
-                    }
-                    .welcome-card { grid-column: span 2; }
-                    .stats-bento { grid-column: span 1; }
-                    .quick-actions-bento { grid-column: span 1; grid-row: span 1; }
-                    .participations-bento { grid-column: span 2; }
-                    .hosted-bento { grid-column: span 1; }
-                    .clubs-bento { grid-column: span 1; }
-                }
-
-                @media (max-width: 600px) {
-                    .bento-grid { grid-template-columns: 1fr; }
-                    .welcome-card, .participations-bento, .stats-bento, .quick-actions-bento, .hosted-bento, .clubs-bento {
-                        grid-column: span 1;
-                        grid-row: auto;
-                    }
-                }
-            `}</style>
+            </main>
         </div >
     );
+}
+
+function QuickActionLink({ href, icon, label, colorClass }: { href: string, icon: React.ReactNode, label: string, colorClass: string }) {
+    return (
+        <Link href={href}>
+            <div className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent hover:text-accent-foreground">
+                <div className={cn("flex h-10 w-10 items-center justify-center rounded-md", colorClass)}>
+                    {icon}
+                </div>
+                <span className="text-sm font-medium">{label}</span>
+            </div>
+        </Link>
+    )
 }
 
 function formatDateShort(dateString: string) {
@@ -546,3 +354,4 @@ function formatDateShort(dateString: string) {
         day: 'numeric',
     });
 }
+

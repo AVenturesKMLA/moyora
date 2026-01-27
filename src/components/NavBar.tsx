@@ -2,10 +2,27 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { useState } from 'react';
 import { ThemeToggle } from './ThemeToggle';
 import NotificationDropdown from './NotificationDropdown';
 import { useNotifications } from '@/context/NotificationContext';
+import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Menu, Bell, User, LogOut, LayoutDashboard, Calendar } from 'lucide-react';
 
 interface NavBarProps {
     showDashboardLink?: boolean;
@@ -14,429 +31,189 @@ interface NavBarProps {
 }
 
 function NotificationButton() {
-    const [isOpen, setIsOpen] = useState(false);
     const { unreadCount } = useNotifications();
 
     return (
-        <div style={{ position: 'relative' }}>
-            <button
-                className="nav-btn-icon"
-                onClick={() => setIsOpen(!isOpen)}
-                title="알림"
-            >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                {unreadCount > 0 && (
-                    <span className="badge-dot"></span>
-                )}
-            </button>
-            <NotificationDropdown isOpen={isOpen} onClose={() => setIsOpen(false)} />
-
-            <style jsx>{`
-                .nav-btn-icon {
-                    width: 36px;
-                    height: 36px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 50%;
-                    border: none;
-                    background: transparent;
-                    cursor: pointer;
-                    transition: background 0.2s;
-                    position: relative;
-                }
-                .nav-btn-icon:hover {
-                    background: rgba(0,0,0,0.05);
-                }
-                .badge-dot {
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    width: 6px;
-                    height: 6px;
-                    background-color: var(--color-blue-primary);
-                    border-radius: 50%;
-                    border: 1px solid var(--color-bg);
-                }
-            `}</style>
-        </div>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-600 ring-2 ring-background" />
+                    )}
+                </Button>
+            </DropdownMenuTrigger>
+            <NotificationDropdown />
+        </DropdownMenu>
     );
 }
 
 export default function NavBar({ showDashboardLink = true }: NavBarProps) {
-    const { data: session, status } = useSession();
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const isLoading = status === 'loading';
+    const { data: session } = useSession();
     const isLoggedIn = !!session?.user;
 
     const handleSignOut = async () => {
-        await signOut({ callbackUrl: window.location.origin + '/login' });
+        await signOut({ callbackUrl: '/login' });
     };
 
     return (
-        <nav className="nav-wrapper">
-            <div className="container nav-inner">
-                <div className="nav-island glass-card">
-                    <Link href="/" className="nav-link-logo">
-                        <div className="nav-logo-icon">
-                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'white' }}>M</span>
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container flex h-16 items-center">
+                <div className="mr-8 flex items-center gap-2">
+                    <Link href="/" className="flex items-center gap-2 font-bold">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                            <span>M</span>
                         </div>
-                        <span className="nav-logo-text">모여라</span>
+                        <span className="text-xl">모여라</span>
                     </Link>
-
-                    {/* Grouped Right Side: Menu + Actions */}
-                    <div className="nav-right-group">
-                        {/* Desktop Navigation */}
-                        <div className="nav-menu-desktop">
-                            <Link href="/about" className="nav-item">회사소개</Link>
-                            <Link href="/#plans" className="nav-item">플랜</Link>
-                            {isLoggedIn && (
-                                <>
-                                    <Link href="/dashboard" className="nav-item">대시보드</Link>
-                                    <Link href="/schedule" className="nav-item">일정</Link>
-                                </>
-                            )}
-                        </div>
-
-                        <div className="nav-actions">
-                            {isLoading ? (
-                                <div className="loading-mini"></div>
-                            ) : isLoggedIn ? (
-                                <div className="user-profile">
-                                    <Link href="/mypage" className="user-trigger">
-                                        <div className="avatar">{session.user?.name?.charAt(0) || 'U'}</div>
-                                    </Link>
-                                    <button className="logout-btn" onClick={handleSignOut} title="로그아웃">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="auth-btns">
-                                    <Link href="/login" className="nav-btn-link blue-rounded">로그인</Link>
-                                    <Link href="/signup" className="nav-btn-link blue-rounded primary">회원가입</Link>
-                                </div>
-                            )}
-
-                            <NotificationButton />
-                            <ThemeToggle />
-
-                            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Mobile Menu Dropdown */}
-                {mobileMenuOpen && (
-                    <div className="mobile-menu glass-card anim-slide-down">
+                {/* Desktop Navigation */}
+                <nav className="hidden md:flex md:flex-1 md:items-center md:gap-6">
+                    <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
+                        회사소개
+                    </Link>
+                    <Link href="/#plans" className="text-sm font-medium transition-colors hover:text-primary">
+                        플랜
+                    </Link>
+                    {isLoggedIn && (
+                        <>
+                            <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
+                                대시보드
+                            </Link>
+                            <Link href="/schedule" className="text-sm font-medium transition-colors hover:text-primary">
+                                일정
+                            </Link>
+                        </>
+                    )}
+                </nav>
+
+                {/* Right Actions */}
+                <div className="flex items-center gap-2">
+                    {/* Auth & Notifications (Desktop) */}
+                    <div className="hidden md:flex md:items-center md:gap-2">
                         {isLoggedIn ? (
                             <>
-                                <Link href="/dashboard" className="mobile-item" onClick={() => setMobileMenuOpen(false)}>대시보드</Link>
-                                <Link href="/schedule" className="mobile-item" onClick={() => setMobileMenuOpen(false)}>일정</Link>
-                                <Link href="/events/manage" className="mobile-item" onClick={() => setMobileMenuOpen(false)}>관리</Link>
-                                <Link href="/mypage" className="mobile-item" onClick={() => setMobileMenuOpen(false)}>마이페이지</Link>
-                                <div className="mobile-divider"></div>
-                                <button onClick={handleSignOut} className="mobile-item logout">로그아웃</button>
+                                <NotificationButton />
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || ''} />
+                                                <AvatarFallback>{session?.user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                                            </Avatar>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                                        <DropdownMenuLabel className="font-normal">
+                                            <div className="flex flex-col space-y-1">
+                                                <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
+                                                <p className="text-xs leading-none text-muted-foreground">
+                                                    {session?.user?.email}
+                                                </p>
+                                            </div>
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/dashboard" className="cursor-pointer">
+                                                <LayoutDashboard className="mr-2 h-4 w-4" />
+                                                <span>대시보드</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/mypage" className="cursor-pointer">
+                                                <User className="mr-2 h-4 w-4" />
+                                                <span>마이페이지</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600" onClick={handleSignOut}>
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            <span>로그아웃</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </>
                         ) : (
-                            <>
-                                <Link href="/login" className="mobile-item" onClick={() => setMobileMenuOpen(false)}>로그인</Link>
-                                <Link href="/signup" className="mobile-item" onClick={() => setMobileMenuOpen(false)}>회원가입</Link>
-                            </>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" asChild>
+                                    <Link href="/login">로그인</Link>
+                                </Button>
+                                <Button asChild>
+                                    <Link href="/signup">회원가입</Link>
+                                </Button>
+                            </div>
                         )}
+                        <ThemeToggle />
                     </div>
-                )}
+
+                    {/* Mobile Menu */}
+                    <div className="flex md:hidden">
+                        <ThemeToggle />
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon" className="ml-2">
+                                    <Menu className="h-5 w-5" />
+                                    <span className="sr-only">Toggle menu</span>
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="right">
+                                <SheetHeader>
+                                    <SheetTitle>메뉴</SheetTitle>
+                                </SheetHeader>
+                                <div className="mt-8 flex flex-col gap-4">
+                                    {isLoggedIn ? (
+                                        <>
+                                            <div className="mb-4 flex items-center gap-4 rounded-lg border p-4">
+                                                <Avatar>
+                                                    <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">{session?.user?.name}</span>
+                                                    <span className="text-xs text-muted-foreground">{session?.user?.email}</span>
+                                                </div>
+                                            </div>
+                                            <Link href="/dashboard" className="flex items-center gap-2 text-lg font-medium">
+                                                <LayoutDashboard className="h-5 w-5" />
+                                                대시보드
+                                            </Link>
+                                            <Link href="/schedule" className="flex items-center gap-2 text-lg font-medium">
+                                                <Calendar className="h-5 w-5" />
+                                                일정
+                                            </Link>
+                                            <Link href="/mypage" className="flex items-center gap-2 text-lg font-medium">
+                                                <User className="h-5 w-5" />
+                                                마이페이지
+                                            </Link>
+                                            <div className="my-2 border-t" />
+                                            <button onClick={handleSignOut} className="flex items-center gap-2 text-lg font-medium text-red-600">
+                                                <LogOut className="h-5 w-5" />
+                                                로그아웃
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link href="/login" className="text-lg font-medium">
+                                                로그인
+                                            </Link>
+                                            <Link href="/signup" className="text-lg font-medium text-primary">
+                                                회원가입
+                                            </Link>
+                                        </>
+                                    )}
+                                    <div className="my-2 border-t" />
+                                    <Link href="/about" className="text-lg font-medium">
+                                        회사소개
+                                    </Link>
+                                    <Link href="/#plans" className="text-lg font-medium">
+                                        플랜
+                                    </Link>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+                    </div>
+                </div>
             </div>
-
-            <style jsx>{`
-                .nav-wrapper {
-                    position: sticky;
-                    top: 20px;
-                    z-index: 1000;
-                    pointer-events: none; /* Let clicks pass through outside the island */
-                }
-
-                .nav-inner {
-                    position: relative;
-                    pointer-events: auto; /* Re-enable clicks */
-                }
-
-                .nav-island {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    height: 56px;
-                    padding: 0 6px 0 16px;
-                    background: var(--glass-bg);
-                    backdrop-filter: var(--material-thick);
-                    -webkit-backdrop-filter: var(--material-thick);
-                    border: 1px solid var(--glass-border);
-                    border-radius: var(--radius-pill);
-                    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-                    width: 100%;
-                    max-width: 960px;
-                    margin: 0 auto;
-                }
-                
-                @media (max-width: 400px) {
-                    .nav-island {
-                        padding: 0 4px 0 12px;
-                    }
-                    .nav-logo-text {
-                        font-size: 15px;
-                    }
-                }
-
-                .nav-link-logo {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    text-decoration: none;
-                }
-
-                .nav-logo-icon {
-                    width: 32px;
-                    height: 32px;
-                    background: linear-gradient(135deg, var(--color-blue-primary), var(--color-blue-secondary));
-                    border-radius: 8px; /* Slightly squircle */
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    box-shadow: 0 2px 8px rgba(31, 78, 245, 0.3);
-                }
-
-                .nav-logo-text {
-                    font-size: 17px;
-                    font-weight: 700;
-                    color: var(--color-text-primary);
-                    letter-spacing: -0.02em;
-                }
-
-                .nav-menu-desktop {
-                    display: flex;
-                    gap: 32px;
-                }
-
-                .nav-item {
-                    padding: 8px 16px;
-                    border-radius: var(--radius-pill);
-                    font-size: 14px;
-                    font-weight: 500;
-                    color: var(--color-text-secondary);
-                    text-decoration: none;
-                    transition: all 0.2s;
-                }
-
-                .nav-item:hover {
-                    color: var(--color-text-primary);
-                    background: rgba(0, 0, 0, 0.03);
-                }
-
-                .nav-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 2px; /* Tightened gap as requested */
-                }
-
-                .user-profile {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding-right: 4px;
-                }
-
-                .avatar {
-                    width: 36px;
-                    height: 36px;
-                    background: var(--color-gray-light);
-                    color: var(--color-text-primary);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 600;
-                    font-size: 15px;
-                    border: 1px solid rgba(0,0,0,0.05);
-                }
-
-                .logout-btn {
-                    width: 36px;
-                    height: 36px;
-                    background: rgba(118, 118, 128, 0.08);
-                    border-radius: 50%;
-                    border: none;
-                    color: var(--color-text-secondary);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-
-                .logout-btn:hover {
-                    background: rgba(31, 78, 245, 0.1);
-                    color: var(--color-red);
-                }
-
-                .auth-btns {
-                    display: flex;
-                    gap: 8px;
-                    padding-right: 4px;
-                }
-
-                .nav-btn-link {
-                    padding: 8px 20px;
-                    border-radius: 999px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    text-decoration: none;
-                    color: white;
-                    background: var(--color-blue-primary);
-                    transition: all 0.2s;
-                    display: flex;
-                    align-items: center;
-                    height: 36px;
-                }
-
-                .nav-btn-link:hover {
-                    background: var(--color-blue-secondary);
-                    transform: translateY(-1px);
-                }
-
-                .nav-btn-link.blue-rounded {
-                    background: #1F4EF5;
-                    color: white;
-                    border-radius: 999px;
-                }
-
-                .nav-btn-link.blue-rounded:hover {
-                    background: #4880EE;
-                }
-
-                .mobile-menu-btn {
-                    display: none;
-                    background: none;
-                    border: none;
-                    color: var(--color-text-primary);
-                    cursor: pointer;
-                    padding: 8px;
-                    margin-right: 4px;
-                }
-
-                .mobile-menu {
-                    position: absolute;
-                    top: 70px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: calc(100% - 32px);
-                    max-width: 400px;
-                    padding: 8px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    z-index: 999;
-                    background: var(--glass-bg);
-                    backdrop-filter: var(--material-thick);
-                    -webkit-backdrop-filter: var(--material-thick);
-                    border-radius: 20px;
-                }
-
-                .mobile-item {
-                    padding: 12px 16px;
-                    border-radius: 12px;
-                    text-decoration: none;
-                    color: var(--color-text-primary);
-                    font-weight: 500;
-                    font-size: 16px;
-                    transition: background 0.2s;
-                    text-align: center;
-                }
-
-                .mobile-item:hover {
-                    background: rgba(0,0,0,0.05);
-                }
-
-                .mobile-divider {
-                    height: 1px;
-                    background: rgba(0,0,0,0.1);
-                    margin: 4px 16px;
-                }
-
-                .mobile-item.logout {
-                    color: var(--color-red);
-                    border: none;
-                    background: none;
-                    font-family: inherit;
-                    cursor: pointer;
-                }
-
-                .nav-btn-icon {
-                    width: 36px;
-                    height: 36px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 50%;
-                    border: none;
-                    background: transparent;
-                    cursor: pointer;
-                    transition: background 0.2s;
-                }
-
-                .nav-btn-icon:hover {
-                    background: rgba(0,0,0,0.05);
-                }
-
-                .anim-slide-down {
-                    animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-
-                @keyframes slideDown {
-                    from { transform: translate(-50%, -20px); opacity: 0; }
-                    to { transform: translate(-50%, 0); opacity: 1; }
-                }
-
-                .nav-right-group {
-                    display: flex;
-                    align-items: center;
-                    gap: 20px; /* Uniform spacing for everything */
-                    margin-left: auto;
-                }
-
-                .nav-menu-desktop {
-                    display: flex;
-                    gap: 20px; /* Same gap as parent */
-                    align-items: center;
-                }
-
-                .nav-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 20px; /* Same uniform gap */
-                }
-
-                @media (max-width: 800px) {
-                    .nav-menu-desktop { display: none; }
-                    .mobile-menu-btn { display: flex; }
-                    .auth-btns { display: none; }
-                    .user-profile { display: none; }
-                    .nav-right-group { gap: 12px; }
-                }
-
-                .auth-btns {
-                    display: flex;
-                    gap: 20px; /* Keep uniform */
-                }
-            `}</style>
-        </nav>
+        </header>
     );
 }

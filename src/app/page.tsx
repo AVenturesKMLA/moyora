@@ -3,1121 +3,255 @@
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import NavBar from '@/components/NavBar';
-import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, Trophy, MessageSquare, Microscope, CheckCircle2 } from 'lucide-react';
 
 const NetworkMap3D = dynamic(() => import('@/components/canvas/NetworkMap3D'), { ssr: false });
 
 export default function HomePage() {
   const { data: session } = useSession();
-  const { resolvedTheme } = useTheme();
-  const heroRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
-
-  // Prevent hydration mismatch - wait until client-side theme is resolved
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Default to dark theme during SSR to prevent flash (most users prefer dark)
-  const isLight = mounted ? resolvedTheme === 'light' : false;
-
-  // Dynamic Styles based on Theme (New Brand Palette)
-  const pageBg = isLight ? '#FFFFFF' : '#000000';
-  const textColor = isLight ? '#1A1E27' : '#FFFFFF';
-  const descColor = isLight ? '#505866' : '#B1B8C0';
-  const badgeBg = isLight ? '#D6DADF' : 'rgba(255,255,255,0.05)';
-  const badgeBorder = isLight ? '#D6DADF' : 'rgba(255,255,255,0.1)';
-  const badgeText = isLight ? '#505866' : '#FFFFFF';
-
-  // Button Styles
-  const glassBtnBg = 'transparent';
-  const glassBtnBorder = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.2)';
-  const glassBtnText = isLight ? '#1A1E27' : '#FFFFFF';
-  const glassBtnHover = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.1)';
-
-  // Primary Button
-  const primaryBtnBg = '#1F4EF5';
-  const primaryBtnTextResponsive = '#FFFFFF';
-
-  // Section Theme Variables
-  const sectionBg = isLight ? '#FFFFFF' : '#000000';
-  const sectionTextPrimary = isLight ? '#1A1E27' : '#FFFFFF';
-  const sectionTextSecondary = isLight ? '#505866' : '#B1B8C0';
-
-  // Card Theme Variables
-  const cardBg = isLight ? '#D6DADF' : '#1A1E27';
-  const cardBorder = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.1)';
-  const cardTitle = isLight ? '#1A1E27' : '#FFFFFF';
-  const cardDesc = isLight ? '#505866' : '#B1B8C0';
-
-  // Stats & Footer
-  const glassPanelBg = isLight ? '#D6DADF' : 'rgba(255, 255, 255, 0.03)';
-  const footerBg = isLight ? '#FFFFFF' : '#000000';
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      if (heroRef.current) {
-        heroRef.current.style.transform = `translateY(${scrollY * 0.3}px)`;
-        heroRef.current.style.opacity = `${1 - scrollY / 700}`;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
-    <div className="home-page" style={{ background: pageBg, color: textColor }}>
+    <div className="min-h-screen bg-background flex flex-col">
       <NavBar />
 
       {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-background" ref={heroRef}>
+      <section className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center overflow-hidden pb-16 pt-32 text-center md:pb-24 md:pt-48 lg:py-32">
+        <div className="absolute inset-0 z-0 opacity-40 dark:opacity-60">
           <NetworkMap3D />
-          <div className="grid-overlay"></div>
         </div>
 
-        <div className="container hero-content">
-          <div className="hero-badge-container anim-float">
-            <div
-              className="hero-badge"
-              style={{ background: badgeBg, borderColor: badgeBorder }}
-            >
-              <span className="badge-text" style={{ color: badgeText }}>
-                전국을 연결하는 네트워크
-              </span>
-            </div>
-          </div>
+        {/* Grid Overlay Texture */}
+        <div className="absolute inset-0 z-0 bg-background/20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(var(--foreground) 1px, transparent 1px)', backgroundSize: '40px 40px', maskImage: 'radial-gradient(circle at center, transparent, black)' }} />
 
-          <h1 className="hero-title anim-title-reveal" style={{ color: textColor }}>
+        <div className="container relative z-10 flex max-w-[64rem] flex-col items-center gap-6 px-4">
+          <Badge variant="secondary" className="px-4 py-2 text-sm backdrop-blur-md bg-background/50 border-input">
+            전국을 연결하는 네트워크
+          </Badge>
+
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             동아리 활동의<br />
-            <span className="accent-text">새로운 차원.</span>
+            <span className="text-primary">새로운 차원.</span>
           </h1>
 
-          <p className="hero-description anim-fade-up-delay" style={{ color: descColor }}>
-            전국 고등학교 동아리들이 모여라에서 만나고 협력하며 성장합니다.<br />
+          <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+            전국 고등학교 동아리들이 모여라에서 만나고 협력하며 성장합니다.<br className="hidden sm:inline" />
             대회, 포럼, 공동연구까지 한 곳에서 경험하세요.
           </p>
 
-          <div className="hero-buttons anim-fade-up-more-delay">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             {session ? (
-              <Link
-                href="/dashboard"
-                className="btn-main-cta"
-              >
-                대시보드 열기
+              <Link href="/dashboard">
+                <Button size="lg" className="h-12 rounded-full px-8 text-lg shadow-lg">
+                  대시보드 열기
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
               </Link>
             ) : (
-              <Link
-                href="/signup"
-                className="btn-main-cta"
-              >
-                회원 가입하기
+              <Link href="/signup">
+                <Button size="lg" className="h-12 rounded-full px-8 text-lg shadow-lg">
+                  회원 가입하기
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
               </Link>
             )}
-            <Link
-              href="/schedule"
-              className="btn-main-cta"
-            >
-              일정 둘러보기
+            <Link href="/schedule">
+              <Button variant="outline" size="lg" className="h-12 rounded-full px-8 text-lg backdrop-blur-sm bg-background/50">
+                일정 둘러보기
+              </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Featured Bento Grid */}
-      <section id="features" className="features" style={{ background: sectionBg }}>
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title" style={{ color: sectionTextPrimary }}>
-              모여라의 기능
-            </h2>
-          </div>
+      {/* Features Section (Bento Grid) */}
+      <section id="features" className="container py-12 md:py-24 lg:py-32 space-y-12">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">모여라의 기능</h2>
+          <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+            학교의 경계를 넘어 새로운 가능성을 발견하세요.
+          </p>
+        </div>
 
-          <div className="bento-grid">
-            {/* Main Feature: Contest */}
-            <div className="bento-card card-contest" style={{ background: cardBg, borderColor: cardBorder }}>
-              <div className="card-content">
-                <div className="card-icon-box blue">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg>
-                </div>
-                <div className="text-group">
-                  <h3 style={{ color: cardTitle }}>통합 대회</h3>
-                  <p style={{ color: cardDesc }}>전국 규모의 동아리 대회에<br />참가하고 실력을 증명하세요.</p>
-                </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+          {/* Card 1: Contest (Span 2 cols on tablet/desktop) */}
+          <Card className="md:col-span-2 overflow-hidden border-border/50 shadow-sm transition-all hover:shadow-md bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-950/20">
+            <CardHeader>
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                <Trophy className="h-6 w-6" />
               </div>
-            </div>
+              <CardTitle className="text-2xl">통합 대회</CardTitle>
+              <CardDescription className="text-lg">
+                전국 규모의 동아리 대회에 참가하고 실력을 증명하세요. 다양한 분야의 경진대회가 여러분을 기다립니다.
+              </CardDescription>
+            </CardHeader>
+          </Card>
 
-            {/* Feature: Forum */}
-            <div className="bento-card card-forum" style={{ background: cardBg, borderColor: cardBorder }}>
-              <div className="card-content">
-                <div className="card-icon-box green">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                </div>
-                <div className="text-group">
-                  <h3 style={{ color: cardTitle }}>연합 포럼</h3>
-                  <p style={{ color: cardDesc }}>다른 학교와 아이디어를<br />공유하고 토론하세요.</p>
-                </div>
+          {/* Card 2: Forum */}
+          <Card className="border-border/50 shadow-sm transition-all hover:shadow-md bg-gradient-to-br from-green-50/50 to-transparent dark:from-green-950/20">
+            <CardHeader>
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                <MessageSquare className="h-6 w-6" />
               </div>
-            </div>
+              <CardTitle className="text-xl">연합 포럼</CardTitle>
+              <CardDescription>
+                다른 학교와 아이디어를 공유하고 토론하세요. 지식 공유의 장이 열립니다.
+              </CardDescription>
+            </CardHeader>
+          </Card>
 
-
-            {/* Feature: Co-Research */}
-            <div className="bento-card card-alert" style={{ background: cardBg, borderColor: cardBorder }}>
-              <div className="card-content">
-                <div className="card-icon-box indigo">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                </div>
-                <div className="text-group">
-                  <h3 style={{ color: cardTitle }}>공동 연구</h3>
-                  <p style={{ color: cardDesc }}>관심 분야가 같은 여러 동아리와<br />함께 프로젝트를 진행해보세요.</p>
-                </div>
+          {/* Card 3: Research (Span 3 cols or 1 depending on layout choice, let's keep it consistent) */}
+          <Card className="md:col-span-3 border-border/50 shadow-sm transition-all hover:shadow-md bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20">
+            <CardHeader className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+              <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                <Microscope className="h-6 w-6" />
               </div>
-            </div>
-          </div>
+              <div className="space-y-1">
+                <CardTitle className="text-xl">공동 연구</CardTitle>
+                <CardDescription className="text-base">
+                  관심 분야가 같은 여러 동아리와 함께 프로젝트를 진행해보세요. 학교 간 장벽 없는 연구 협력이 가능합니다.
+                </CardDescription>
+              </div>
+            </CardHeader>
+          </Card>
         </div>
       </section>
 
-      {/* Workflow Section: Step-by-Step */}
-      <section className="workflow-section" style={{ background: sectionBg }}>
-        <div className="container">
-          <div className="section-header-center">
-            <h2 className="section-title" style={{ color: sectionTextPrimary }}>
-              모여라 플랫폼, 3단계면 충분합니다.
-            </h2>
-            <p className="section-subtitle" style={{ color: sectionTextSecondary }}>복잡한 절차 없이, 오직 활동에만 집중하세요.</p>
+      {/* Workflow Section */}
+      <section className="bg-muted/30 py-16 md:py-24">
+        <div className="container px-4 md:px-6">
+          <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center pb-12">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">3단계로 시작하는 동아리 활동</h2>
+            <p className="max-w-[85%] text-muted-foreground md:text-xl">
+              복잡한 절차 없이, 오직 활동에만 집중하세요.
+            </p>
           </div>
 
-          <div className="steps-grid">
-            <div className="step-card glass-card" style={{ background: cardBg }}>
-              <div className="step-number-glow">01</div>
-              <div className="text-group">
-                <h3 style={{ color: cardTitle }}>신원 검증 기반 회원가입</h3>
-                <p style={{ color: cardDesc }}>학생증을 통한 본인인증으로<br />신뢰가는 이용을 시작하세요!</p>
-              </div>
+          <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">01</div>
+              <h3 className="text-xl font-bold">신원 검증</h3>
+              <p className="text-muted-foreground">학생증을 통한 철저한 본인인증으로<br />신뢰할 수 있는 커뮤니티를 보장합니다.</p>
             </div>
-            <div className="step-card glass-card" style={{ background: cardBg }}>
-              <div className="step-number-glow">02</div>
-              <div className="text-group">
-                <h3 style={{ color: cardTitle }}>활동 등록 및 참여</h3>
-                <p style={{ color: cardDesc }}>전국 곳곳 고등학교 동아리들과<br />탄탄한 스펙을 쌓아가세요!</p>
-              </div>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">02</div>
+              <h3 className="text-xl font-bold">활동 참여</h3>
+              <p className="text-muted-foreground">전국 곳곳의 동아리들과 협력하며<br />탄탄한 스펙과 경험을 쌓으세요.</p>
             </div>
-            <div className="step-card glass-card" style={{ background: cardBg }}>
-              <div className="step-number-glow">03</div>
-              <div className="text-group">
-                <h3 style={{ color: cardTitle }}>동아리 평가</h3>
-                <p style={{ color: cardDesc }}>다음에도 함께하고 싶은 동아리였나요?<br />여러분이 평가해주세요!</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Community Stats Section */}
-      <section className="stats-section" style={{ background: sectionBg }}>
-        <div className="container">
-          <div className="stats-glass-panel glass-card" style={{ background: glassPanelBg, borderColor: cardBorder }}>
-            <div className="stat-item">
-              <span className="stat-value" style={{ color: sectionTextPrimary }}>120+</span>
-              <span className="stat-label">함께하는 동아리</span>
-            </div>
-            <div className="stat-divider-vertical" style={{ background: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}></div>
-            <div className="stat-item">
-              <span className="stat-value" style={{ color: sectionTextPrimary }}>1,500+</span>
-              <span className="stat-label">모여라 회원</span>
-            </div>
-            <div className="stat-divider-vertical" style={{ background: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}></div>
-            <div className="stat-item">
-              <span className="stat-value" style={{ color: sectionTextPrimary }}>340+</span>
-              <span className="stat-label">성사된 교류</span>
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">03</div>
+              <h3 className="text-xl font-bold">상호 평가</h3>
+              <p className="text-muted-foreground">활동 후 서로를 평가하며<br />건강한 동아리 생태계를 만들어갑니다.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Plans Section */}
-      <section id="plans" className="plans-section" style={{ background: sectionBg, padding: '100px 0' }}>
-        <div className="container">
-          <div className="section-header-center">
-            <h2 className="section-title" style={{ color: sectionTextPrimary }}>
-              멤버십 플랜
-            </h2>
-            <p className="section-subtitle" style={{ color: sectionTextSecondary }}>
-              동아리의 규모와 필요에 맞는 플랜을 선택하세요.
-            </p>
-          </div>
+      <section className="container py-16 md:py-24">
+        <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center pb-12">
+          <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">멤버십 플랜</h2>
+          <p className="max-w-[85%] text-muted-foreground md:text-xl">
+            동아리의 규모와 필요에 맞는 최적의 플랜을 선택하세요.
+          </p>
+        </div>
 
-          <div className="plans-grid">
-            {/* Basic Plan */}
-            <div className="plan-card" style={{ background: cardBg, borderColor: cardBorder }}>
-              <div className="plan-header">
-                <h3 style={{ color: cardTitle }}>Basic</h3>
-                <div className="plan-price" style={{ color: sectionTextPrimary }}>Free</div>
-                <p style={{ color: cardDesc }}>모든 동아리를 위한<br />기본적인 활동 지원</p>
-              </div>
-              <ul className="plan-features">
-                <li style={{ color: sectionTextSecondary }}>✓ 동아리 프로필 생성</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 교내 대회 참가</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 기본 커뮤니티 접근</li>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 max-w-6xl mx-auto">
+          {/* Basic */}
+          <Card className="flex flex-col border-border/50">
+            <CardHeader>
+              <CardTitle className="text-2xl">Basic</CardTitle>
+              <CardDescription>모든 동아리를 위한 기본 활동 지원</CardDescription>
+              <div className="mt-4 text-4xl font-bold">Free</div>
+            </CardHeader>
+            <CardContent className="flex flex-col flex-1 gap-4">
+              <ul className="space-y-2 text-sm text-muted-foreground flex-1">
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 동아리 프로필 생성</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 교내 대회 참가</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 기본 커뮤니티 접근</li>
               </ul>
-              <button
-                className="plan-btn"
-                style={{
-                  background: '#1F4EF5',
-                  color: 'white',
-                  border: 'none'
-                }}
-              >
-                {session ? "현재 이용중" : "무료로 가입하기"}
-              </button>
-            </div>
+              <Button className="w-full" variant={session ? "outline" : "default"} asChild>
+                <Link href={session ? "/dashboard" : "/signup"}>{session ? "현재 이용중" : "무료로 시작하기"}</Link>
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* Plus Plan */}
-            <div className="plan-card featured" style={{ background: 'rgba(31, 78, 245, 0.1)', borderColor: '#1F4EF5' }}>
-              <div className="plan-header">
-                <h3 style={{ color: '#1F4EF5' }}>Plus</h3>
-                <div className="plan-price" style={{ color: sectionTextPrimary }}>₩4,900<span className="period">/월</span></div>
-                <p style={{ color: cardDesc }}>더 넓은 교류를 원하는<br />성장하는 동아리</p>
-              </div>
-              <ul className="plan-features">
-                <li style={{ color: sectionTextSecondary }}>✓ Basic의 모든 기능</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 연합 포럼 참여권</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 공동 연구 프로젝트 제안</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 활동 통계 분석</li>
-              </ul>
-              <button className="plan-btn primary" style={{ background: '#1F4EF5', color: 'white', border: 'none' }}>시작하기</button>
+          {/* Plus */}
+          <Card className="flex flex-col border-primary shadow-lg relative bg-primary/5">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 ">
+              <Badge className="bg-primary text-primary-foreground hover:bg-primary">BEST</Badge>
             </div>
+            <CardHeader>
+              <CardTitle className="text-2xl text-primary">Plus</CardTitle>
+              <CardDescription>더 넓은 교류를 원하는 성장하는 동아리</CardDescription>
+              <div className="mt-4 text-4xl font-bold">₩4,900<span className="text-lg font-normal text-muted-foreground">/월</span></div>
+            </CardHeader>
+            <CardContent className="flex flex-col flex-1 gap-4">
+              <ul className="space-y-2 text-sm text-muted-foreground flex-1">
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> Basic의 모든 기능</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 연합 포럼 참여권</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 공동 연구 제안</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 활동 통계 분석</li>
+              </ul>
+              <Button className="w-full" size="lg">시작하기</Button>
+            </CardContent>
+          </Card>
 
-            {/* Pro Plan */}
-            <div className="plan-card" style={{ background: cardBg, borderColor: cardBorder }}>
-              <div className="plan-header">
-                <h3 style={{ color: '#A855F7' }}>Pro</h3>
-                <div className="plan-price" style={{ color: sectionTextPrimary }}>₩9,900<span className="period">/월</span></div>
-                <p style={{ color: cardDesc }}>전국구 활동을 위한<br />전문적인 지원</p>
-              </div>
-              <ul className="plan-features">
-                <li style={{ color: sectionTextSecondary }}>✓ Plus의 모든 기능</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 전국 대회 우선 참가</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 멘토링 매칭 서비스</li>
-                <li style={{ color: sectionTextSecondary }}>✓ 전문가 피드백</li>
+          {/* Pro */}
+          <Card className="flex flex-col border-border/50">
+            <CardHeader>
+              <CardTitle className="text-2xl">Pro</CardTitle>
+              <CardDescription>전국구 활동을 위한 전문적인 지원</CardDescription>
+              <div className="mt-4 text-4xl font-bold">₩9,900<span className="text-lg font-normal text-muted-foreground">/월</span></div>
+            </CardHeader>
+            <CardContent className="flex flex-col flex-1 gap-4">
+              <ul className="space-y-2 text-sm text-muted-foreground flex-1">
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> Plus의 모든 기능</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 전국 대회 우선 참가</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 멘토링 매칭 서비스</li>
+                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 전문가 피드백</li>
               </ul>
-              <button className="plan-btn" style={{ background: '#1F4EF5', color: 'white', border: 'none' }}>문의하기</button>
-            </div>
-          </div>
+              <Button className="w-full" variant="outline">문의하기</Button>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section" style={{ background: footerBg }}>
-        <div className="container">
-          <div className="cta-card-glass" style={{ background: cardBg, borderColor: cardBorder }}>
-            <h2 className="cta-title" style={{ color: sectionTextPrimary }}>
-              지금 바로 시작하세요.
-            </h2>
-            <p className="cta-desc" style={{ color: sectionTextSecondary }}>전국의 100+ 동아리가 이미 활동 중입니다.</p>
+      <section className="container py-12 md:py-24">
+        <div className="relative overflow-hidden rounded-3xl bg-primary px-6 py-20 text-center text-primary-foreground md:px-12 md:py-32 shadow-2xl">
+          <div className="relative z-10 mx-auto max-w-4xl space-y-6">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-5xl">지금 바로 시작하세요.</h2>
+            <p className="text-lg md:text-xl text-primary-foreground/80">전국의 100+ 동아리가 이미 활동 중입니다. 여러분의 동아리를 세상에 알리세요.</p>
             {!session && (
-              <Link
-                href="/signup"
-                className="hero-text-link"
-              >
-                회원 가입하기
+              <Link href="/signup">
+                <Button size="lg" variant="secondary" className="mt-4 h-14 rounded-full px-10 text-lg font-semibold shadow-lg">
+                  회원 가입하기
+                </Button>
               </Link>
             )}
           </div>
+
+          {/* Decorative Background Circles */}
+          <div className="absolute left-[-10%] top-[-50%] h-[500px] w-[500px] rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute right-[-10%] bottom-[-50%] h-[500px] w-[500px] rounded-full bg-white/10 blur-3xl" />
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer" style={{ background: footerBg, borderTop: isLight ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-brand">
-              <span className="brand-name" style={{ color: sectionTextPrimary }}>모여라</span>
-            </div>
-            <p className="copyright" style={{ color: sectionTextSecondary }}>© 2026 Moyora. All rights reserved.</p>
+      <footer className="border-t bg-muted/20">
+        <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
+          <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
+            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+              © 2026 Moyora. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
 
-      <style jsx>{`
-        .home-page {
-          min-height: 100vh;
-          overflow-x: hidden;
-          background: #000000; /* Dark mode base for 'Fantastic' contrast */
-          color: white;
-        }
-
-        /* === Hero Section === */
-        .hero {
-          position: relative;
-          min-height: 100vh;
-          display: flex;
-          align-items: center; /* Center Vertically */
-          justify-content: center;
-          text-align: center;
-          overflow: hidden;
-          padding-top: 80px; /* Offset for Navbar */
-        }
-
-        .hero-background {
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-        }
-
-        .grid-overlay {
-          position: absolute;
-          inset: 0;
-          background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-          background-size: 50px 50px;
-          mask-image: radial-gradient(circle at center, black, transparent 80%);
-          pointer-events: none;
-        }
-
-        /* Hero Content */
-        .hero-content {
-          position: relative;
-          z-index: 10;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .hero-badge-container {
-          margin-bottom: 32px;
-        }
-
-        .hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 24px;
-          background: var(--glass-bg);
-          border: 1px solid var(--glass-border);
-          border-radius: 999px;
-        }
-
-        .badge-text {
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: -0.01em;
-        }
-
-        /* Accent Text - Clean, no shimmer */
-        .accent-text {
-          color: #1F4EF5;
-        }
-
-        .hero-title {
-          font-size: 80px;
-          font-weight: 800;
-          line-height: 1.1;
-          letter-spacing: -0.03em;
-          margin-bottom: 24px;
-          word-break: keep-all;
-        }
-
-        .hero-description {
-          font-size: 24px;
-          line-height: 1.6;
-          color: rgba(255, 255, 255, 0.7);
-          max-width: 680px;
-          margin-bottom: 48px;
-          font-weight: 500;
-          word-break: keep-all;
-        }
-
-        .hero-buttons {
-          display: flex;
-          gap: 20px;
-        }
-        
-        /* Hero Text Links */
-        .hero-text-link {
-          font-size: 18px;
-          font-weight: 700;
-          color: var(--color-text-primary); /* Contrast to theme */
-          text-decoration: underline;
-          text-underline-offset: 6px;
-          transition: all 0.2s;
-          cursor: pointer;
-          background: none;
-          border: none;
-          padding: 8px 12px;
-        }
-
-        .hero-text-link:hover {
-          color: #1F4EF5; /* Blue on hover */
-          transform: translateY(-2px);
-        }
-
-        .hero-text-link.secondary {
-           font-weight: 500;
-           color: var(--color-text-secondary);
-           text-decoration: none;
-        }
-        
-        .hero-text-link.secondary:hover {
-           color: var(--color-text-primary);
-           text-decoration: underline;
-        }
-
-        /* Main CTA Buttons - Uniform with Plan Buttons */
-        .btn-main-cta {
-          height: 48px;
-          padding: 0 32px;
-          border-radius: 999px;
-          background: #1F4EF5;
-          color: white;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          border: none;
-          font-size: 16px;
-        }
-
-        .btn-main-cta:hover {
-          background: #4880EE;
-          transform: translateY(-2px);
-          color: white;
-          opacity: 1;
-        }
-
-        /* === Bento Grid === */
-        .features {
-            position: relative;
-            padding: 100px 0;
-            background: #1A1E27;
-        }
-
-        .section-title {
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .section-subtitle {
-            font-size: 22px;
-            color: #505866;
-        }
-
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, minmax(360px, auto));
-            gap: 32px;
-        }
-
-        .bento-card {
-            background: rgba(20, 20, 20, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 32px;
-            padding: 40px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .bento-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .card-contest {
-            grid-column: span 2;
-            grid-row: span 2;
-            background: linear-gradient(145deg, rgba(31, 78, 245, 0.1), rgba(0,0,0,0));
-        }
-
-        .card-visual-3d {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            font-size: 150px;
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
-            transform: rotate(-10deg);
-            transition: transform 0.5s;
-        }
-        
-        .bento-card:hover .card-visual-3d {
-            transform: rotate(0deg) scale(1.1);
-        }
-
-        .card-icon-box {
-            width: 64px;
-            height: 64px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 24px;
-            color: white;
-            font-size: 32px;
-        }
-        .blue { background: #1F4EF5; box-shadow: 0 10px 30px rgba(31, 78, 245, 0.3); }
-        .green { background: #4880EE; box-shadow: 0 10px 30px rgba(72, 128, 238, 0.3); }
-        .purple { background: #64768C; box-shadow: 0 10px 30px rgba(100, 118, 140, 0.3); }
-        .indigo { background: #505866; box-shadow: 0 10px 30px rgba(80, 88, 102, 0.3); }
-
-        .bento-card h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: white;
-        }
-
-        .bento-card p {
-            font-size: 19px;
-            color: #aaa;
-            line-height: 1.5;
-        }
-
-        .card-research {
-            grid-column: span 3;
-            flex-direction: row;
-            align-items: center;
-        }
-        
-        .card-research .card-content.horizontal {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-            width: 100%;
-        }
-
-        /* === CTA Section === */
-        .cta-section {
-            padding: 120px 0;
-            background: #000000;
-        }
-
-        .cta-card-glass {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 60px;
-            text-align: center;
-        }
-
-        .cta-title {
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .cta-desc {
-            font-size: 24px;
-            color: #505866;
-            margin-bottom: 40px;
-        }
-
-        /* === Animations === */
-        @keyframes reveal {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .anim-title-reveal { animation: reveal 0.8s ease-out forwards; }
-        .anim-fade-up-delay { opacity: 0; animation: reveal 0.8s ease-out 0.2s forwards; }
-        .anim-fade-up-more-delay { opacity: 0; animation: reveal 0.8s ease-out 0.4s forwards; }
-
-        /* === Workflow & Extension Sections === */
-        .workflow-section {
-            padding: 120px 0;
-            background: #000000;
-            position: relative;
-        }
-
-        .section-header-center {
-            text-align: center;
-            margin-bottom: 80px;
-        }
-
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .step-card {
-            padding: 48px 32px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            transition: all 0.3s;
-        }
-
-        .step-card:hover {
-            background: rgba(255,255,255,0.05);
-            transform: translateY(-5px);
-        }
-
-        .step-number-glow {
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--color-blue);
-            opacity: 0.9;
-        }
-
-        .step-card h3 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .step-card p {
-            font-size: 16px;
-            color: #505866;
-            line-height: 1.6;
-        }
-
-        .stats-section {
-            padding: 60px 0;
-            background: #000000;
-        }
-
-        .stats-glass-panel {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 60px;
-            border-radius: 40px;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .stat-value {
-            font-size: 48px;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: -0.02em;
-        }
-
-        .stat-label {
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--color-blue);
-            text-transform: uppercase;
-        }
-
-        .stat-divider-vertical {
-            width: 1px;
-            height: 60px;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .detailed-features {
-            padding: 120px 0;
-            background: #000000;
-        }
-
-        .features-inner-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 40px;
-        }
-
-        .feature-small {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .feature-number {
-            font-size: 32px;
-            font-weight: 800;
-            color: #1A1E27;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-        }
-
-        .feature-small h4 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .feature-small p {
-            font-size: 15px;
-            color: #777;
-            line-height: 1.5;
-        }
-
-        /* === Plans Section === */
-        .plans-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .plan-card {
-            padding: 40px 32px;
-            border-radius: 24px;
-            border: 1px solid transparent;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            transition: all 0.3s;
-        }
-
-        .plan-card:hover {
-            transform: translateY(-8px);
-        }
-
-        .plan-header h3 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .plan-price {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
-        }
-
-        .plan-price .period {
-            font-size: 16px;
-            font-weight: 500;
-            color: #888;
-        }
-
-        .plan-features {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            flex: 1;
-        }
-
-        .plan-features li {
-            font-size: 15px;
-        }
-
-        .plan-btn {
-            width: 100%;
-            height: 48px; /* Uniform height for plan buttons */
-            padding: 0 24px;
-            border-radius: 999px;
-            background: transparent;
-            border: 1px solid;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .plan-btn:hover {
-            opacity: 0.8;
-            transform: translateY(-2px);
-        }
-
-
-
-        /* === Mobile Layout === */
-        @media (max-width: 768px) {
-            /* Hero - Mobile */
-            .hero {
-                min-height: 100svh;
-                padding-top: 100px;
-            }
-
-            .hero-badge-container {
-                margin-bottom: 24px;
-            }
-
-            .hero-badge {
-                padding: 8px 16px;
-            }
-
-            .badge-text {
-                font-size: 12px;
-            }
-
-            .hero-title {
-                font-size: 36px;
-                margin-bottom: 16px;
-            }
-
-            .hero-description {
-                font-size: 16px;
-                margin-bottom: 32px;
-                padding: 0 16px;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                width: 100%;
-                max-width: 280px;
-                gap: 12px;
-            }
-
-            .btn-main-cta {
-                width: 100%;
-                height: 48px;
-                padding: 0 24px;
-            }
-
-            .cta-content {
-                font-size: 15px;
-            }
-
-            /* Features - Mobile */
-            .features {
-                padding: 60px 0;
-            }
-
-            .section-title {
-                font-size: 28px;
-            }
-
-            .section-subtitle {
-                font-size: 16px;
-            }
-
-            .bento-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
-                gap: 12px;
-            }
-
-            .bento-card {
-                padding: 20px;
-                border-radius: 16px;
-                min-height: auto !important;
-                height: auto !important;
-            }
-
-            .card-contest, .card-research, .card-forum, .card-alert {
-                grid-column: span 1 !important;
-                grid-row: span 1 !important;
-                background: var(--glass-bg) !important;
-            }
-
-            .card-icon-box {
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
-                margin-bottom: 0;
-                flex-shrink: 0;
-            }
-
-            .card-icon-box svg {
-                width: 22px;
-                height: 22px;
-            }
-
-            /* All cards use horizontal layout on mobile */
-            .bento-card .card-content {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                gap: 16px;
-            }
-
-            .bento-card h3 {
-                font-size: 17px;
-                margin-bottom: 4px;
-            }
-
-            .bento-card p {
-                font-size: 14px;
-                line-height: 1.4;
-                margin: 0;
-                word-break: keep-all;
-            }
-
-            .text-group {
-                display: flex;
-                flex-direction: column;
-                flex: 1;
-                min-width: 0;
-            }
-
-            .section-title {
-                font-size: 28px;
-                word-break: keep-all;
-                overflow-wrap: break-word;
-            }
-
-            .card-research .text-group h3,
-            .card-research .text-group p {
-                margin: 0;
-            }
-
-            /* Workflow - Mobile */
-            .workflow-section {
-                padding: 60px 0;
-            }
-
-            .section-header-center {
-                margin-bottom: 40px;
-            }
-
-            .steps-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-
-            .step-card {
-                padding: 24px;
-                text-align: left;
-            }
-
-            .step-number-glow {
-                font-size: 32px;
-            }
-
-            .step-card h3 {
-                font-size: 18px;
-            }
-
-            .step-card p {
-                font-size: 14px;
-            }
-
-            /* Stats - Mobile */
-            .stats-section {
-                padding: 40px 0;
-            }
-
-            .stats-glass-panel {
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 24px;
-                padding: 32px 16px;
-                border-radius: 24px;
-            }
-
-            .stat-item {
-                flex: 1 1 80px;
-                min-width: 80px;
-            }
-
-            .stat-value {
-                font-size: 28px;
-            }
-
-            .stat-label {
-                font-size: 11px;
-            }
-
-            .stat-divider-vertical {
-                display: none;
-            }
-
-            /* Features List - Mobile */
-            .detailed-features {
-                padding: 60px 0;
-            }
-
-            .features-inner-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-
-            .feature-number {
-                font-size: 24px;
-            }
-
-            .feature-small h4 {
-                font-size: 16px;
-            }
-
-            .feature-small p {
-                font-size: 13px;
-            }
-
-            /* CTA - Mobile */
-            .cta-section {
-                padding: 60px 0;
-            }
-
-            .cta-card-glass {
-                padding: 40px 24px;
-                border-radius: 24px;
-            }
-
-            .cta-title {
-                font-size: 28px;
-            }
-
-            .cta-desc {
-                font-size: 16px;
-                margin-bottom: 24px;
-            }
-
-            /* Footer - Mobile */
-            .footer {
-                padding: 32px 0;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                gap: 8px;
-                text-align: center;
-            }
-
-            .brand-name {
-                font-size: 16px;
-            }
-
-            .copyright {
-                font-size: 12px;
-            }
-        }
-
-        /* Small Mobile */
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 28px;
-            }
-
-            .hero-description {
-                font-size: 14px;
-            }
-
-            .features-inner-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .section-title {
-                font-size: 24px;
-            }
-
-            .stat-value {
-                font-size: 24px;
-            }
-
-            .cta-title {
-                font-size: 24px;
-            }
-        }
-      `}</style>
     </div>
   );
 }

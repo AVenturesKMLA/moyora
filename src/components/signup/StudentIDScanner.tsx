@@ -4,6 +4,11 @@ import { useState, useRef, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import Tesseract from 'tesseract.js';
 import NextImage from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Camera, RefreshCw, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 
 interface StudentIDScannerProps {
     onComplete: (data: { schoolName: string; studentName: string; rawText: string }) => void;
@@ -186,31 +191,41 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
     };
 
     return (
-        <div className="animate-fade-in space-y-6">
+        <div className="space-y-6 py-4">
             <canvas ref={canvasRef} style={{ display: 'none' }} />
 
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">학생증 인증</h2>
-                <p className="text-gray-500 text-sm mt-2">안정적인 촬영을 위해 빛 번짐을 주의해주세요</p>
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400">
+                    <Camera className="h-8 w-8" />
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground">학생증 인증</h2>
+                <p className="mt-2 text-muted-foreground">
+                    학생증을 촬영하여 학교 정보를 인증해 주세요.
+                </p>
             </div>
 
-            <div className="scanner-card glass-panel">
+            <Card className="overflow-hidden border-border/40 shadow-sm">
                 {!imgSrc ? (
-                    <div className="camera-container">
+                    <div className="relative flex h-[440px] w-full flex-col items-center justify-center bg-black">
                         <Webcam
                             audio={false}
                             ref={webcamRef}
                             screenshotFormat="image/jpeg"
                             videoConstraints={videoConstraints}
-                            className="webcam-view"
+                            className="h-full w-full object-cover"
                             forceScreenshotSourceSize={true}
                         />
-                        <div className="overlay-guide">
-                            <div className="guide-box"></div>
-                            <p className="guide-text">사각형 안에 학생증을 정렬해주세요</p>
+
+                        {/* Overlay Guide */}
+                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+                            <div className="h-[240px] w-[85%] rounded-2xl border-2 border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"></div>
+                            <p className="mt-8 text-sm font-medium text-white drop-shadow-md">
+                                사각형 안에 학생증을 정렬해주세요
+                            </p>
                         </div>
 
-                        <div className="camera-controls">
+                        {/* Controls */}
+                        <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between bg-gradient-to-t from-black/60 to-transparent p-8">
                             <input
                                 type="file"
                                 accept="image/*"
@@ -218,281 +233,85 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
                                 style={{ display: 'none' }}
                                 onChange={handleFileUpload}
                             />
-                            <button
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-12 w-12 rounded-full border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 hover:text-white"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="gallery-btn"
                             >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                    <polyline points="21 15 16 10 5 21"></polyline>
-                                </svg>
+                                <ImageIcon className="h-6 w-6" />
+                            </Button>
+
+                            <button
+                                onClick={capture}
+                                className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white/30 backdrop-blur-sm transition-transform active:scale-95"
+                            >
+                                <div className="h-16 w-16 rounded-full bg-white"></div>
                             </button>
 
-                            <button onClick={capture} className="capture-btn">
-                                <div className="inner-circle"></div>
-                            </button>
-
-                            <div className="w-12"></div> {/* Spacer to center capture btn */}
+                            <div className="w-12"></div> {/* Spacer */}
                         </div>
                     </div>
                 ) : (
-                    <div className="preview-container">
-                        <NextImage src={imgSrc} alt="Scanned ID" fill className="scanned-image" style={{ objectFit: 'cover' }} />
+                    <div className="relative h-[440px] w-full bg-black">
+                        <NextImage src={imgSrc} alt="Scanned ID" fill className="object-cover" />
 
                         {isScanning && (
-                            <div className="scanning-overlay">
-                                <div className="scanner-line"></div>
-                                <div className="progress-container">
-                                    <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+                            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/70 p-6 text-center">
+                                <div className="h-1 w-full max-w-[200px] overflow-hidden rounded-full bg-white/20">
+                                    <div
+                                        className="h-full bg-primary transition-all duration-300"
+                                        style={{ width: `${progress}%` }}
+                                    ></div>
                                 </div>
-                                <p className="scanning-text">인공지능 분석 중... {progress}%</p>
-                                <p className="text-xs text-white/60 mt-2">글자를 읽어오고 있습니다</p>
+                                <p className="mt-4 text-sm font-semibold text-white">인공지능 분석 중... {progress}%</p>
+                                <p className="mt-1 text-xs text-white/60">글자를 읽어오고 있습니다</p>
                             </div>
                         )}
                     </div>
                 )}
 
                 {scannedData && !isScanning && (
-                    <div className="result-form">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="result-title">인식 결과 확인</h3>
-                            <p className="text-xs text-blue-500 font-medium">잘못된 정보는 수정 가능합니다</p>
+                    <CardContent className="space-y-6 pt-6 bg-background">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-semibold text-foreground">인식 결과 확인</h3>
+                            <span className="text-xs font-medium text-primary">잘못된 정보는 수정 가능합니다</span>
                         </div>
 
-                        <div className="form-group">
-                            <label>학교명</label>
-                            <input
-                                type="text"
-                                value={scannedData.schoolName}
-                                onChange={(e) => setScannedData({ ...scannedData, schoolName: e.target.value })}
-                                placeholder="인식되지 않음 (직접 입력)"
-                                className="input-field"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>성명</label>
-                            <input
-                                type="text"
-                                value={scannedData.studentName}
-                                onChange={(e) => setScannedData({ ...scannedData, studentName: e.target.value })}
-                                placeholder="인식되지 않음 (직접 입력)"
-                                className="input-field"
-                            />
+                        <div className="space-y-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="school">학교명</Label>
+                                <Input
+                                    id="school"
+                                    value={scannedData.schoolName}
+                                    onChange={(e) => setScannedData({ ...scannedData, schoolName: e.target.value })}
+                                    placeholder="인식되지 않음 (직접 입력)"
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="name">성명</Label>
+                                <Input
+                                    id="name"
+                                    value={scannedData.studentName}
+                                    onChange={(e) => setScannedData({ ...scannedData, studentName: e.target.value })}
+                                    placeholder="인식되지 않음 (직접 입력)"
+                                />
+                            </div>
                         </div>
 
-                        <div className="action-buttons">
-                            <button onClick={handleRetake} className="btn-secondary">다시 찍기</button>
-                            <button onClick={handleConfirm} className="btn-primary">정보 확인 완료</button>
+                        <div className="flex gap-3 pt-2">
+                            <Button variant="outline" className="flex-1" onClick={handleRetake}>
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                다시 찍기
+                            </Button>
+                            <Button className="flex-1" onClick={handleConfirm}>
+                                <CheckCircle2 className="mr-2 h-4 w-4" />
+                                확인 완료
+                            </Button>
                         </div>
-                    </div>
+                    </CardContent>
                 )}
-            </div>
-
-            <style jsx>{`
-                .glass-panel {
-                    background: #000000;
-                    border-radius: 24px;
-                    overflow: hidden;
-                    position: relative;
-                    min-height: 440px;
-                    display: flex;
-                    flex-direction: column;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-                }
-                .camera-container, .preview-container {
-                    position: relative;
-                    width: 100%;
-                    height: 440px;
-                    background: #000000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    overflow: hidden;
-                }
-                .webcam-view, .scanned-image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-                .overlay-guide {
-                    position: absolute;
-                    inset: 0;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    pointer-events: none;
-                    z-index: 10;
-                }
-                .guide-box {
-                    width: 85%;
-                    height: 240px;
-                    border: 2px solid rgba(255,255,255,0.9);
-                    border-radius: 16px;
-                    box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);
-                }
-                .guide-text {
-                    color: white;
-                    margin-top: 20px;
-                    font-size: 14px;
-                    font-weight: 500;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-                }
-                
-                .camera-controls {
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    padding: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    z-index: 20;
-                    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-                }
-                
-                .gallery-btn {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    background: rgba(255,255,255,0.2);
-                    backdrop-filter: blur(10px);
-                    color: white;
-                    border: 1px solid rgba(255,255,255,0.3);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                }
-
-                .capture-btn {
-                    width: 72px;
-                    height: 72px;
-                    border-radius: 50%;
-                    background: rgba(255,255,255,0.3);
-                    backdrop-filter: blur(4px);
-                    border: 2px solid white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    transition: transform 0.1s;
-                }
-                .capture-btn:active { transform: scale(0.92); }
-                .inner-circle {
-                    width: 58px;
-                    height: 58px;
-                    border-radius: 50%;
-                    background: white;
-                }
-                
-                .scanning-overlay {
-                    position: absolute;
-                    inset: 0;
-                    background: rgba(0,0,0,0.7);
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 30;
-                }
-                .scanner-line {
-                    width: 100%;
-                    height: 3px;
-                    background: linear-gradient(to right, transparent, #1F4EF5, transparent);
-                    box-shadow: 0 0 15px #1F4EF5;
-                    animation: scan 2s ease-in-out infinite;
-                }
-                @keyframes scan {
-                    0% { transform: translateY(-120px); opacity: 0; }
-                    20% { opacity: 1; }
-                    80% { opacity: 1; }
-                    100% { transform: translateY(120px); opacity: 0; }
-                }
-                
-                .progress-container {
-                    width: 60%;
-                    height: 4px;
-                    background: rgba(255,255,255,0.1);
-                    border-radius: 2px;
-                    margin-top: 32px;
-                    overflow: hidden;
-                }
-                .progress-bar {
-                    height: 100%;
-                    background: #1F4EF5;
-                    transition: width 0.3s ease;
-                }
-                .scanning-text {
-                    color: #fff;
-                    margin-top: 12px;
-                    font-size: 14px;
-                    font-weight: 600;
-                }
-
-                .result-form {
-                    padding: 24px;
-                    background: #fff;
-                    flex: 1;
-                }
-                .result-title {
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: #1A1E27;
-                }
-                .form-group {
-                    margin-bottom: 20px;
-                }
-                .form-group label {
-                    display: block;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #B1B8C0;
-                    margin-bottom: 8px;
-                }
-                .input-field {
-                    width: 100%;
-                    padding: 14px;
-                    border: 1px solid #D6DADF;
-                    border-radius: 12px;
-                    font-size: 16px;
-                    background: #D6DADF;
-                    transition: border-color 0.2s;
-                }
-                .input-field:focus {
-                    outline: none;
-                    border-color: #1F4EF5;
-                    background: #fff;
-                }
-                
-                .action-buttons {
-                    display: flex;
-                    gap: 12px;
-                    margin-top: 28px;
-                }
-                .btn-primary, .btn-secondary {
-                    flex: 1;
-                    padding: 16px;
-                    border-radius: 14px;
-                    font-weight: 700;
-                    font-size: 15px;
-                    border: none;
-                    cursor: pointer;
-                }
-                .btn-primary { background: #1F4EF5; color: white; }
-                .btn-secondary { background: #D6DADF; color: #1A1E27; }
-                
-                @media (prefers-color-scheme: dark) {
-                    .result-form { background: #1A1E27; }
-                    .result-title { color: #fff; }
-                    .input-field { background: #2c2c2e; border-color: #64768C; color: #fff; }
-                    .btn-secondary { background: #64768C; color: #fff; }
-                }
-                .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-            `}</style>
+            </Card>
         </div>
     );
 }

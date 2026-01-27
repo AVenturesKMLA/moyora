@@ -6,6 +6,14 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import NavBar from '@/components/NavBar';
 import dynamic from 'next/dynamic';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const FloatingShapes = dynamic(() => import('@/components/canvas/FloatingShapes'), { ssr: false });
 
@@ -16,47 +24,64 @@ interface FormErrors {
 export default function ClubRegisterPage() {
     const router = useRouter();
     const { data: session, status } = useSession();
+    const [mounted, setMounted] = useState(false);
+
+    // Form States
     const [formData, setFormData] = useState({
-        schoolName: '',
-        clubTheme: '',
         clubName: '',
-        presidentName: '',
-        presidentEmail: '',
-        presidentPhone: '',
-        clubEmail: '',
+        schoolName: '',
+        category: '',
+        description: '',
+        location: '',
+        meetingTime: '',
+        recruitStatus: 'open', // open, close
+        contactPhone: '',
+        maxMembers: ''
     });
+
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
 
-    // Populate form with session data when available
     useEffect(() => {
-        if (status === 'authenticated' && session?.user) {
-            setFormData((prev) => ({
-                ...prev,
-                presidentName: session.user?.name || prev.presidentName,
-                presidentEmail: session.user?.email || prev.presidentEmail,
-            }));
-        }
-    }, [session, status]);
+        setMounted(true);
+    }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (status === 'loading') {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    if (!session) {
+        if (typeof window !== 'undefined') router.push('/login');
+        return null;
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value }));
+
+        // Clear error when user types
         if (errors[name]) {
-            setErrors((prev) => ({ ...prev, [name]: '' }));
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
         }
     };
 
-    const validate = () => {
+    const validateForm = () => {
         const newErrors: FormErrors = {};
 
-        if (!formData.schoolName) newErrors.schoolName = '학교명을 입력해주세요';
-        if (!formData.clubTheme) newErrors.clubTheme = '동아리 분야를 선택해주세요';
-        if (!formData.clubName) newErrors.clubName = '동아리명을 입력해주세요';
-        if (!formData.presidentName) newErrors.presidentName = '회장 이름을 입력해주세요';
-        if (!formData.presidentEmail) newErrors.presidentEmail = '회장 이메일을 입력해주세요';
-        if (!formData.presidentPhone) newErrors.presidentPhone = '회장 전화번호를 입력해주세요';
+        if (!formData.clubName.trim()) newErrors.clubName = '동아리명을 입력해주세요';
+        if (!formData.schoolName.trim()) newErrors.schoolName = '학교명을 입력해주세요';
+        if (!formData.category) newErrors.category = '분야를 선택해주세요';
+        if (!formData.description.trim()) newErrors.description = '소개를 입력해주세요';
+        if (formData.description.length < 20) newErrors.description = '소개는 최소 20자 이상 입력해주세요';
+        if (!formData.contactPhone.trim()) newErrors.contactPhone = '연락처를 입력해주세요';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -65,448 +90,219 @@ export default function ClubRegisterPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!validate()) return;
+        if (!validateForm()) return;
 
         setIsLoading(true);
-        setErrors({});
 
         try {
-            const response = await fetch('/api/clubs', {
+            const response = await fetch('/api/clubs/register', { // Assuming endpoint
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error('Club registration failed:', data);
-                if (data.errors) {
-                    const fieldErrors: FormErrors = {};
-                    data.errors.forEach((err: { field: string; message: string }) => {
-                        fieldErrors[err.field] = err.message;
-                    });
-                    setErrors(fieldErrors);
-                } else {
-                    setErrors({ general: data.message || '등록 중 오류가 발생했습니다' });
-                }
-                setIsLoading(false);
-                return;
+            if (response.ok) {
+                // Success
+                router.push('/dashboard');
+            } else {
+                const data = await response.json();
+                setErrors({ submit: data.message || '등록에 실패했습니다.' });
             }
-
-            setSuccess(true);
-            // Redirect immediately after showing success message
-            setTimeout(() => {
-                router.replace('/dashboard');
-            }, 1500);
-        } catch (err) {
-            console.error('Club registration error:', err);
-            setErrors({ general: '서버와 연결할 수 없습니다. 다시 시도해주세요.' });
+        } catch (error) {
+            console.error('Registration failed:', error);
+            setErrors({ submit: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+        } finally {
             setIsLoading(false);
         }
     };
 
-    if (success) {
-        return (
-            <div className="success-page">
-                <div className="success-island glass-card anim-scale-in">
-                    <div className="check-icon-box">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                    </div>
-                    <h1>등록 요청 완료</h1>
-                    <p>동아리 정보가 성공적으로 제출되었습니다.</p>
-                    <div className="loading-bar">
-                        <div className="loading-progress"></div>
-                    </div>
-                </div>
-                <style jsx>{`
-                    .success-page {
-                        min-height: 100vh;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        background: #D6DADF;
-                        padding: 24px;
-                    }
-                    .success-island {
-                        text-align: center;
-                        padding: 60px 48px;
-                        max-width: 440px;
-                        width: 100%;
-                    }
-                    .check-icon-box {
-                        width: 80px;
-                        height: 80px;
-                        background: #4880EE;
-                        color: white;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin: 0 auto 24px;
-                        box-shadow: 0 10px 30px rgba(72, 128, 238, 0.3);
-                    }
-                    h1 { font-size: 1.8rem; font-weight: 800; color: #1A1E27; margin-bottom: 12px; }
-                    p { color: #505866; font-size: 1.05rem; }
-                    .loading-bar {
-                        margin-top: 32px;
-                        height: 4px;
-                        background: #E5E7EB;
-                        border-radius: 2px;
-                        overflow: hidden;
-                    }
-                    .loading-progress {
-                        height: 100%;
-                        background: #4880EE;
-                        width: 100%;
-                        animation: progress 1.5s linear forwards;
-                    }
-                    @keyframes progress { from { width: 0; } to { width: 100%; } }
-                    .anim-scale-in { animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-                    @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                `}</style>
-            </div>
-        );
-    }
-
     return (
-        <div className="register-page">
+        <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
             <NavBar />
-            <FloatingShapes />
 
-            <main className="register-main">
-                <div className="container container-sm">
-                    <div className="page-header">
-                        <h1 className="page-title">동아리 등록하기</h1>
-                        <p className="page-subtitle">모여라의 동아리 회원이 되어 다양한 활동을 시작해보세요</p>
-                    </div>
+            {/* Background Decorations */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
+                <FloatingShapes />
+            </div>
 
-                    <div className="form-card-apple glass-card">
-                        {errors.general && (
-                            <div className="toast-apple error">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-                                </svg>
-                                <span>{errors.general}</span>
-                            </div>
-                        )}
+            <main className="flex-1 container max-w-3xl py-12 relative z-10">
+                <div className="mb-8 text-center space-y-2">
+                    <h1 className="text-3xl font-bold tracking-tight">새 동아리 등록</h1>
+                    <p className="text-muted-foreground">
+                        동아리를 등록하고 전국 100+ 동아리와 교류를 시작하세요.
+                    </p>
+                </div>
 
-                        <form onSubmit={handleSubmit} className="apple-form">
-                            <div className="form-section-apple">
-                                <div className="section-title-apple">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
-                                    </svg>
-                                    <h3>학교 정보</h3>
+                <Card className="border-border/60 shadow-lg bg-card/80 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle>기본 정보</CardTitle>
+                        <CardDescription>동아리의 가장 중요한 정보를 입력해주세요.</CardDescription>
+                    </CardHeader>
+
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+
+                            {errors.submit && (
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>오류</AlertTitle>
+                                    <AlertDescription>
+                                        {errors.submit}
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+
+                            {/* Row 1 */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="clubName">동아리명 <span className="text-destructive">*</span></Label>
+                                    <Input
+                                        id="clubName"
+                                        name="clubName"
+                                        placeholder="예: 사이언스랩"
+                                        value={formData.clubName}
+                                        onChange={handleChange}
+                                        className={errors.clubName ? "border-destructive" : ""}
+                                    />
+                                    {errors.clubName && <p className="text-xs text-destructive">{errors.clubName}</p>}
                                 </div>
-
-                                <div className="input-field-apple">
-                                    <label>학교명 *</label>
-                                    <input
-                                        type="text"
+                                <div className="space-y-2">
+                                    <Label htmlFor="schoolName">학교명 <span className="text-destructive">*</span></Label>
+                                    <Input
+                                        id="schoolName"
                                         name="schoolName"
-                                        placeholder="재학 중인 학교 이름을 입력하세요"
-                                        className={errors.schoolName ? 'error' : ''}
+                                        placeholder="예: 서울과학고등학교"
                                         value={formData.schoolName}
                                         onChange={handleChange}
+                                        className={errors.schoolName ? "border-destructive" : ""}
                                     />
-                                    {errors.schoolName && <span className="error-hint">{errors.schoolName}</span>}
+                                    {errors.schoolName && <p className="text-xs text-destructive">{errors.schoolName}</p>}
                                 </div>
                             </div>
 
-                            <div className="form-section-apple">
-                                <div className="section-title-apple">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                        <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-                                    </svg>
-                                    <h3>동아리 정보</h3>
+                            {/* Row 2 */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="category">활동 분야 <span className="text-destructive">*</span></Label>
+                                    <select
+                                        id="category"
+                                        name="category"
+                                        className={cn(
+                                            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                            errors.category ? "border-destructive" : ""
+                                        )}
+                                        value={formData.category}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="">분야 선택</option>
+                                        <option value="science">과학 / 공학</option>
+                                        <option value="math">수학</option>
+                                        <option value="humanities">인문 / 사회</option>
+                                        <option value="arts">예술 / 체육</option>
+                                        <option value="startup">창업 / 경영</option>
+                                        <option value="other">기타</option>
+                                    </select>
+                                    {errors.category && <p className="text-xs text-destructive">{errors.category}</p>}
                                 </div>
 
-                                <div className="row-apple">
-                                    <div className="input-field-apple flex-1">
-                                        <label>분야 *</label>
-                                        <select
-                                            name="clubTheme"
-                                            className={errors.clubTheme ? 'error' : ''}
-                                            value={formData.clubTheme}
-                                            onChange={handleChange}
-                                        >
-                                            <option value="">분야 선택</option>
-                                            <option value="학술">학술</option>
-                                            <option value="과학">과학</option>
-                                            <option value="예술">예술</option>
-                                            <option value="체육">체육</option>
-                                            <option value="봉사">봉사</option>
-                                            <option value="언론">언론</option>
-                                            <option value="기타">기타</option>
-                                        </select>
-                                        {errors.clubTheme && <span className="error-hint">{errors.clubTheme}</span>}
-                                    </div>
-
-                                    <div className="input-field-apple flex-2">
-                                        <label>동아리명 *</label>
-                                        <input
-                                            type="text"
-                                            name="clubName"
-                                            placeholder="동아리 공식 명칭"
-                                            className={errors.clubName ? 'error' : ''}
-                                            value={formData.clubName}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.clubName && <span className="error-hint">{errors.clubName}</span>}
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="contactPhone">대표 연락처 <span className="text-destructive">*</span></Label>
+                                    <Input
+                                        id="contactPhone"
+                                        name="contactPhone"
+                                        type="tel"
+                                        placeholder="010-0000-0000"
+                                        value={formData.contactPhone}
+                                        onChange={handleChange}
+                                        className={errors.contactPhone ? "border-destructive" : ""}
+                                    />
+                                    {errors.contactPhone && <p className="text-xs text-destructive">{errors.contactPhone}</p>}
                                 </div>
+                            </div>
 
-                                <div className="input-field-apple">
-                                    <label>동아리 대표 이메일 (선택)</label>
-                                    <input
-                                        type="email"
-                                        name="clubEmail"
-                                        placeholder="club@example.com"
-                                        value={formData.clubEmail}
+                            <div className="space-y-2">
+                                <Label htmlFor="description">동아리 소개 <span className="text-destructive">*</span></Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    placeholder="동아리의 목표, 주요 활동 등을 상세히 적어주세요."
+                                    className={cn("min-h-[120px] resize-y", errors.description ? "border-destructive" : "")}
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                />
+                                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+                                <p className="text-xs text-muted-foreground text-right">{formData.description.length} / 20자 이상</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                                <div className="space-y-2">
+                                    <Label htmlFor="location">주 활동 장소</Label>
+                                    <Input
+                                        id="location"
+                                        name="location"
+                                        placeholder="예: 과학동 301호"
+                                        value={formData.location}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="meetingTime">정기 모임 시간</Label>
+                                    <Input
+                                        id="meetingTime"
+                                        name="meetingTime"
+                                        placeholder="예: 매주 금요일 16:30"
+                                        value={formData.meetingTime}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
 
-                            <div className="form-section-apple">
-                                <div className="section-title-apple">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                                    </svg>
-                                    <h3>회장 정보</h3>
-                                </div>
-
-                                <div className="input-field-apple">
-                                    <label>이름 *</label>
-                                    <input
-                                        type="text"
-                                        name="presidentName"
-                                        className={errors.presidentName ? 'error' : ''}
-                                        value={formData.presidentName}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="maxMembers">최대 인원</Label>
+                                    <Input
+                                        id="maxMembers"
+                                        name="maxMembers"
+                                        type="number"
+                                        placeholder="제한 없음"
+                                        value={formData.maxMembers}
                                         onChange={handleChange}
                                     />
-                                    {errors.presidentName && <span className="error-hint">{errors.presidentName}</span>}
                                 </div>
-
-                                <div className="row-apple">
-                                    <div className="input-field-apple flex-1">
-                                        <label>이메일 *</label>
-                                        <input
-                                            type="email"
-                                            name="presidentEmail"
-                                            className={errors.presidentEmail ? 'error' : ''}
-                                            value={formData.presidentEmail}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.presidentEmail && <span className="error-hint">{errors.presidentEmail}</span>}
-                                    </div>
-
-                                    <div className="input-field-apple flex-1">
-                                        <label>전화번호 *</label>
-                                        <input
-                                            type="tel"
-                                            name="presidentPhone"
-                                            placeholder="010-0000-0000"
-                                            className={errors.presidentPhone ? 'error' : ''}
-                                            value={formData.presidentPhone}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.presidentPhone && <span className="error-hint">{errors.presidentPhone}</span>}
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="recruitStatus">모집(면접) 상태</Label>
+                                    <select
+                                        id="recruitStatus"
+                                        name="recruitStatus"
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        value={formData.recruitStatus}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="open">모집 중 (면접 가능)</option>
+                                        <option value="close">모집 마감</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <div className="form-actions-apple">
-                                <Link href="/dashboard" className="btn-apple-cancel">취소</Link>
-                                <button
-                                    type="submit"
-                                    className={`btn-apple-submit ${isLoading ? 'loading' : ''}`}
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? '등록 중...' : '동아리 등록 신청하기'}
-                                </button>
+                            <div className="pt-6 flex gap-4 justify-end">
+                                <Button variant="outline" type="button" onClick={() => router.back()}>
+                                    취소
+                                </Button>
+                                <Button type="submit" disabled={isLoading} className="w-full md:w-auto min-w-[120px]">
+                                    {isLoading ? (
+                                        <>
+                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></div>
+                                            등록 중...
+                                        </>
+                                    ) : (
+                                        '동아리 등록하기'
+                                    )}
+                                </Button>
                             </div>
                         </form>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             </main>
-
-            <style jsx>{`
-                .register-page {
-                    min-height: 100vh;
-                    background-color: var(--color-bg);
-                }
-
-                .register-main {
-                    padding: 40px 0 100px;
-                }
-
-                .page-header {
-                    text-align: center;
-                    margin-bottom: 48px;
-                }
-
-                .page-title {
-                    font-size: 2.5rem;
-                    font-weight: 800;
-                    color: var(--color-text-primary);
-                    margin-bottom: 12px;
-                }
-
-                .page-subtitle {
-                    color: var(--color-text-secondary);
-                    font-size: 1.1rem;
-                    max-width: 500px;
-                    margin: 0 auto;
-                }
-
-                .form-card-apple {
-                    padding: 48px;
-                    max-width: 680px;
-                    margin: 0 auto;
-                }
-
-                .apple-form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 40px;
-                }
-
-                .form-section-apple {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 20px;
-                }
-
-                .section-title-apple {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    color: var(--color-text-primary);
-                    margin-bottom: 8px;
-                }
-
-                .section-title-apple h3 {
-                    font-size: 1.25rem;
-                    font-weight: 800;
-                }
-
-                .row-apple {
-                    display: flex;
-                    gap: 16px;
-                }
-
-                .flex-1 { flex: 1; }
-                .flex-2 { flex: 2; }
-
-                .input-field-apple {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .input-field-apple label {
-                    font-size: 0.85rem;
-                    font-weight: 700;
-                    color: var(--color-text-primary);
-                    padding-left: 4px;
-                }
-
-                .input-field-apple input, 
-                .input-field-apple select {
-                    padding: 16px;
-                    border-radius: 16px;
-                    border: 1px solid rgba(0,0,0,0.08);
-                    background: #fff;
-                    font-family: inherit;
-                    font-size: 1rem;
-                    transition: border 0.2s;
-                }
-
-                .input-field-apple input:focus,
-                .input-field-apple select:focus {
-                    border-color: #1F4EF5;
-                    outline: none;
-                }
-
-                .input-field-apple input.error {
-                    border-color: #1F4EF5;
-                    background: #FFF9F9;
-                }
-
-                .error-hint {
-                    color: #1F4EF5;
-                    font-size: 0.8rem;
-                    font-weight: 600;
-                    padding-left: 4px;
-                }
-
-                .form-actions-apple {
-                    display: flex;
-                    align-items: center;
-                    justify-content: flex-end;
-                    gap: 16px;
-                    margin-top: 16px;
-                }
-
-                .btn-apple-cancel {
-                    padding: 18px 32px;
-                    border-radius: 20px;
-                    font-weight: 700;
-                    color: var(--color-text-secondary);
-                    text-decoration: none;
-                    transition: all 0.2s;
-                }
-
-                .btn-apple-cancel:hover {
-                    background: var(--glass-border);
-                }
-
-                .btn-apple-submit {
-                    background: var(--color-text-primary);
-                    color: var(--color-bg);
-                    padding: 18px 40px;
-                    border-radius: 20px;
-                    border: none;
-                    font-size: 1.05rem;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-
-                .btn-apple-submit:hover {
-                    opacity: 0.9;
-                    transform: translateY(-2px);
-                }
-
-                .toast-apple {
-                    padding: 14px 20px;
-                    border-radius: 16px;
-                    margin-bottom: 32px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-
-                .toast-apple.error {
-                    background: #FFF2F2;
-                    color: #1F4EF5;
-                    border: 1px solid rgba(255,59,48,0.1);
-                }
-
-                @media (max-width: 600px) {
-                    .form-card-apple { padding: 32px 24px; }
-                    .row-apple { flex-direction: column; }
-                    .page-title { font-size: 2rem; }
-                    .form-actions-apple { flex-direction: column-reverse; width: 100%; }
-                    .btn-apple-submit { width: 100%; }
-                    .btn-apple-cancel { text-align: center; width: 100%; }
-                }
-            `}</style>
         </div>
     );
 }

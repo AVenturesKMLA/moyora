@@ -1,64 +1,40 @@
-"use client";
+"use client"
 
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import * as React from "react"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+
+import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) {
-        return <div className="theme-toggle-placeholder" />;
-    }
+    const { setTheme } = useTheme()
 
     return (
-        <button
-            className="theme-toggle"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label="Toggle theme"
-        >
-            <div className={`toggle-thumb ${theme === 'dark' ? 'dark' : 'light'}`} />
-            <style jsx>{`
-        .theme-toggle {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            background: rgba(120, 120, 128, 0.2);
-            border: 1px solid rgba(120, 120, 128, 0.2);
-            border-radius: 999px;
-            cursor: pointer;
-            padding: 2px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-        }
-        .theme-toggle:hover {
-            background: rgba(120, 120, 128, 0.3);
-        }
-        .toggle-thumb {
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        .toggle-thumb.light {
-            transform: translateX(0);
-        }
-        .toggle-thumb.dark {
-            transform: translateX(20px);
-            background: #1F4EF5; /* or a nice dark mode indicator color */
-        }
-        .theme-toggle-placeholder {
-            width: 44px;
-            height: 24px;
-        }
-      `}</style>
-        </button>
-    );
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    <span className="sr-only">Toggle theme</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setTheme("light")}>
+                    Light
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("system")}>
+                    System
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
 }

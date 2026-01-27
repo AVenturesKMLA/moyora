@@ -6,7 +6,9 @@ import IdentityVerification from '@/components/signup/IdentityVerification';
 import StudentIDScanner from '@/components/signup/StudentIDScanner';
 import UserRegistrationForm from '@/components/signup/UserRegistrationForm';
 import Link from 'next/link';
-import './signup.css';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { ChevronLeft } from 'lucide-react';
 
 export default function SignupPage() {
   const [step, setStep] = useState<number>(1);
@@ -34,34 +36,29 @@ export default function SignupPage() {
 
   return (
     <MobileGuard>
-      <div className="signup-flow-container">
-        {/* Header (Simplified for Steps) */}
-        <div className="signup-header">
-          <Link href="/" className="back-button">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </Link>
-          <h1 className="header-title">
+      <div className="min-h-screen bg-background pb-20">
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <Button variant="ghost" size="icon" asChild className="-ml-2">
+            <Link href="/">
+              <ChevronLeft className="h-6 w-6" />
+            </Link>
+          </Button>
+          <h1 className="text-lg font-semibold">
             {step === 1 && '본인 인증'}
             {step === 2 && '학생증 인증'}
             {step === 3 && '정보 입력'}
           </h1>
-          <div className="placeholder-w24"></div>
+          <div className="w-10"></div> {/* Spacer for alignment */}
         </div>
 
         {/* Progress Bar */}
-        <div className="progress-bar-container">
-          <div className="progress-track">
-            <div
-              className="progress-fill"
-              style={{ width: `${(step / 3) * 100}%` }}
-            ></div>
-          </div>
+        <div className="px-4 pt-2">
+          <Progress value={(step / 3) * 100} className="h-1.5" />
         </div>
 
         {/* Step Content */}
-        <main className="signup-content">
+        <main className="container max-w-md px-4 pt-6">
           {step === 1 && (
             <IdentityVerification
               onComplete={handleIdentityComplete}

@@ -5,6 +5,14 @@ import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import NavBar from '@/components/NavBar';
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "../../../../components/ui/separator"
+import { Calendar, MapPin, Users, Check, X, Clock, AlertCircle, ArrowLeft } from "lucide-react"
 
 const FloatingShapes = dynamic(() => import('@/components/canvas/FloatingShapes'), { ssr: false });
 const Manage3D = dynamic(() => import('@/components/canvas/Manage3D'), { ssr: false });
@@ -111,23 +119,23 @@ export default function EventManagePage() {
         }
     };
 
-    const getEventTypeColor = (type: string) => {
+    const getEventTypeBadgeVariant = (type: string) => {
         switch (type) {
-            case 'contest': return 'var(--accent-blue)';
-            case 'forum': return 'var(--accent-green)';
-            case 'co-research': return 'var(--accent-purple)';
-            default: return 'var(--primary)';
+            case 'contest': return 'default'; // blue-ish usually
+            case 'forum': return 'destructive'; // red-ish? or maybe secondary
+            case 'co-research': return 'secondary';
+            default: return 'outline';
         }
     };
 
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'pending':
-                return <span className="status-badge pending">대기중</span>;
+                return <Badge variant="outline" className="text-yellow-500 border-yellow-500 bg-yellow-500/10">대기중</Badge>;
             case 'approved':
-                return <span className="status-badge approved">승인됨</span>;
+                return <Badge variant="outline" className="text-green-500 border-green-500 bg-green-500/10">승인됨</Badge>;
             case 'rejected':
-                return <span className="status-badge rejected">거절됨</span>;
+                return <Badge variant="outline" className="text-red-500 border-red-500 bg-red-500/10">거절됨</Badge>;
             default:
                 return null;
         }
@@ -141,541 +149,248 @@ export default function EventManagePage() {
         });
     };
 
+    const formatDateTime = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('ko-KR', {
+            year: '2-digit',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
     const filteredEvents = filter === 'all'
         ? events
         : events.filter((e) => e.eventType === filter);
 
     if (status === 'loading' || loading) {
         return (
-            <div className="page-container">
-                <div className="loading-spinner" />
+            <div className="flex items-center justify-center min-h-screen bg-background">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
             </div>
         );
     }
 
     return (
-        <div className="manage-page">
+        <div className="min-h-screen bg-background flex flex-col">
             <NavBar />
-            <FloatingShapes />
+            {/* Keeping 3D elements if they don't break layout, but positioning absolutely in background */}
+            <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
+                <FloatingShapes />
+            </div>
 
-            <nav className="manage-nav container">
-                <Link href="/dashboard" className="back-link">
-                    ← 대시보드로 돌아가기
-                </Link>
-                <h1>이벤트 관리</h1>
+            <nav className="container relative z-10 py-6">
+                <div className="flex items-center gap-4 mb-2">
+                    <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-sm">
+                        <ArrowLeft className="h-4 w-4" /> 대시보드로 돌아가기
+                    </Link>
+                </div>
+                <h1 className="text-3xl font-bold tracking-tight">이벤트 관리</h1>
             </nav>
 
-            <div className="manage-layout container">
-                {/* Events List */}
-                <aside className="events-sidebar glass-card">
-                    <Manage3D />
-                    <div className="sidebar-header">
-                        <h2>내 이벤트</h2>
-                        <select
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                            className="filter-select"
-                        >
-                            <option value="all">전체</option>
-                            <option value="contest">대회</option>
-                            <option value="forum">포럼</option>
-                            <option value="co-research">공동연구</option>
-                        </select>
-                    </div>
+            <div className="flex-1 container relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12 items-start h-[calc(100vh-180px)]">
 
-                    <div className="events-list">
-                        {filteredEvents.length === 0 ? (
-                            <p className="no-events">등록한 이벤트가 없습니다</p>
-                        ) : (
-                            filteredEvents.map((event) => (
-                                <button
-                                    key={event._id}
-                                    className={`event-card ${selectedEvent?._id === event._id ? 'selected' : ''}`}
-                                    onClick={() => fetchParticipants(event)}
-                                >
-                                    <span
-                                        className="event-type-badge"
-                                        style={{ backgroundColor: getEventTypeColor(event.eventType) }}
+                {/* Sidebar: Events List */}
+                <Card className="lg:col-span-4 h-full flex flex-col border-border/60 bg-card/80 backdrop-blur-sm shadow-md overflow-hidden">
+                    <CardHeader className="pb-3 border-b">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">내 이벤트</CardTitle>
+                            <Select value={filter} onValueChange={setFilter}>
+                                <SelectTrigger className="w-[120px] h-8 text-xs">
+                                    <SelectValue placeholder="필터" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">전체</SelectItem>
+                                    <SelectItem value="contest">대회</SelectItem>
+                                    <SelectItem value="forum">포럼</SelectItem>
+                                    <SelectItem value="co-research">공동연구</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardHeader>
+                    <ScrollArea className="flex-1">
+                        <div className="p-4 space-y-3">
+                            {/* Manage3D might be too heavy for inside scroll area, keeping it out or minimal */}
+                            {/* <Manage3D /> */}
+
+                            {filteredEvents.length === 0 ? (
+                                <div className="text-center py-12 text-muted-foreground text-sm">
+                                    등록한 이벤트가 없습니다
+                                </div>
+                            ) : (
+                                filteredEvents.map((event) => (
+                                    <div
+                                        key={event._id}
+                                        className={`
+                                            p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md
+                                            ${selectedEvent?._id === event._id
+                                                ? 'bg-primary/5 border-primary shadow-sm'
+                                                : 'bg-card border-border hover:bg-accent/50'}
+                                        `}
+                                        onClick={() => fetchParticipants(event)}
                                     >
-                                        {getEventTypeLabel(event.eventType)}
-                                    </span>
-                                    <h3>{event.eventName}</h3>
-                                    <p className="event-date">{formatDate(event.eventDate)}</p>
-                                    <div className="participant-count">
-                                        <span>👥</span>
-                                        {event.participantCount}명 참가 신청
+                                        <div className="flex justify-between items-start mb-2">
+                                            <Badge variant={event.eventType === 'contest' ? 'default' : event.eventType === 'forum' ? 'secondary' : 'outline'}>
+                                                {getEventTypeLabel(event.eventType)}
+                                            </Badge>
+                                            <span className="text-xs text-muted-foreground">{formatDate(event.eventDate)}</span>
+                                        </div>
+                                        <h3 className={`font-semibold text-sm mb-1 ${selectedEvent?._id === event._id ? 'text-primary' : ''}`}>
+                                            {event.eventName}
+                                        </h3>
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                            <Users className="h-3 w-3" />
+                                            <span>{event.participantCount}명 참가 신청</span>
+                                        </div>
                                     </div>
-                                </button>
-                            ))
-                        )}
-                    </div>
-                </aside>
+                                ))
+                            )}
+                        </div>
+                    </ScrollArea>
+                </Card>
 
-                {/* Participants Panel */}
-                <main className="participants-panel glass-card">
+                {/* Main Panel: Participants */}
+                <Card className="lg:col-span-8 h-full flex flex-col border-border/60 bg-card/80 backdrop-blur-sm shadow-md overflow-hidden">
                     {!selectedEvent ? (
-                        <div className="no-selection">
-                            <div className="placeholder-icon">📋</div>
-                            <p>왼쪽에서 이벤트를 선택하여</p>
-                            <p>참가 신청을 관리하세요</p>
+                        <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
+                            <div className="bg-accent/50 p-6 rounded-full mb-4">
+                                <AlertCircle className="h-12 w-12 opacity-50" />
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">이벤트를 선택하세요</h3>
+                            <p className="text-sm">왼쪽 목록에서 이벤트를 선택하여 참가자 현황을 확인하고 관리하세요.</p>
                         </div>
                     ) : loadingParticipants ? (
-                        <div className="loading-spinner" />
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                        </div>
                     ) : (
                         <>
-                            <div className="panel-header">
-                                <h2>{selectedEvent.eventName}</h2>
-                                <p className="event-info">
-                                    {formatDate(selectedEvent.eventDate)} • {selectedEvent.eventPlace}
-                                </p>
-                            </div>
-
-                            <div className="participants-stats">
-                                <div className="stat">
-                                    <span className="stat-value">{participants.length}</span>
-                                    <span className="stat-label">전체</span>
-                                </div>
-                                <div className="stat pending">
-                                    <span className="stat-value">
-                                        {participants.filter((p) => p.status === 'pending').length}
-                                    </span>
-                                    <span className="stat-label">대기중</span>
-                                </div>
-                                <div className="stat approved">
-                                    <span className="stat-value">
-                                        {participants.filter((p) => p.status === 'approved').length}
-                                    </span>
-                                    <span className="stat-label">승인됨</span>
-                                </div>
-                                <div className="stat rejected">
-                                    <span className="stat-value">
-                                        {participants.filter((p) => p.status === 'rejected').length}
-                                    </span>
-                                    <span className="stat-label">거절됨</span>
-                                </div>
-                            </div>
-
-                            <div className="participants-list">
-                                {participants.length === 0 ? (
-                                    <p className="no-participants">아직 참가 신청이 없습니다</p>
-                                ) : (
-                                    participants.map((participant) => (
-                                        <div key={participant._id} className="participant-card">
-                                            <div className="participant-info">
-                                                <div className="participant-header">
-                                                    <h4>{participant.userName}</h4>
-                                                    {getStatusBadge(participant.status)}
-                                                </div>
-                                                <p className="participant-school">
-                                                    {participant.userSchool}
-                                                    {participant.clubName && ` • ${participant.clubName}`}
-                                                </p>
-                                                <p className="participant-email">{participant.userEmail}</p>
-                                                {participant.message && (
-                                                    <p className="participant-message">"{participant.message}"</p>
-                                                )}
-                                                <p className="participant-date">
-                                                    신청일: {formatDate(participant.createdAt)}
-                                                </p>
-                                            </div>
-                                            <div className="participant-actions">
-                                                {participant.status === 'pending' && (
-                                                    <>
-                                                        <button
-                                                            className="btn-approve"
-                                                            onClick={() => updateParticipantStatus(participant._id, 'approved')}
-                                                            disabled={updating === participant._id}
-                                                        >
-                                                            {updating === participant._id ? '...' : '승인'}
-                                                        </button>
-                                                        <button
-                                                            className="btn-reject"
-                                                            onClick={() => updateParticipantStatus(participant._id, 'rejected')}
-                                                            disabled={updating === participant._id}
-                                                        >
-                                                            {updating === participant._id ? '...' : '거절'}
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {participant.status === 'approved' && (
-                                                    <button
-                                                        className="btn-reject"
-                                                        onClick={() => updateParticipantStatus(participant._id, 'rejected')}
-                                                        disabled={updating === participant._id}
-                                                    >
-                                                        {updating === participant._id ? '...' : '취소'}
-                                                    </button>
-                                                )}
-                                                {participant.status === 'rejected' && (
-                                                    <button
-                                                        className="btn-approve"
-                                                        onClick={() => updateParticipantStatus(participant._id, 'approved')}
-                                                        disabled={updating === participant._id}
-                                                    >
-                                                        {updating === participant._id ? '...' : '재승인'}
-                                                    </button>
-                                                )}
-                                            </div>
+                            <CardHeader className="border-b bg-muted/20">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                    <div>
+                                        <CardTitle className="text-xl">{selectedEvent.eventName}</CardTitle>
+                                        <CardDescription className="flex items-center gap-2 mt-1">
+                                            <Calendar className="h-3 w-3" /> {formatDate(selectedEvent.eventDate)}
+                                            <span className="text-border">|</span>
+                                            <MapPin className="h-3 w-3" /> {selectedEvent.eventPlace}
+                                        </CardDescription>
+                                    </div>
+                                    <div className="flex gap-2 text-sm">
+                                        <div className="px-3 py-1 rounded-full bg-background border flex flex-col items-center min-w-[70px]">
+                                            <span className="text-xs text-muted-foreground">전체</span>
+                                            <span className="font-bold">{participants.length}</span>
                                         </div>
-                                    ))
+                                        <div className="px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex flex-col items-center min-w-[70px]">
+                                            <span className="text-xs text-yellow-600 dark:text-yellow-400">대기</span>
+                                            <span className="font-bold text-yellow-600 dark:text-yellow-400">{participants.filter((p) => p.status === 'pending').length}</span>
+                                        </div>
+                                        <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 flex flex-col items-center min-w-[70px]">
+                                            <span className="text-xs text-green-600 dark:text-green-400">승인</span>
+                                            <span className="font-bold text-green-600 dark:text-green-400">{participants.filter((p) => p.status === 'approved').length}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardHeader>
+
+                            <div className="flex-1 overflow-auto">
+                                {participants.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
+                                        <Users className="h-12 w-12 opacity-20 mb-4" />
+                                        <p>아직 참가 신청이 없습니다</p>
+                                    </div>
+                                ) : (
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>신청자</TableHead>
+                                                <TableHead>소속</TableHead>
+                                                <TableHead className="hidden md:table-cell">메시지</TableHead>
+                                                <TableHead>상태</TableHead>
+                                                <TableHead className="text-right">관리</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {participants.map((participant) => (
+                                                <TableRow key={participant._id}>
+                                                    <TableCell>
+                                                        <div className="font-medium">{participant.userName}</div>
+                                                        <div className="text-xs text-muted-foreground">{participant.userEmail}</div>
+                                                        <div className="text-xs text-muted-foreground md:hidden mt-1">{formatDate(participant.createdAt)}</div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="text-sm">{participant.userSchool}</div>
+                                                        {participant.clubName && <Badge variant="secondary" className="mt-1 text-[10px] h-5">{participant.clubName}</Badge>}
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell max-w-[200px]">
+                                                        {participant.message ? (
+                                                            <span title={participant.message} className="text-sm text-muted-foreground line-clamp-2">
+                                                                {participant.message}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-xs text-muted-foreground italic">메시지 없음</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>{getStatusBadge(participant.status)}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex justify-end gap-2">
+                                                            {participant.status === 'pending' && (
+                                                                <>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-200"
+                                                                        onClick={() => updateParticipantStatus(participant._id, 'approved')}
+                                                                        disabled={updating === participant._id}
+                                                                        title="승인"
+                                                                    >
+                                                                        {updating === participant._id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <Check className="h-4 w-4" />}
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200"
+                                                                        onClick={() => updateParticipantStatus(participant._id, 'rejected')}
+                                                                        disabled={updating === participant._id}
+                                                                        title="거절"
+                                                                    >
+                                                                        {updating === participant._id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <X className="h-4 w-4" />}
+                                                                    </Button>
+                                                                </>
+                                                            )}
+                                                            {participant.status === 'approved' && (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="ghost"
+                                                                    className="h-8 px-2 text-xs text-muted-foreground hover:text-red-600"
+                                                                    onClick={() => updateParticipantStatus(participant._id, 'rejected')}
+                                                                    disabled={updating === participant._id}
+                                                                >
+                                                                    취소
+                                                                </Button>
+                                                            )}
+                                                            {participant.status === 'rejected' && (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="ghost"
+                                                                    className="h-8 px-2 text-xs text-muted-foreground hover:text-green-600"
+                                                                    onClick={() => updateParticipantStatus(participant._id, 'approved')}
+                                                                    disabled={updating === participant._id}
+                                                                >
+                                                                    재승인
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
                                 )}
                             </div>
                         </>
                     )}
-                </main>
+                </Card>
             </div>
-
-            <style jsx>{`
-                .manage-page {
-                    min-height: 100vh;
-                    background-color: var(--color-bg);
-                    color: var(--color-text-primary);
-                    padding-bottom: 60px;
-                }
-
-                .manage-nav {
-                    padding: 40px 0 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 20px;
-                    position: relative;
-                    z-index: 10;
-                }
-
-                .back-link {
-                    color: var(--text-secondary);
-                    text-decoration: none;
-                    font-size: 14px;
-                    transition: color 0.2s;
-                }
-
-                .back-link:hover {
-                    color: var(--primary);
-                }
-
-                .manage-nav h1 {
-                    font-size: 24px;
-                    color: var(--text-primary);
-                }
-
-                .manage-layout {
-                    display: grid;
-                    grid-template-columns: 350px 1fr;
-                    gap: 24px;
-                    min-height: calc(100vh - 200px);
-                    position: relative;
-                    z-index: 10;
-                }
-
-                .events-sidebar {
-                    padding: 20px;
-                    height: fit-content;
-                    max-height: calc(100vh - 140px);
-                    overflow-y: auto;
-                    position: sticky;
-                    top: 100px;
-                }
-
-                .sidebar-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 16px;
-                }
-
-                .sidebar-header h2 {
-                    font-size: 18px;
-                    color: var(--text-primary);
-                }
-
-                .filter-select {
-                    padding: 6px 12px;
-                    border-radius: 8px;
-                    border: 1px solid var(--glass-border);
-                    background: rgba(255, 255, 255, 0.1);
-                    color: var(--text-primary);
-                    font-size: 14px;
-                }
-
-                .events-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-
-                .event-card {
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid var(--glass-border);
-                    border-radius: 12px;
-                    padding: 16px;
-                    text-align: left;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    width: 100%;
-                }
-
-                .event-card:hover {
-                    background: rgba(255, 255, 255, 0.1);
-                    transform: translateX(4px);
-                }
-
-                .event-card.selected {
-                    border-color: var(--primary);
-                    background: rgba(45, 90, 39, 0.2);
-                }
-
-                .event-type-badge {
-                    display: inline-block;
-                    padding: 4px 8px;
-                    border-radius: 6px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    color: white;
-                    margin-bottom: 8px;
-                }
-
-                .event-card h3 {
-                    font-size: 14px;
-                    color: var(--text-primary);
-                    margin-bottom: 4px;
-                    line-height: 1.4;
-                }
-
-                .event-date {
-                    font-size: 12px;
-                    color: var(--text-muted);
-                    margin-bottom: 8px;
-                }
-
-                .participant-count {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    font-size: 13px;
-                    color: var(--primary);
-                    font-weight: 500;
-                }
-
-                .participants-panel {
-                    background: var(--glass-bg);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid var(--glass-border);
-                    border-radius: 16px;
-                    padding: 24px;
-                    min-height: 500px;
-                }
-
-                .no-selection {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    height: 400px;
-                    color: var(--text-muted);
-                    text-align: center;
-                }
-
-                .placeholder-icon {
-                    font-size: 48px;
-                    margin-bottom: 16px;
-                }
-
-                .panel-header {
-                    margin-bottom: 20px;
-                    padding-bottom: 16px;
-                    border-bottom: 1px solid var(--glass-border);
-                }
-
-                .panel-header h2 {
-                    font-size: 20px;
-                    color: var(--text-primary);
-                    margin-bottom: 4px;
-                }
-
-                .event-info {
-                    font-size: 14px;
-                    color: var(--text-secondary);
-                }
-
-                .participants-stats {
-                    display: flex;
-                    gap: 16px;
-                    margin-bottom: 24px;
-                }
-
-                .stat {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 12px;
-                    padding: 16px 24px;
-                    text-align: center;
-                    flex: 1;
-                }
-
-                .stat-value {
-                    display: block;
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: var(--text-primary);
-                }
-
-                .stat-label {
-                    font-size: 12px;
-                    color: var(--text-muted);
-                }
-
-                .stat.pending .stat-value { color: #f59e0b; }
-                .stat.approved .stat-value { color: #10b981; }
-                .stat.rejected .stat-value { color: #ef4444; }
-
-                .participants-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-
-                .participant-card {
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid var(--glass-border);
-                    border-radius: 12px;
-                    padding: 16px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-start;
-                    gap: 16px;
-                }
-
-                .participant-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-bottom: 4px;
-                }
-
-                .participant-header h4 {
-                    font-size: 16px;
-                    color: var(--text-primary);
-                }
-
-                .status-badge {
-                    display: inline-block;
-                    padding: 2px 8px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    font-weight: 600;
-                }
-
-                .status-badge.pending {
-                    background: rgba(245, 158, 11, 0.2);
-                    color: #f59e0b;
-                }
-
-                .status-badge.approved {
-                    background: rgba(16, 185, 129, 0.2);
-                    color: #10b981;
-                }
-
-                .status-badge.rejected {
-                    background: rgba(239, 68, 68, 0.2);
-                    color: #ef4444;
-                }
-
-                .participant-school {
-                    font-size: 13px;
-                    color: var(--text-secondary);
-                }
-
-                .participant-email {
-                    font-size: 12px;
-                    color: var(--text-muted);
-                }
-
-                .participant-message {
-                    font-size: 13px;
-                    color: var(--text-secondary);
-                    font-style: italic;
-                    margin-top: 8px;
-                    padding: 8px;
-                    background: rgba(255, 255, 255, 0.03);
-                    border-radius: 6px;
-                }
-
-                .participant-date {
-                    font-size: 11px;
-                    color: var(--text-muted);
-                    margin-top: 8px;
-                }
-
-                .participant-actions {
-                    display: flex;
-                    gap: 8px;
-                    flex-shrink: 0;
-                }
-
-                .btn-approve, .btn-reject {
-                    padding: 8px 16px;
-                    border-radius: 8px;
-                    font-size: 13px;
-                    font-weight: 600;
-                    border: none;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-
-                .btn-approve {
-                    background: linear-gradient(135deg, #10b981, #059669);
-                    color: white;
-                }
-
-                .btn-approve:hover:not(:disabled) {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-                }
-
-                .btn-reject {
-                    background: linear-gradient(135deg, #ef4444, #dc2626);
-                    color: white;
-                }
-
-                .btn-reject:hover:not(:disabled) {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-                }
-
-                .btn-approve:disabled, .btn-reject:disabled {
-                    opacity: 0.6;
-                    cursor: not-allowed;
-                }
-
-                .no-events, .no-participants {
-                    text-align: center;
-                    color: var(--text-muted);
-                    padding: 40px;
-                }
-
-                .loading-spinner {
-                    width: 40px;
-                    height: 40px;
-                    border: 3px solid var(--glass-border);
-                    border-top-color: var(--primary);
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin: 100px auto;
-                }
-
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-
-                @media (max-width: 900px) {
-                    .manage-layout {
-                        grid-template-columns: 1fr;
-                    }
-
-                    .events-sidebar {
-                        max-height: 300px;
-                    }
-                }
-            `}</style>
         </div>
     );
 }

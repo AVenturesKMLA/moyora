@@ -2,167 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================
-   MOYEORA - iOS 16 Design System
-   ============================================ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-:root {
-  /* Fonts */
-  --font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-  /* Brand Colors (New Palette) */
-  --color-blue-primary: #1F4EF5;
-  --color-blue-secondary: #4880EE;
-  --color-blue-light: #83B4F9;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-  --color-gray-dark: #64768C;
-  --color-gray-medium: #B1B8C0;
-  --color-gray-light: #D6DADF;
+    --primary: 221.2 83.2% 53.3%;
+    /* Distinct Blue */
+    --primary-foreground: 210 40% 98%;
 
-  --color-text-primary: #1A1E27;
-  --color-text-secondary: #505866;
-  --color-text-tertiary: #B1B8C0;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-  /* Legacy mapping for compatibility - strictly palette */
-  --color-blue: var(--color-blue-primary);
-  --color-gray: var(--color-gray-medium);
-  --color-red: var(--color-blue-primary);
-  --color-green: var(--color-blue-secondary);
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-  /* Semantic Colors - Light Mode */
-  --color-bg: #FFFFFF;
-  --color-card: #D6DADF;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-  /* Surfaces */
-  --glass-bg: #FFFFFF;
-  --glass-border: rgba(0, 0, 0, 0.05);
-  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-  --material-thick: none;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
 
-  /* Spacing & Radii */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 32px;
-  --radius-pill: 9999px;
+    --radius: 0.75rem;
+  }
 
-  /* Transitions */
-  --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
-  --duration-fast: 0.2s;
-  --duration-base: 0.4s;
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
 }
 
-/* === Dark Mode === */
-.dark {
-  --color-bg: #000000;
-  --color-card: #1A1E27;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: var(--color-gray-medium);
-  --color-text-tertiary: var(--color-gray-dark);
+@layer base {
+  * {
+    @apply border-border;
+  }
 
-  --glass-bg: #1A1E27;
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-/* === Base Styles === */
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-}
-
-body {
-  font-family: var(--font-family);
-  background-color: var(--color-bg);
-  color: var(--color-text-primary);
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* === Custom iOS/Fantastic Components === */
-
-.ios-card {
-  background-color: var(--color-card);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  padding: 24px;
-  transition: all 0.3s var(--ease-apple);
-}
-
-.glass-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  border-radius: var(--radius-xl);
-}
-
-/* Common Styles used in Dashboard & Landing */
-.btn-primary {
-  background-color: var(--color-blue-primary);
-  color: white;
-  padding: 12px 24px;
-  border-radius: var(--radius-pill);
-  font-weight: 600;
-  transition: transform 0.2s;
-}
-
-.btn-primary:hover {
-  transform: scale(1.02);
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, var(--color-blue-primary) 0%, var(--color-blue-light) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* === Layout Containers === */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.container-sm {
-  width: 100%;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-/* === Global Form Styles for Theme Support === */
-input,
-textarea,
-select {
-  background-color: var(--color-card) !important;
-  color: var(--color-text-primary) !important;
-  border: 1px solid var(--glass-border) !important;
-  transition: all 0.2s var(--ease-apple);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--color-blue-primary) !important;
-  box-shadow: 0 0 0 4px rgba(31, 78, 245, 0.1) !important;
-  outline: none;
-}
-
-label {
-  color: var(--color-text-primary);
-  opacity: 0.8;
-}
-
-::placeholder {
-  color: var(--color-text-secondary);
-  opacity: 0.5;
+  body {
+    @apply bg-background text-foreground;
+  }
 }

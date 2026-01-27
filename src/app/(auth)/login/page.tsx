@@ -4,7 +4,11 @@ import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import './login.css';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 function LoginParams() {
   const searchParams = useSearchParams();
@@ -13,15 +17,11 @@ function LoginParams() {
   if (!registered) return null;
 
   return (
-    <div className="auth-success">
-      <div className="success-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      </div>
-      <div className="success-text">
-        <span className="success-title">회원가입 완료!</span>
-        <span className="success-desc">로그인하여 시작하세요.</span>
+    <div className="mb-6 flex items-center gap-3 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+      <CheckCircle2 className="h-5 w-5" />
+      <div className="flex flex-col">
+        <span className="font-semibold">회원가입 완료!</span>
+        <span>로그인하여 시작하세요.</span>
       </div>
     </div>
   );
@@ -68,115 +68,104 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page">
-      <Link href="/" className="back-link">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-        돌아가기
-      </Link>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
+        <Link
+          href="/"
+          className="inline-flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          돌아가기
+        </Link>
 
-      {/* Decorative Elements */}
-      <div className="auth-decorations">
-        <div className="decoration-circle decoration-1"></div>
-        <div className="decoration-circle decoration-2"></div>
-        <div className="decoration-circle decoration-3"></div>
-      </div>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">모여라</h1>
+          <p className="mt-2 text-muted-foreground">고교 동아리 이벤트 플랫폼</p>
+        </div>
 
-      <div className="auth-container">
-        <div className="auth-card fade-in">
-          {/* Logo & Header */}
-          <div className="auth-header">
-            <div className="auth-logo">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
-            <h1 className="auth-title">모여라</h1>
-            <p className="auth-subtitle">고교 동아리 이벤트 플랫폼에 오신 것을 환영합니다</p>
-          </div>
-
-          {/* Login Form */}
-          <form className="auth-form" onSubmit={handleSubmit}>
+        <Card className="border-border/40 shadow-sm">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl">로그인</CardTitle>
+            <CardDescription>
+              이메일과 비밀번호를 입력해주세요
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <Suspense fallback={null}>
               <LoginParams />
             </Suspense>
 
-            {error && (
-              <div className="auth-error">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="15" y1="9" x2="9" y2="15"></line>
-                  <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
-                {error}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full bg-destructive/20 flex items-center justify-center shrink-0">!</div>
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="email">이메일</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="name@school.ac.kr"
+                  required
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
               </div>
-            )}
 
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">이메일</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                className="form-input"
-                placeholder="example@school.ac.kr"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                autoComplete="email"
-              />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">비밀번호</Label>
+                  {/* <Link 
+                    href="/forgot-password" 
+                    className="text-xs text-muted-foreground hover:text-primary"
+                  >
+                    비밀번호 찾기
+                  </Link> */}
+                </div>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                로그인
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  또는
+                </span>
+              </div>
             </div>
-
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">비밀번호</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="form-input"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                autoComplete="current-password"
-              />
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">아직 계정이 없으신가요? </span>
+              <Link href="/signup" className="font-semibold text-primary underline-offset-4 hover:underline">
+                회원가입
+              </Link>
             </div>
-
-            <button
-              type="submit"
-              className={`btn btn-primary btn-lg w-full ${isLoading ? 'btn-loading' : ''}`}
-              disabled={isLoading}
-            >
-              {isLoading ? '' : '로그인'}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="auth-divider">
-            <span>또는</span>
-          </div>
-
-          {/* Sign Up Link */}
-          <div className="auth-footer">
-            <p>
-              아직 계정이 없으신가요?{' '}
-              <Link href="/signup">회원가입</Link>
-            </p>
-          </div>
-        </div>
-
-        {/* Floating Badge */}
-        <div className="auth-badge">
-          <div className="badge-icon">🎓</div>
-          <div className="badge-text">
-            <span className="badge-title">대한민국 고등학교</span>
-            <span className="badge-subtitle">동아리를 위한 플랫폼</span>
-          </div>
-        </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

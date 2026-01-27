@@ -4,6 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signupSchema, SignupInput } from '@/lib/validations';
 import { ZodError } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 interface IdentityData {
     name?: string;
@@ -38,10 +45,10 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
     const [serverError, setServerError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value,
+            [name]: value,
         }));
         if (errors[name]) {
             setErrors((prev) => {
@@ -51,6 +58,20 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
             });
         }
     };
+
+    const handleCheckboxChange = (checked: boolean) => {
+        setFormData((prev) => ({
+            ...prev,
+            agreedToTerms: checked,
+        }));
+        if (errors.agreedToTerms) {
+            setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.agreedToTerms;
+                return newErrors;
+            });
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -102,229 +123,124 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
     };
 
     return (
-        <div className="animate-fade-in pb-10">
-            <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">마지막 단계</h2>
-                <p className="text-gray-500 text-sm mt-2">로그인에 사용할 정보를 입력해주세요</p>
-                <div className="mt-3 inline-block px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded-full">
+        <div className="space-y-6 pb-10 pt-4">
+            <div className="text-center">
+                <h2 className="text-2xl font-bold tracking-tight text-foreground">마지막 단계</h2>
+                <p className="mt-2 text-sm text-muted-foreground">로그인에 사용할 정보를 입력해주세요</p>
+                <div className="mt-3 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/30">
                     학교: {formData.schoolName}
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="signup-form">
-                {serverError && (
-                    <div className="error-alert">
-                        {serverError}
-                    </div>
-                )}
+            <Card className="border-border/40 shadow-sm">
+                <CardContent className="space-y-4 pt-6">
+                    {serverError && (
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{serverError}</AlertDescription>
+                        </Alert>
+                    )}
 
-                <div className="form-section">
-                    <div className="input-field-group">
-                        <label>이름</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            readOnly
-                            className="bg-gray-100 dark:bg-gray-800 text-gray-500"
-                        />
-                    </div>
-
-                    <div className="flex gap-4">
-                        <div className="input-field-group flex-1">
-                            <label>생년월일</label>
-                            <input
-                                type="text"
-                                name="birthday"
-                                value={formData.birthday}
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>이름</Label>
+                            <Input
+                                value={formData.name}
                                 readOnly
-                                className="bg-gray-100 dark:bg-gray-800 text-gray-500"
+                                className="bg-muted text-muted-foreground"
                             />
                         </div>
-                        <div className="input-field-group flex-1">
-                            <label>휴대폰번호</label>
-                            <input
-                                type="text"
-                                name="phone"
-                                value={formData.phone}
-                                readOnly
-                                className="bg-gray-100 dark:bg-gray-800 text-gray-500"
-                            />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>생년월일</Label>
+                                <Input
+                                    value={formData.birthday}
+                                    readOnly
+                                    className="bg-muted text-muted-foreground"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>휴대폰번호</Label>
+                                <Input
+                                    value={formData.phone}
+                                    readOnly
+                                    className="bg-muted text-muted-foreground"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="input-field-group">
-                        <label>이메일</label>
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="example@email.com"
-                            className={errors.email ? 'error' : ''}
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                        {errors.email && <span className="error-hint">{errors.email}</span>}
-                    </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="email">이메일</Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="example@email.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                className={errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
+                            />
+                            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                        </div>
 
-                    <div className="input-field-group">
-                        <label>비밀번호</label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="8자 이상, 대소문자 및 숫자 포함"
-                            className={errors.password ? 'error' : ''}
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
-                        {errors.password && <span className="error-hint">{errors.password}</span>}
-                    </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password">비밀번호</Label>
+                            <Input
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder="8자 이상, 대소문자 및 숫자 포함"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                className={errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}
+                            />
+                            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                        </div>
 
-                    <div className="input-field-group">
-                        <label>비밀번호 확인</label>
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            placeholder="비밀번호 다시 입력"
-                            className={errors.confirmPassword ? 'error' : ''}
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            required
-                        />
-                        {errors.confirmPassword && <span className="error-hint">{errors.confirmPassword}</span>}
-                    </div>
-                </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+                            <Input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                placeholder="비밀번호 다시 입력"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                required
+                                className={errors.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''}
+                            />
+                            {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
+                        </div>
 
-                <div className="terms-container">
-                    <label className="checkbox-label">
-                        <input
-                            type="checkbox"
-                            name="agreedToTerms"
-                            checked={formData.agreedToTerms}
-                            onChange={handleChange}
-                        />
-                        <span>이용약관 및 개인정보 처리방침에 동의합니다 (필수)</span>
-                    </label>
-                    {errors.agreedToTerms && <span className="error-hint">{errors.agreedToTerms}</span>}
-                </div>
+                        <div className="pt-2">
+                            <div className="flex items-start space-x-2">
+                                <Checkbox
+                                    id="terms"
+                                    checked={formData.agreedToTerms}
+                                    onCheckedChange={handleCheckboxChange}
+                                />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label
+                                        htmlFor="terms"
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    >
+                                        이용약관 및 개인정보 처리방침에 동의합니다 (필수)
+                                    </Label>
+                                </div>
+                            </div>
+                            {errors.agreedToTerms && <p className="mt-2 text-xs text-destructive">{errors.agreedToTerms}</p>}
+                        </div>
 
-                <button
-                    type="submit"
-                    className="btn-submit"
-                    disabled={isLoading}
-                >
-                    {isLoading ? '가입 중...' : '회원가입 완료하기'}
-                </button>
-            </form>
-
-            <style jsx>{`
-                .signup-form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 20px;
-                }
-                .form-section {
-                    background: #fff;
-                    padding: 24px;
-                    border-radius: 20px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-                }
-                .input-field-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                    margin-bottom: 20px;
-                }
-                .input-field-group:last-child { margin-bottom: 0; }
-                
-                label {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #505866;
-                }
-                input {
-                    padding: 16px;
-                    border-radius: 12px;
-                    border: 1px solid #D6DADF;
-                    font-size: 16px;
-                    transition: all 0.2s;
-                }
-                input:focus {
-                    outline: none;
-                    border-color: #1F4EF5;
-                    box-shadow: 0 0 0 4px rgba(31, 78, 245, 0.1);
-                }
-                input.error {
-                    border-color: #ff3b30;
-                }
-                .error-hint {
-                    color: #ff3b30;
-                    font-size: 12px;
-                    margin-top: 4px;
-                }
-                .error-alert {
-                    padding: 12px;
-                    background: #fff5f5;
-                    border: 1px solid #feb2b2;
-                    color: #c53030;
-                    border-radius: 12px;
-                    font-size: 14px;
-                    text-align: center;
-                }
-                
-                .terms-container {
-                    padding: 0 8px;
-                }
-                .checkbox-label {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    color: #505866;
-                    font-weight: 500;
-                }
-                .checkbox-label input {
-                    width: 20px;
-                    height: 20px;
-                    accent-color: #1F4EF5;
-                }
-
-                .btn-submit {
-                    background: #1F4EF5;
-                    color: white;
-                    padding: 20px;
-                    border-radius: 18px;
-                    font-size: 18px;
-                    font-weight: 700;
-                    border: none;
-                    box-shadow: 0 8px 16px rgba(31, 78, 245, 0.2);
-                    transition: all 0.2s;
-                }
-                .btn-submit:active {
-                    transform: scale(0.98);
-                }
-                .btn-submit:disabled {
-                    opacity: 0.6;
-                    cursor: not-allowed;
-                }
-
-                @media (prefers-color-scheme: dark) {
-                    .form-section { background: #1A1E27; }
-                    input { 
-                        background: #2c2c2e; 
-                        border-color: #3a3a3c; 
-                        color: #fff; 
-                    }
-                    input.bg-gray-100 { background: #1c1c1e; color: #8e8e93; }
-                    label { color: #8e8e93; }
-                    .checkbox-label { color: #fff; }
-                    .error-alert { background: #1a0606; border-color: #441a1a; color: #ff8080; }
-                }
-                .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-            `}</style>
+                        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isLoading ? '가입 중...' : '회원가입 완료하기'}
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
         </div>
     );
 }

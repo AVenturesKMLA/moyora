@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Smartphone } from 'lucide-react';
 
 /**
  * MobileGuard Component
@@ -38,64 +39,20 @@ export default function MobileGuard({ children }: { children: React.ReactNode })
 
     // Prevent hydration mismatch by rendering nothing initially
     if (isMobile === null) {
-        return <div className="min-h-screen bg-gray-50 dark:bg-gray-900" />;
+        return <div className="min-h-screen bg-background" />;
     }
 
     if (!isMobile) {
         return (
-            <div className="mobile-only-warning">
-                <style jsx>{`
-                    .mobile-only-warning {
-                        min-h-screen;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        background: #D6DADF;
-                        padding: 24px;
-                        text-align: center;
-                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    }
-                    .icon-container {
-                        width: 80px;
-                        height: 80px;
-                        background: #1F4EF5;
-                        border-radius: 20px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        margin-bottom: 24px;
-                        box-shadow: 0 10px 20px rgba(31, 78, 245, 0.3);
-                        animation: pulse 2s infinite;
-                    }
-                    h1 {
-                        font-size: 1.5rem;
-                        font-weight: 800;
-                        color: #1A1E27;
-                        margin-bottom: 12px;
-                    }
-                    p {
-                        color: #B1B8C0;
-                        font-size: 1rem;
-                        line-height: 1.5;
-                        max-width: 320px;
-                    }
-                    @keyframes pulse {
-                        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(31, 78, 245, 0.4); }
-                        70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(31, 78, 245, 0); }
-                        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(31, 78, 245, 0); }
-                    }
-                `}</style>
-                <div className="icon-container">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                    </svg>
+            <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 p-6 text-center">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 animate-pulse">
+                    <Smartphone className="h-10 w-10" />
                 </div>
-                <h1>모바일 전용 서비스입니다</h1>
-                <p>본 회원가입 서비스는 모바일 환경(Android, iOS)에서만 이용하실 수 있습니다.</p>
-                <p className="mt-4 text-xs">스마트폰으로 접속해주세요.</p>
+                <h1 className="mb-3 text-2xl font-bold text-foreground">모바일 전용 서비스입니다</h1>
+                <p className="mb-4 max-w-[320px] text-muted-foreground leading-relaxed">
+                    본 회원가입 서비스는 모바일 환경(Android, iOS)에서만 이용하실 수 있습니다.
+                </p>
+                <p className="text-xs text-muted-foreground/60">스마트폰으로 접속해주세요.</p>
             </div>
         );
     }
