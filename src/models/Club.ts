@@ -11,6 +11,11 @@ export interface IClub extends Document {
     presidentEmail: string;
     presidentPhone: string;
     clubEmail?: string;
+    description?: string;
+    location?: string;
+    meetingTime?: string;
+    maxMembers?: number;
+    recruitStatus: 'open' | 'close';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -62,6 +67,26 @@ const ClubSchema = new Schema<IClub>(
             type: String,
             lowercase: true,
             trim: true,
+        },
+        description: {
+            type: String,
+            trim: true,
+        },
+        location: {
+            type: String,
+            trim: true,
+        },
+        meetingTime: {
+            type: String,
+            trim: true,
+        },
+        maxMembers: {
+            type: Number,
+        },
+        recruitStatus: {
+            type: String,
+            enum: ['open', 'close'],
+            default: 'open',
         },
     },
     {

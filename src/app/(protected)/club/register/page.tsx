@@ -95,7 +95,7 @@ export default function ClubRegisterPage() {
         setIsLoading(true);
 
         try {
-            const response = await fetch('/api/clubs/register', { // Assuming endpoint
+            const response = await fetch('/api/clubs', { // Updated endpoint
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)

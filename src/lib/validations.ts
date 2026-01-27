@@ -52,31 +52,28 @@ export const clubSchema = z.object({
     schoolName: z
         .string()
         .min(2, '학교명을 입력해주세요'),
-    schoolId: z
+    // schoolId: z.string().min(1, '학교 고유 ID가 필요합니다').optional(), // Can be derived from session
+    category: z
         .string()
-        .min(1, '학교 고유 ID가 필요합니다'),
-    clubTheme: z
-        .string()
-        .min(2, '동아리 분야를 입력해주세요'),
+        .min(2, '동아리 분야를 입력해주세요'), // Frontend sends 'category'
     clubName: z
         .string()
         .min(2, '동아리명을 입력해주세요'),
-    presidentName: z
+    description: z
         .string()
-        .min(2, '회장 이름을 입력해주세요'),
-    presidentEmail: z
+        .min(10, '소개를 10자 이상 입력해주세요'),
+    contactPhone: z
         .string()
-        .email('올바른 이메일 형식을 입력해주세요'),
-    presidentPhone: z
-        .string()
-        .min(10, '올바른 전화번호를 입력해주세요')
-        .max(15, '올바른 전화번호를 입력해주세요')
-        .regex(/^01[0-9][-\s]?[0-9]{3,4}[-\s]?[0-9]{4}$/, '올바른 전화번호 형식을 입력해주세요 (예: 010-1234-5678)'),
-    clubEmail: z
-        .string()
-        .email('올바른 이메일 형식을 입력해주세요')
-        .optional()
-        .or(z.literal('')),
+        .min(10, '연락처를 입력해주세요'),
+    location: z.string().optional(),
+    meetingTime: z.string().optional(),
+    maxMembers: z.coerce.number().optional().or(z.literal('')),
+    recruitStatus: z.enum(['open', 'close']).optional(),
+
+    // Legacy fields (optional now, derived from session/input mappings)
+    presidentName: z.string().optional(),
+    presidentEmail: z.string().email().optional(),
+    clubEmail: z.string().email().optional().or(z.literal('')),
 });
 
 // Contest Schema
