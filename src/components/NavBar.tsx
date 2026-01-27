@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { ThemeToggle } from './ThemeToggle';
 import NotificationDropdown from './NotificationDropdown';
@@ -61,9 +62,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
             <div className="container flex h-16 items-center">
                 <div className="mr-8 flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2 font-bold">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                            <span>M</span>
-                        </div>
+                        <Image src="/moyora.svg" alt="Moyora Logo" width={32} height={32} className="rounded-lg" />
                         <span className="text-xl">모여라</span>
                     </Link>
                 </div>
