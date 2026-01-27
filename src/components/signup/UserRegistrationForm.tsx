@@ -5,9 +5,19 @@ import { useRouter } from 'next/navigation';
 import { signupSchema, SignupInput } from '@/lib/validations';
 import { ZodError } from 'zod';
 
+interface IdentityData {
+    name?: string;
+    birthday?: string;
+    phone?: string;
+}
+
+interface StudentIdData {
+    schoolName?: string;
+}
+
 interface UserRegistrationFormProps {
-    identityData: any;
-    studentIdData: any;
+    identityData: IdentityData;
+    studentIdData: StudentIdData;
 }
 
 export default function UserRegistrationForm({ identityData, studentIdData }: UserRegistrationFormProps) {
@@ -63,7 +73,7 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
             if (!response.ok) {
                 if (result.errors) {
                     const newErrors: { [key: string]: string } = {};
-                    result.errors.forEach((err: any) => {
+                    result.errors.forEach((err: { field: string; message: string }) => {
                         newErrors[err.field] = err.message;
                     });
                     setErrors(newErrors);

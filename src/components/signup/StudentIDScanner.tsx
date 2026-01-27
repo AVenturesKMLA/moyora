@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import Tesseract from 'tesseract.js';
+import NextImage from 'next/image';
 
 interface StudentIDScannerProps {
     onComplete: (data: { schoolName: string; studentName: string; rawText: string }) => void;
@@ -25,7 +26,7 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
     };
 
     // Preprocess image to improve OCR accuracy
-    const preprocessImage = (imageSrc: string): Promise<string> => {
+    const preprocessImage = useCallback((imageSrc: string): Promise<string> => {
         return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => {
@@ -73,9 +74,9 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
             };
             img.src = imageSrc;
         });
-    };
+    }, []);
 
-    const processImage = async (imageSrc: string) => {
+    const processImage = useCallback(async (imageSrc: string) => {
         setIsScanning(true);
         setProgress(0);
         setImgSrc(imageSrc);
@@ -148,14 +149,14 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
         } finally {
             setIsScanning(false);
         }
-    };
+    }, [preprocessImage]);
 
     const capture = useCallback(() => {
         const imageSrc = webcamRef.current?.getScreenshot();
         if (imageSrc) {
             processImage(imageSrc);
         }
-    }, [webcamRef]);
+    }, [webcamRef, processImage]);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -237,7 +238,7 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
                     </div>
                 ) : (
                     <div className="preview-container">
-                        <img src={imgSrc} alt="Scanned ID" className="scanned-image" />
+                        <NextImage src={imgSrc} alt="Scanned ID" fill className="scanned-image" style={{ objectFit: 'cover' }} />
 
                         {isScanning && (
                             <div className="scanning-overlay">

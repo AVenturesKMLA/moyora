@@ -13,9 +13,9 @@ export default function MobileGuard({ children }: { children: React.ReactNode })
 
     useEffect(() => {
         const checkMobile = () => {
-            const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+            const userAgent = navigator.userAgent || navigator.vendor || (window as unknown as { opera?: string }).opera || '';
             // Standard mobile regex check
-            if (/android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+            if (/android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent) && !(window as unknown as { MSStream?: boolean }).MSStream) {
                 return true;
             }
             // Additional check for mobile screen width as fallback/supplement
