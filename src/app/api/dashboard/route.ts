@@ -37,24 +37,47 @@ export async function GET() {
             );
         }
 
-        // Fetch club associations through ClubMember
-        const clubAssociations = await ClubMember.find({
-            userId: user._id,
-            schoolId: userSession.schoolId
-        }).populate('clubId').lean();
+        // Run independent queries in parallel
+        const [
+            clubAssociations,
+            hostedContests,
+            hostedForums,
+            hostedCoResearch,
+            participations,
+            notifications
+        ] = await Promise.all([
+            // 1. Clubs
+            ClubMember.find({
+                userId: user._id,
+                schoolId: userSession.schoolId
+            }).populate('clubId').lean(),
 
+            // 2. Hosted Events
+            Contest.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
+            Forum.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
+            CoResearch.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
+
+            // 3. Participations (Raw)
+            Participant.find({
+                userId: user._id,
+                schoolId: userSession.schoolId
+            }).lean(),
+
+            // 4. Notifications
+            Notification.find({
+                userId: user._id,
+                schoolId: userSession.schoolId,
+                isRead: false,
+            }).sort({ createdAt: -1 }).limit(10).lean()
+        ]);
+
+        // Process Clubs
         const clubs = clubAssociations.map((assoc: any) => ({
             ...assoc.clubId,
             role: assoc.role
         })).filter((c: any) => c._id);
 
-        // Fetch hosted events
-        const [hostedContests, hostedForums, hostedCoResearch] = await Promise.all([
-            Contest.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
-            Forum.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
-            CoResearch.find({ userId: user._id, schoolId: userSession.schoolId }).lean(),
-        ]);
-
+        // Process Hosted Events
         const hostedEvents = [
             ...hostedContests.map((e: any) => ({
                 _id: e._id,
@@ -79,15 +102,12 @@ export async function GET() {
             })),
         ].sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
 
-        // Fetch participations with event details
-        // Note: Participant model also needs schoolId for full isolation
-        const participations = await Participant.find({
-            userId: user._id,
-            schoolId: userSession.schoolId
-        }).lean();
+        // Process Dependent Data in Parallel
+        const hostedEventIds = hostedEvents.map((e) => e._id.toString());
 
-        const participationsWithDetails = await Promise.all(
-            participations.map(async (p: any) => {
+        const [participationsWithDetails, pendingParticipantsCount] = await Promise.all([
+            // Enrich Participations
+            Promise.all(participations.map(async (p: any) => {
                 let eventName = '';
                 let eventDate = null;
                 let eventPlace = '';
@@ -125,25 +145,14 @@ export async function GET() {
                     eventDate,
                     eventPlace,
                 };
+            })),
+
+            // Count Pending Participants for Hosted Events
+            Participant.countDocuments({
+                eventId: { $in: hostedEventIds },
+                status: 'pending',
             })
-        );
-
-        // Fetch unread notifications
-        const notifications = await Notification.find({
-            userId: user._id,
-            schoolId: userSession.schoolId,
-            isRead: false,
-        })
-            .sort({ createdAt: -1 })
-            .limit(10)
-            .lean();
-
-        // Get pending participation count for hosted events
-        const hostedEventIds = hostedEvents.map((e) => e._id.toString());
-        const pendingParticipantsCount = await Participant.countDocuments({
-            eventId: { $in: hostedEventIds },
-            status: 'pending',
-        });
+        ]);
 
         return NextResponse.json({
             success: true,

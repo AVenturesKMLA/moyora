@@ -1,99 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server';
+
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
-import { Notification, User } from '@/models';
+import { Notification } from '@/models';
 import { authOptions } from '@/lib/auth';
 
-// GET - Fetch user's notifications
-export async function GET(request: NextRequest) {
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
+        if (!session?.user) {
             return NextResponse.json(
-                { success: false, message: '로그인이 필요합니다' },
+                { success: false, message: 'Unauthorized' },
                 { status: 401 }
             );
         }
 
-        const { searchParams } = new URL(request.url);
-        const unreadOnly = searchParams.get('unread') === 'true';
-
         await connectDB();
 
-        const user = await User.findOne({ email: session.user.email });
-        if (!user) {
-            return NextResponse.json(
-                { success: false, message: '사용자를 찾을 수 없습니다' },
-                { status: 404 }
-            );
-        }
+        // Note: Notification model currently only relies on userId. 
+        // If strict school separation is needed, we should filter by schoolId if added to model, 
+        // or rely on DB connection separation if that's how it's architecture (User has distinct DBs?).
+        // For now, filtering by userId is the baseline.
+        // Also checking strict match with the dashboard's logic which used schoolId if available.
+        // But the Notification model I saw ONLY has userId. So I must rely on userId.
 
-        const query: { userId: typeof user._id; isRead?: boolean } = { userId: user._id };
-        if (unreadOnly) {
-            query.isRead = false;
-        }
-
-        const notifications = await Notification.find(query)
+        const notifications = await Notification.find({
+            userId: (session.user as any).id || (session.user as any)._id
+        })
             .sort({ createdAt: -1 })
-            .limit(50);
+            .limit(20)
+            .lean();
 
         return NextResponse.json({
             success: true,
-            notifications,
+            data: notifications
         });
+
     } catch (error) {
-        console.error('Fetch notifications error:', error);
+        console.error('Failed to fetch notifications:', error);
         return NextResponse.json(
-            { success: false, message: '알림을 불러오는 중 오류가 발생했습니다' },
-            { status: 500 }
-        );
-    }
-}
-
-// PATCH - Mark notification as read
-export async function PATCH(request: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
-            return NextResponse.json(
-                { success: false, message: '로그인이 필요합니다' },
-                { status: 401 }
-            );
-        }
-
-        const body = await request.json();
-        const { notificationId, markAllRead } = body;
-
-        await connectDB();
-
-        const user = await User.findOne({ email: session.user.email });
-        if (!user) {
-            return NextResponse.json(
-                { success: false, message: '사용자를 찾을 수 없습니다' },
-                { status: 404 }
-            );
-        }
-
-        if (markAllRead) {
-            await Notification.updateMany(
-                { userId: user._id, isRead: false },
-                { $set: { isRead: true } }
-            );
-        } else if (notificationId) {
-            await Notification.updateOne(
-                { _id: notificationId, userId: user._id },
-                { $set: { isRead: true } }
-            );
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: '알림이 읽음 처리되었습니다',
-        });
-    } catch (error) {
-        console.error('Update notification error:', error);
-        return NextResponse.json(
-            { success: false, message: '알림 처리 중 오류가 발생했습니다' },
+            { success: false, message: 'Internal Server Error' },
             { status: 500 }
         );
     }

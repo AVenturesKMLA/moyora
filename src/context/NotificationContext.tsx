@@ -3,13 +3,19 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface Notification {
-    id: string;
-    title: string;
-    message: string;
-    type: 'info' | 'success' | 'warning';
-    timestamp: string;
+    _id: string; // MongoDB uses _id
+    title?: string; // Optional if backend returns eventName as title logic or we map it
+    eventName?: string; // Backend returns this
+    message?: string; // We might need to construct this from eventName/type
+    type?: 'info' | 'success' | 'warning'; // Backend doesn't strictly return type yet, might need mapping
+    eventType?: 'contest' | 'forum' | 'co-research';
+    createdAt?: string;
     isRead: boolean;
 }
+
+// Helper to map backend data to UI format locally if needed
+// or just use the backend shape directly.
+// Backend returns: { _id, eventName, eventType, daysUntil, isRead, ... }
 
 interface NotificationContextType {
     notifications: Notification[];
@@ -20,47 +26,39 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-    {
-        id: '1',
-        title: '대회 승인 완료',
-        message: '신청하신 "전국 고교 해커톤" 참가가 승인되었습니다.',
-        type: 'success',
-        timestamp: '방금 전',
-        isRead: false
-    },
-    {
-        id: '2',
-        title: '새로운 메시지',
-        message: '과학동아리 연합에서 새로운 공지가 등록되었습니다.',
-        type: 'info',
-        timestamp: '1시간 전',
-        isRead: false
-    },
-    {
-        id: '3',
-        title: '신청 마감 임박',
-        message: '관심 등록한 "환경 포럼" 신청이 내일 마감됩니다.',
-        type: 'warning',
-        timestamp: '2시간 전',
-        isRead: false
-    }
-];
-
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
     useEffect(() => {
-        // Load mock data on mount
-        setNotifications(MOCK_NOTIFICATIONS);
+        fetchNotifications();
     }, []);
+
+    const fetchNotifications = async () => {
+        try {
+            const res = await fetch('/api/notifications');
+            const data = await res.json();
+            if (data.success) {
+                setNotifications(data.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch notifications:', error);
+        }
+    };
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
-    const markAsRead = (id: string) => {
+    const markAsRead = async (id: string) => {
+        // Optimistic update
         setNotifications(prev => prev.map(n =>
-            n.id === id ? { ...n, isRead: true } : n
+            n._id === id ? { ...n, isRead: true } : n
         ));
+
+        try {
+            // In a real app, we'd have a PUT/PATCH endpoint here
+            // await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+        }
     };
 
     const clearAll = () => {

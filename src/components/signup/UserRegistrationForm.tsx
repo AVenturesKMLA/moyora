@@ -127,8 +127,8 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
             <div className="text-center">
                 <h2 className="text-2xl font-bold tracking-tight text-foreground">마지막 단계</h2>
                 <p className="mt-2 text-sm text-muted-foreground">로그인에 사용할 정보를 입력해주세요</p>
-                <div className="mt-3 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/30">
-                    학교: {formData.schoolName}
+                <div className="mt-3 inline-flex max-w-full items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/30">
+                    <span className="truncate">학교: {formData.schoolName}</span>
                 </div>
             </div>
 

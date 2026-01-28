@@ -8,10 +8,11 @@ import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, Users, Trophy, MessageSquare, Microscope, ChevronRight, PlusCircle, Activity } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
-const Dashboard3D = dynamic(() => import('@/components/canvas/Dashboard3D'), { ssr: false });
+const Dashboard3D = dynamic(() => import('@/components/canvas/Dashboard3D'), { ssr: false, loading: () => <Skeleton className="h-full w-full rounded-full opacity-20" /> });
 const FloatingShapes = dynamic(() => import('@/components/canvas/FloatingShapes'), { ssr: false });
 
 interface Event {
@@ -121,8 +122,60 @@ export default function DashboardPage() {
 
     if (status === 'loading' || isLoading) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-background">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <div className="min-h-screen bg-background pb-20">
+                <NavBar />
+                <main className="container relative z-10 mx-auto max-w-7xl px-4 pt-6 md:px-6 md:pt-10">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        {/* Welcome Card Skeleton */}
+                        <div className="col-span-1 border-none rounded-xl bg-muted/20 md:col-span-2 lg:col-span-3 h-[300px] relative overflow-hidden">
+                            <Skeleton className="absolute inset-0" />
+                        </div>
+                        {/* Stats Skeleton */}
+                        <div className="col-span-1 h-[160px] rounded-xl border bg-card text-card-foreground shadow-sm">
+                            <div className="p-6 space-y-4">
+                                <Skeleton className="h-4 w-24" />
+                                <div className="space-y-4">
+                                    <div className="flex justify-between"><Skeleton className="h-4 w-16" /><Skeleton className="h-8 w-8 rounded-full" /></div>
+                                    <div className="flex justify-between"><Skeleton className="h-4 w-16" /><Skeleton className="h-8 w-8 rounded-full" /></div>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Events Skeleton */}
+                        <div className="col-span-1 md:col-span-2 h-[200px] rounded-xl border bg-card p-6">
+                            <Skeleton className="h-6 w-32 mb-4" />
+                            <div className="space-y-3">
+                                <Skeleton className="h-12 w-full" />
+                                <Skeleton className="h-12 w-full" />
+                                <Skeleton className="h-12 w-full" />
+                            </div>
+                        </div>
+                        {/* Quick Actions Skeleton */}
+                        <div className="col-span-1 row-span-2 h-[300px] rounded-xl border bg-card p-6">
+                            <Skeleton className="h-6 w-24 mb-4" />
+                            <div className="space-y-3">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        </div>
+                        {/* Hosted Events Skeleton */}
+                        <div className="col-span-1 h-[200px] rounded-xl border bg-card p-6">
+                            <Skeleton className="h-6 w-32 mb-4" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-8 w-full" />
+                                <Skeleton className="h-8 w-full" />
+                            </div>
+                        </div>
+                        {/* Clubs Skeleton */}
+                        <div className="col-span-1 h-[200px] rounded-xl border bg-card p-6">
+                            <Skeleton className="h-6 w-24 mb-4" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </main>
             </div>
         );
     }
@@ -144,7 +197,7 @@ export default function DashboardPage() {
                         <div className="relative flex h-full flex-col justify-between p-6 sm:p-8">
                             <div className="relative z-10 space-y-4">
                                 <div className="space-y-2">
-                                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl truncate">
                                         안녕하세요, {session?.user?.name || '부장'}님!
                                     </h1>
                                     <p className="text-blue-100 sm:text-lg max-w-[500px]">
@@ -221,8 +274,8 @@ export default function DashboardPage() {
                                         return (
                                             <div key={p._id} className="flex items-start justify-between rounded-lg border p-3 transition-colors hover:bg-accent/50">
                                                 <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-semibold">{p.eventName}</span>
+                                                    <div className="flex items-center gap-2 max-w-[70%]">
+                                                        <span className="text-sm font-semibold truncate">{p.eventName}</span>
                                                         <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
                                                             {p.eventType === 'contest' ? '대회' : p.eventType === 'forum' ? '포럼' : '연구'}
                                                         </Badge>
@@ -293,7 +346,7 @@ export default function DashboardPage() {
                                 <ul className="space-y-3">
                                     {dashboardData.hostedEvents.slice(0, 3).map((e) => (
                                         <li key={e._id} className="flex items-center justify-between text-sm">
-                                            <span className="truncate font-medium">{e.eventName}</span>
+                                            <span className="truncate font-medium max-w-[70%]">{e.eventName}</span>
                                             <span className="text-xs text-muted-foreground shrink-0">{formatDateShort(e.eventDate)}</span>
                                         </li>
                                     ))}
@@ -315,8 +368,8 @@ export default function DashboardPage() {
                                     {dashboardData.clubs.map((c) => (
                                         <li key={c._id} className="flex items-center gap-3 text-sm">
                                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary text-base">🏫</div>
-                                            <div className="flex flex-col">
-                                                <span className="font-medium text-foreground">{c.clubName}</span>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="font-medium text-foreground truncate">{c.clubName}</span>
                                                 <span className="text-xs text-muted-foreground">{c.role === 'chief' ? '대표' : '부원'}</span>
                                             </div>
                                         </li>
