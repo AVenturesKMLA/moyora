@@ -127,6 +127,12 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild>
+                                            <Link href="/club/manage" className="cursor-pointer">
+                                                <Users className="mr-2 h-4 w-4" />
+                                                <span>동아리 관리</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
                                             <Link href="/club/register" className="cursor-pointer">
                                                 <Users className="mr-2 h-4 w-4" />
                                                 <span>동아리 등록</span>
@@ -192,6 +198,10 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             <Link href="/mypage" className="flex items-center gap-2 text-lg font-medium">
                                                 <User className="h-5 w-5" />
                                                 마이페이지
+                                            </Link>
+                                            <Link href="/club/manage" className="flex items-center gap-2 text-lg font-medium">
+                                                <Users className="h-5 w-5" />
+                                                동아리 관리
                                             </Link>
                                             <div className="my-2 border-t" />
                                             <button onClick={handleSignOut} className="flex items-center gap-2 text-lg font-medium text-red-600">
