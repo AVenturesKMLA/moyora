@@ -34,7 +34,7 @@ export default function HomePage() {
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             동아리 활동의<br />
-            <span className="text-primary">새로운 차원.</span>
+            <span className="text-primary">새로운 차원</span>
           </h1>
 
           <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
@@ -60,7 +60,7 @@ export default function HomePage() {
             )}
             <Link href="/schedule">
               <Button variant="outline" size="lg" className="h-12 rounded-full px-8 text-lg backdrop-blur-sm bg-background/50">
-                일정 둘러보기
+                {session ? "일정 둘러보기" : "체험해보기"}
               </Button>
             </Link>
           </div>
@@ -85,7 +85,8 @@ export default function HomePage() {
               </div>
               <CardTitle className="text-2xl">통합 대회</CardTitle>
               <CardDescription className="text-lg">
-                전국 규모의 동아리 대회에 참가하고 실력을 증명하세요. 다양한 분야의 경진대회가 여러분을 기다립니다.
+                전국 규모의 동아리 대회에 참가하고 실력을 증명하세요.<br />
+                다양한 분야의 경진대회가 여러분을 기다립니다.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -98,7 +99,8 @@ export default function HomePage() {
               </div>
               <CardTitle className="text-xl">연합 포럼</CardTitle>
               <CardDescription>
-                다른 학교와 아이디어를 공유하고 토론하세요. 지식 공유의 장이 열립니다.
+                다른 학교와 아이디어를 공유하고 토론하세요.<br />
+                지식 공유의 장이 열립니다.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -159,7 +161,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-4xl mx-auto">
           {/* Basic */}
           <Card className="flex flex-col border-border/50">
             <CardHeader>
@@ -187,34 +189,13 @@ export default function HomePage() {
             <CardHeader>
               <CardTitle className="text-2xl text-primary">Plus</CardTitle>
               <CardDescription>더 넓은 교류를 원하는 성장하는 동아리</CardDescription>
-              <div className="mt-4 text-4xl font-bold">₩4,900<span className="text-lg font-normal text-muted-foreground">/월</span></div>
+              <div className="mt-4 text-4xl font-bold">Coming Soon</div>
             </CardHeader>
             <CardContent className="flex flex-col flex-1 gap-4">
-              <ul className="space-y-2 text-sm text-muted-foreground flex-1">
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> Basic의 모든 기능</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 연합 포럼 참여권</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 공동 연구 제안</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 활동 통계 분석</li>
-              </ul>
-              <Button className="w-full" size="lg">시작하기</Button>
-            </CardContent>
-          </Card>
-
-          {/* Pro */}
-          <Card className="flex flex-col border-border/50">
-            <CardHeader>
-              <CardTitle className="text-2xl">Pro</CardTitle>
-              <CardDescription>전국구 활동을 위한 전문적인 지원</CardDescription>
-              <div className="mt-4 text-4xl font-bold">₩9,900<span className="text-lg font-normal text-muted-foreground">/월</span></div>
-            </CardHeader>
-            <CardContent className="flex flex-col flex-1 gap-4">
-              <ul className="space-y-2 text-sm text-muted-foreground flex-1">
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> Plus의 모든 기능</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 전국 대회 우선 참가</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 멘토링 매칭 서비스</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 전문가 피드백</li>
-              </ul>
-              <Button className="w-full" variant="outline">문의하기</Button>
+              <div className="flex-1 flex items-center justify-center text-muted-foreground italic">
+                개발중...
+              </div>
+              <Button className="w-full" size="lg" disabled>Coming Soon</Button>
             </CardContent>
           </Card>
         </div>

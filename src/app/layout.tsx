@@ -3,6 +3,7 @@ import { Noto_Sans_KR } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import Providers from '@/components/Providers';
 import { NotificationProvider } from '@/context/NotificationContext';
+import Footer from '@/components/Footer';
 import './globals.css';
 
 const notoSansKr = Noto_Sans_KR({
@@ -31,6 +32,7 @@ export default function RootLayout({
                     <Providers>
                         <NotificationProvider>
                             {children}
+                            <Footer />
                         </NotificationProvider>
                     </Providers>
                 </StyledJsxRegistry>
