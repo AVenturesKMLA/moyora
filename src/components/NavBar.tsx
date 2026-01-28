@@ -50,8 +50,9 @@ function NotificationButton() {
 }
 
 export default function NavBar({ showDashboardLink = true }: NavBarProps) {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const isLoggedIn = !!session?.user;
+    const isLoading = status === 'loading';
 
     const handleSignOut = async () => {
         await signOut({ callbackUrl: '/login' });
@@ -72,7 +73,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
                         회사소개
                     </Link>
-                    <Link href="/#plans" className="text-sm font-medium transition-colors hover:text-primary">
+                    <Link href="/plan" className="text-sm font-medium transition-colors hover:text-primary">
                         플랜
                     </Link>
                     {isLoggedIn && (
@@ -140,14 +141,16 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                 </DropdownMenu>
                             </>
                         ) : (
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghost" asChild>
-                                    <Link href="/login">로그인</Link>
-                                </Button>
-                                <Button asChild>
-                                    <Link href="/signup">회원가입</Link>
-                                </Button>
-                            </div>
+                            !isLoading && (
+                                <div className="flex items-center gap-2">
+                                    <Button variant="ghost" asChild>
+                                        <Link href="/login">로그인</Link>
+                                    </Button>
+                                    <Button asChild>
+                                        <Link href="/signup">회원가입</Link>
+                                    </Button>
+                                </div>
+                            )
                         )}
                         <ThemeToggle />
                     </div>
@@ -197,20 +200,22 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             </button>
                                         </>
                                     ) : (
-                                        <>
-                                            <Link href="/login" className="text-lg font-medium">
-                                                로그인
-                                            </Link>
-                                            <Link href="/signup" className="text-lg font-medium text-primary">
-                                                회원가입
-                                            </Link>
-                                        </>
+                                        !isLoading && (
+                                            <>
+                                                <Link href="/login" className="text-lg font-medium">
+                                                    로그인
+                                                </Link>
+                                                <Link href="/signup" className="text-lg font-medium text-primary">
+                                                    회원가입
+                                                </Link>
+                                            </>
+                                        )
                                     )}
                                     <div className="my-2 border-t" />
                                     <Link href="/about" className="text-lg font-medium">
                                         회사소개
                                     </Link>
-                                    <Link href="/#plans" className="text-lg font-medium">
+                                    <Link href="/plan" className="text-lg font-medium">
                                         플랜
                                     </Link>
                                 </div>

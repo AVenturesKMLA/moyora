@@ -152,54 +152,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Plans Section */}
-      <section className="container py-16 md:py-24">
-        <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center pb-12">
-          <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">멤버십 플랜</h2>
-          <p className="max-w-[85%] text-muted-foreground md:text-xl">
-            동아리의 규모와 필요에 맞는 최적의 플랜을 선택하세요.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-4xl mx-auto">
-          {/* Basic */}
-          <Card className="flex flex-col border-border/50">
-            <CardHeader>
-              <CardTitle className="text-2xl">Basic</CardTitle>
-              <CardDescription>모든 동아리를 위한 기본 활동 지원</CardDescription>
-              <div className="mt-4 text-4xl font-bold">Free</div>
-            </CardHeader>
-            <CardContent className="flex flex-col flex-1 gap-4">
-              <ul className="space-y-2 text-sm text-muted-foreground flex-1">
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 동아리 프로필 생성</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 교내 대회 참가</li>
-                <li className="flex items-center"><CheckCircle2 className="mr-2 h-4 w-4 text-primary" /> 기본 커뮤니티 접근</li>
-              </ul>
-              <Button className="w-full" variant={session ? "outline" : "default"} asChild>
-                <Link href={session ? "/dashboard" : "/signup"}>{session ? "현재 이용중" : "무료로 시작하기"}</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Plus */}
-          <Card className="flex flex-col border-primary shadow-lg relative bg-primary/5">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 ">
-              <Badge className="bg-primary text-primary-foreground hover:bg-primary">BEST</Badge>
-            </div>
-            <CardHeader>
-              <CardTitle className="text-2xl text-primary">Plus</CardTitle>
-              <CardDescription>더 넓은 교류를 원하는 성장하는 동아리</CardDescription>
-              <div className="mt-4 text-4xl font-bold">Coming Soon</div>
-            </CardHeader>
-            <CardContent className="flex flex-col flex-1 gap-4">
-              <div className="flex-1 flex items-center justify-center text-muted-foreground italic">
-                개발중...
-              </div>
-              <Button className="w-full" size="lg" disabled>Coming Soon</Button>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="container py-12 md:py-24">
