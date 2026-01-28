@@ -84,6 +84,9 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                             <Link href="/collab" className="text-sm font-medium transition-colors hover:text-primary">
                                 협업
                             </Link>
+                            <Link href="/club/search" className="text-sm font-medium transition-colors hover:text-primary">
+                                동아리 찾기
+                            </Link>
                         </>
                     )}
                 </nav>
@@ -124,6 +127,12 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             <Link href="/mypage" className="cursor-pointer">
                                                 <User className="mr-2 h-4 w-4" />
                                                 <span>마이페이지</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/club/search" className="cursor-pointer">
+                                                <Users className="mr-2 h-4 w-4" />
+                                                <span>동아리 찾기</span>
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild>
@@ -194,6 +203,10 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             <Link href="/collab" className="flex items-center gap-2 text-lg font-medium">
                                                 <Users className="h-5 w-5" />
                                                 협업
+                                            </Link>
+                                            <Link href="/club/search" className="flex items-center gap-2 text-lg font-medium">
+                                                <Users className="h-5 w-5" />
+                                                동아리 찾기
                                             </Link>
                                             <Link href="/mypage" className="flex items-center gap-2 text-lg font-medium">
                                                 <User className="h-5 w-5" />
