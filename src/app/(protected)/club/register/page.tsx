@@ -121,7 +121,6 @@ export default function ClubRegisterPage() {
             <NavBar />
 
             {/* Background Decorations */}
-            {/* Background Decorations - Removed 3D */}
 
             <main className="flex-1 container max-w-3xl py-12 relative z-10">
                 <div className="mb-8 text-center space-y-2">

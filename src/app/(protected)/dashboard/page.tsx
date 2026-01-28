@@ -64,6 +64,20 @@ interface DashboardData {
         pendingApprovalCount: number;
         unreadNotificationCount: number;
     };
+    recentClubs: Array<{
+        _id: string;
+        name: string;
+        school: string;
+        desc: string;
+        score: number;
+    }>;
+    trendingCollabs: Array<{
+        _id: string;
+        title: string;
+        host: string;
+        date: string;
+        type: 'contest' | 'forum' | 'co-research';
+    }>;
 }
 
 export default function DashboardPage() {
@@ -191,10 +205,19 @@ export default function DashboardPage() {
                             </Button>
                         </div>
                         <div className="space-y-3">
-                            <RecentClubCard name="PRAGMATISM" school="KMLA · 강원" desc="BM · 창업 · 컨설팅" score={82} />
-                            <RecentClubCard name="S2 Lab" school="서울과학고 · 서울" desc="과학 · AI · 로보틱스" score={90} />
-                            <RecentClubCard name="Quant Forge" school="대전과학고 · 대전" desc="금융 · 데이터 · 리서치" score={76} />
-                            <RecentClubCard name="StageCraft" school="경기과학고 · 경기" desc="공연 · 연출 · 무대기술" score={71} />
+                            {dashboardData?.recentClubs?.length ? (
+                                dashboardData.recentClubs.map((club) => (
+                                    <RecentClubCard
+                                        key={club._id}
+                                        name={club.name}
+                                        school={club.school}
+                                        desc={club.desc}
+                                        score={club.score}
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-sm text-muted-foreground">최근 등록된 동아리가 없습니다.</p>
+                            )}
                         </div>
                     </div>
 
@@ -207,30 +230,19 @@ export default function DashboardPage() {
                             </Button>
                         </div>
                         <div className="space-y-3">
-                            <TrendingCollabCard
-                                title="전국 BM 케이스 스프린트"
-                                host="통합 대회 · 전국"
-                                date="2/15~2/17"
-                                type="OPEN"
-                            />
-                            <TrendingCollabCard
-                                title="AI 안전/윤리? 대신 시스템 리스크"
-                                host="연합 포럼 · 수도권"
-                                date="2/20일"
-                                type="OPEN"
-                            />
-                            <TrendingCollabCard
-                                title="환경 데이터 수집 봉사 + 리포트"
-                                host="공동 연구 · 부산/경남"
-                                date="3/1~3/3"
-                                type="OPEN"
-                            />
-                            <TrendingCollabCard
-                                title="무대기술 교류전: 조명/음향/안전"
-                                host="기타 · 전라권"
-                                date="1월 10일"
-                                type="CLOSED"
-                            />
+                            {dashboardData?.trendingCollabs?.length ? (
+                                dashboardData.trendingCollabs.map((collab) => (
+                                    <TrendingCollabCard
+                                        key={collab._id}
+                                        title={collab.title}
+                                        host={collab.host}
+                                        date={new Date(collab.date).toLocaleDateString()}
+                                        type={new Date(collab.date) > new Date() ? 'OPEN' : 'CLOSED'}
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-sm text-muted-foreground">예정된 협업 이벤트가 없습니다.</p>
+                            )}
                         </div>
                     </div>
 

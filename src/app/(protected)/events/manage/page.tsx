@@ -173,11 +173,7 @@ export default function EventManagePage() {
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <NavBar />
-            {/* Keeping 3D elements if they don't break layout, but positioning absolutely in background */}
-            {/* 3D elements removed */}
 
-
-            <nav className="container relative z-10 py-6">
                 <div className="flex items-center gap-4 mb-2">
                     <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-sm">
                         <ArrowLeft className="h-4 w-4" /> 대시보드로 돌아가기
@@ -389,6 +385,6 @@ export default function EventManagePage() {
                     )}
                 </Card>
             </div>
-        </div>
+        </div >
     );
 }
