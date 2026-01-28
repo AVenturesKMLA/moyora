@@ -11,7 +11,7 @@ export async function GET() {
         const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
 
         await connectDB();
-        const dbName = mongoose.connection.db.databaseName;
+        const dbName = mongoose.connection.db?.databaseName || 'unknown';
         const host = mongoose.connection.host;
 
         const email = 'psalm10435@gmail.com';
