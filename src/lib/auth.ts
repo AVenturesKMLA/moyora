@@ -19,7 +19,8 @@ export const authOptions: NextAuthOptions = {
 
                 await connectDB();
 
-                const user = await User.findOne({ email: credentials.email });
+                const email = credentials.email.toLowerCase().trim();
+                const user = await User.findOne({ email });
                 if (!user) {
                     throw new Error('등록되지 않은 이메일입니다');
                 }
