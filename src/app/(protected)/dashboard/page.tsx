@@ -101,13 +101,20 @@ export default function DashboardPage() {
             <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-12">
 
                 {/* 1. Header Section */}
-                <div className="space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                        동아리 활동의 새로운 차원
-                    </h1>
-                    <p className="text-muted-foreground text-lg">
-                        {session?.user?.name}님, 오늘도 모여라에서 성장을 경험하세요.
-                    </p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
+                            동아리 활동의 새로운 차원
+                        </h1>
+                        <p className="text-muted-foreground text-lg">
+                            {session?.user?.name}님, 오늘도 모여라에서 성장을 경험하세요.
+                        </p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button className="rounded-full shadow-md font-semibold" asChild>
+                            <Link href="/club/register">동아리 등록</Link>
+                        </Button>
+                    </div>
                 </div>
 
                 {/* 2. Stats Row */}

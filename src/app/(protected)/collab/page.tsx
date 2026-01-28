@@ -8,11 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CollabCard } from '@/components/cards/CollabCard';
 import { CollabModal } from '@/components/modals/CollabModal';
-import { NewCollabModal } from '@/components/modals/NewCollabModal';
+// import { NewCollabModal } from '@/components/modals/NewCollabModal';
 import { EditCollabModal } from '@/components/modals/EditCollabModal';
 import { RatingModal } from '@/components/modals/RatingModal';
 import { DemoState, Collab as CollabType, loadState, saveState, Club, Application } from '@/data/demoData';
-import { Bell } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar } from '@/components/ui/calendar';
+import { Card } from '@/components/ui/card';
+import { Bell, Calendar as CalendarIcon, List as ListIcon, ChevronRight } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,11 +23,12 @@ export default function CollabPage() {
     const { data: session } = useSession();
     const [state, setState] = useState<DemoState | null>(null);
 
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const [query, setQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState('all');
     const [regionFilter, setRegionFilter] = useState('all');
     const [selectedCollabId, setSelectedCollabId] = useState<string | null>(null);
-    const [showNewModal, setShowNewModal] = useState(false);
+    // const [showNewModal, setShowNewModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showRatingModal, setShowRatingModal] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -175,8 +179,8 @@ export default function CollabPage() {
                                     )}
                                 </div>
                             )}
-                            <Button onClick={() => setShowNewModal(true)} className="rounded-full shadow-md font-semibold">
-                                모집 올리기
+                            <Button className="rounded-full shadow-md font-semibold" asChild>
+                                <a href="/collab/new">모집 올리기</a>
                             </Button>
                         </div>
                     </div>
@@ -213,20 +217,111 @@ export default function CollabPage() {
                     </div>
                 </div>
 
-                {/* Cards Grid */}
-                <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
-                    {filtered.map(collab => {
-                        const club = state.clubs.find(c => c.id === collab.club_id);
-                        return (
-                            <CollabCard
-                                key={collab.id}
-                                collab={collab}
-                                club={club}
-                                onClick={() => setSelectedCollabId(collab.id)}
-                            />
-                        );
-                    })}
-                </div>
+                <Tabs defaultValue="cards" className="w-full">
+                    <div className="flex justify-end mb-4">
+                        <TabsList>
+                            <TabsTrigger value="cards" className="flex gap-2">
+                                <ListIcon className="w-4 h-4" /> 카드 보기
+                            </TabsTrigger>
+                            <TabsTrigger value="schedule" className="flex gap-2">
+                                <CalendarIcon className="w-4 h-4" /> 일정 보기
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
+
+                    <TabsContent value="cards" className="animate-fade-in">
+                        {/* Cards Grid */}
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+                            {filtered.map(collab => {
+                                const club = state.clubs.find(c => c.id === collab.club_id);
+                                return (
+                                    <CollabCard
+                                        key={collab.id}
+                                        collab={collab}
+                                        club={club}
+                                        onClick={() => setSelectedCollabId(collab.id)}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="schedule" className="animate-fade-in">
+                        <div className="flex flex-col md:flex-row gap-8">
+                            <div className="flex-shrink-0 mx-auto md:mx-0">
+                                <Card className="p-4 border-border/60 shadow-sm inline-block">
+                                    <Calendar
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={setSelectedDate}
+                                        className="rounded-md border"
+                                        modifiers={{
+                                            hasEvent: (date) => state?.collabs.some(c => {
+                                                const d = new Date(c.dateStart);
+                                                return d.getDate() === date.getDate() &&
+                                                    d.getMonth() === date.getMonth() &&
+                                                    d.getFullYear() === date.getFullYear();
+                                            }) || false
+                                        }}
+                                        modifiersClassNames={{
+                                            hasEvent: "font-bold text-primary underline decoration-primary decoration-2 underline-offset-4"
+                                        }}
+                                    />
+                                </Card>
+                            </div>
+
+                            <div className="flex-1 space-y-4">
+                                <h3 className="font-bold text-lg flex items-center gap-2">
+                                    <CalendarIcon className="w-5 h-5 text-primary" />
+                                    {selectedDate ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 일정` : '일정 선택'}
+                                </h3>
+
+                                {(() => {
+                                    if (!selectedDate || !state) return <div>날짜를 선택해주세요.</div>;
+                                    const dailyEvents = state.collabs.filter(c => {
+                                        const d = new Date(c.dateStart);
+                                        return d.getDate() === selectedDate.getDate() &&
+                                            d.getMonth() === selectedDate.getMonth() &&
+                                            d.getFullYear() === selectedDate.getFullYear();
+                                    });
+
+                                    if (dailyEvents.length === 0) {
+                                        return (
+                                            <div className="text-center py-12 border rounded-xl bg-muted/20 text-muted-foreground">
+                                                해당 날짜에 등록된 일정이 없습니다.
+                                            </div>
+                                        );
+                                    }
+
+                                    return dailyEvents.map(collab => {
+                                        const club = state.clubs.find(c => c.id === collab.club_id);
+                                        return (
+                                            <div
+                                                key={collab.id}
+                                                className="flex flex-col sm:flex-row gap-4 p-4 border rounded-xl bg-card hover:border-primary/50 transition-colors cursor-pointer"
+                                                onClick={() => setSelectedCollabId(collab.id)}
+                                            >
+                                                <div className="flex-shrink-0 w-full sm:w-24 flex flex-col justify-center items-center bg-muted/20 rounded-lg p-2">
+                                                    <div className="text-sm font-bold text-muted-foreground">{collab.time || 'All Day'}</div>
+                                                </div>
+                                                <div className="flex-1 space-y-1">
+                                                    <div className="text-xs text-primary font-semibold">{collab.type}</div>
+                                                    <h3 className="font-bold text-lg">{collab.title}</h3>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {club?.name || '알 수 없음'} · {collab.region}
+                                                    </p>
+                                                </div>
+                                                <Button variant="ghost" size="sm" className="hidden sm:flex self-center">
+                                                    <ChevronRight className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        );
+                                    });
+                                })()}
+                            </div>
+                        </div>
+                    </TabsContent>
+                </Tabs>
 
                 <CollabModal
                     collab={selectedCollab}
@@ -260,7 +355,7 @@ export default function CollabPage() {
                     onEdit={() => setShowEditModal(true)}
                 />
 
-                <NewCollabModal
+                {/* <NewCollabModal
                     open={showNewModal}
                     onOpenChange={setShowNewModal}
                     onSubmit={(data) => {
@@ -273,7 +368,7 @@ export default function CollabPage() {
                         });
                         alert('등록 완료');
                     }}
-                />
+                /> */}
 
                 {selectedCollab && (
                     <>

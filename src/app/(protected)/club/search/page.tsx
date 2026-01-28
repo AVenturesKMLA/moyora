@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ClubCard } from '@/components/cards/ClubCard';
 import { DemoState, loadState, Club } from '@/data/demoData';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 import { Search } from 'lucide-react';
 
 export default function ClubSearchPage() {
@@ -51,9 +52,14 @@ export default function ClubSearchPage() {
                             {filteredClubs.length}개 동아리
                         </Badge>
                     </div>
-                    <p className="text-muted-foreground text-sm max-w-2xl">
-                        필터링으로 원하는 동아리를 찾아보세요. 신뢰 점수와 태그를 통해 우리 학교와 꼭 맞는 파트너를 찾을 수 있습니다.
-                    </p>
+                    <div className="flex flex-col sm:flex-row justify-between gap-4">
+                        <p className="text-muted-foreground text-sm max-w-2xl">
+                            필터링으로 원하는 동아리를 찾아보세요. 신뢰 점수와 태그를 통해 우리 학교와 꼭 맞는 파트너를 찾을 수 있습니다.
+                        </p>
+                        <Button className="rounded-full shadow-md font-semibold shrink-0" asChild>
+                            <Link href="/club/register">동아리 등록</Link>
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Filter Toolbar */}

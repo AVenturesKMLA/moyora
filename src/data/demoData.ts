@@ -238,6 +238,42 @@ export const DEMO_DATA: DemoState = {
             budget: '대관 협의',
             status: 'completed'
         },
+        {
+            id: 'p5',
+            club_id: 'c1',
+            type: '통합 대회',
+            title: '제1회 전국 고교 창업 경진대회',
+            dateStart: '2026-03-20',
+            dateEnd: '2026-03-22',
+            method: 'offline',
+            address: '서울 코엑스',
+            region: '서울',
+            budget: '참가비 무료',
+            status: 'open'
+        },
+        {
+            id: 'p6',
+            club_id: 'c2',
+            type: '연합 포럼',
+            title: '미래 과학 기술 포럼',
+            dateStart: '2026-04-05',
+            method: 'online',
+            region: '전국',
+            budget: '무료',
+            status: 'open'
+        },
+        {
+            id: 'p7',
+            club_id: 'c5',
+            type: '공동 연구',
+            title: '우리 동네 수질 오염 지도 만들기',
+            dateStart: '2026-03-15',
+            dateEnd: '2026-05-15',
+            method: 'offline',
+            region: '경상권',
+            budget: '지원금 지급',
+            status: 'open'
+        },
     ],
     projects: [
         {
