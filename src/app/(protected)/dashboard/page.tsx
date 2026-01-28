@@ -278,7 +278,7 @@ function StatsCard({ title, value, subtext, icon }: { title: string, value: stri
 
 function ProjectCard({ title, team, progress, status }: { title: string, team: string, progress: number, status: string }) {
     return (
-        <Link href="/projects" className="inline-block">
+        <Link href="/collab?tab=projects" className="inline-block">
             <Card className="w-[300px] whitespace-normal shadow-sm hover:shadow-md transition-all cursor-pointer border-l-4 border-l-primary/40">
                 <CardContent className="p-5 space-y-4">
                     <div className="space-y-1">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -15,7 +14,8 @@ import { DemoState, Collab as CollabType, loadState, saveState, Club, Applicatio
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
-import { Bell, Calendar as CalendarIcon, List as ListIcon, ChevronRight } from 'lucide-react';
+import { Bell, Calendar as CalendarIcon, List as ListIcon, ChevronRight, Briefcase } from 'lucide-react';
+import { ProjectListCard } from '@/components/cards/ProjectListCard';
 import { useSession } from 'next-auth/react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -33,6 +33,16 @@ export default function CollabPage() {
     const [showRatingModal, setShowRatingModal] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
 
+    const [activeTab, setActiveTab] = useState('cards');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab) setActiveTab(tab);
+        }
+    }, []);
+
     useEffect(() => {
         setState(loadState());
     }, []);
@@ -45,14 +55,6 @@ export default function CollabPage() {
     // Derived state
     const myClub = useMemo(() => {
         if (!session?.user || !state) return null;
-        // Simple matching logic: find club by "leader name" matching user name or just pick first one for demo if not found
-        // Or users can be linked to clubs. For this demo, let's assume the user IS the leader of 'PRAGMATISM' (c1) if name matches, or just fallback to c1 for testing if logged in.
-        // Ideally we should have user.clubId.
-        // Let's assume user.name matches leader name for strictness, or just default to 'PRAGMATISM' for demo purposes as requested ("logistical - gathered smth").
-
-        // For specific user "justc/mor", maybe we can find a club?
-        // Let's look for a club where formatted email matches or something. 
-        // Fallback: If logged in, assume they are 'PRAGMATISM' (c1) for full demo capabilities unless they match another leader.
         return state.clubs.find(c => c.leader === session.user?.name) || state.clubs[0];
     }, [session, state]);
 
@@ -217,14 +219,17 @@ export default function CollabPage() {
                     </div>
                 </div>
 
-                <Tabs defaultValue="cards" className="w-full">
-                    <div className="flex justify-end mb-4">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <div className="flex justify-between md:justify-end mb-4">
                         <TabsList>
                             <TabsTrigger value="cards" className="flex gap-2">
-                                <ListIcon className="w-4 h-4" /> 카드 보기
+                                <ListIcon className="w-4 h-4" /> 모집 공고
                             </TabsTrigger>
                             <TabsTrigger value="schedule" className="flex gap-2">
-                                <CalendarIcon className="w-4 h-4" /> 일정 보기
+                                <CalendarIcon className="w-4 h-4" /> 일정
+                            </TabsTrigger>
+                            <TabsTrigger value="projects" className="flex gap-2">
+                                <Briefcase className="w-4 h-4" /> 내 프로젝트
                             </TabsTrigger>
                         </TabsList>
                     </div>
@@ -321,6 +326,38 @@ export default function CollabPage() {
                             </div>
                         </div>
                     </TabsContent>
+
+                    <TabsContent value="projects" className="animate-fade-in">
+                        <div className="space-y-4">
+                            {/* Using Mock Data for Projects for now as it was in the Projects page */}
+                            <ProjectListCard
+                                project={{
+                                    id: 'p1',
+                                    title: '전국 BM 케이스 스프린트: 핀테크 혁신',
+                                    team: ['PRAGMATISM', 'Quant Forge'],
+                                    description: '다양한 핀테크 앱의 BM을 분석하고 새로운 비즈니스 모델을 제안하는 단기 스프린트입니다.',
+                                    progress: 48,
+                                    status: 'in_progress',
+                                    dueDate: '2025-02-15',
+                                    type: 'Contest'
+                                }}
+                                onEnterRoom={() => alert('프로젝트 룸 입장 (Demo)')}
+                            />
+                            <ProjectListCard
+                                project={{
+                                    id: 'p2',
+                                    title: '환경 데이터 수집 봉사 + 리포트 발간',
+                                    team: ['BioEdge', 'S2 Lab'],
+                                    description: '지역별 대기질 및 수질 데이터를 직접 측정하고 이를 분석하여 환경 리포트를 작성합니다.',
+                                    progress: 26,
+                                    status: 'in_progress',
+                                    dueDate: '2025-03-01',
+                                    type: 'Co-Research'
+                                }}
+                                onEnterRoom={() => alert('프로젝트 룸 입장 (Demo)')}
+                            />
+                        </div>
+                    </TabsContent>
                 </Tabs>
 
                 <CollabModal
@@ -350,25 +387,10 @@ export default function CollabPage() {
                         });
                         alert('지원 완료');
                     }}
-                    onCreateRoom={() => isOwnCollab ? setShowRatingModal(true) : alert('프로젝트 룸 생성 (Demo)')}
+                    onCreateRoom={() => isOwnCollab ? setShowRatingModal(true) : alert('프로젝트 룸 입장 (Demo)')}
                     isOwnCollab={!!isOwnCollab}
                     onEdit={() => setShowEditModal(true)}
                 />
-
-                {/* <NewCollabModal
-                    open={showNewModal}
-                    onOpenChange={setShowNewModal}
-                    onSubmit={(data) => {
-                        if (!myClub) return alert('동아리 정보가 없습니다.');
-                        handleAddCollab({
-                            club_id: myClub.id,
-                            ...data,
-                            budget: '협의',
-                            status: 'open'
-                        });
-                        alert('등록 완료');
-                    }}
-                /> */}
 
                 {selectedCollab && (
                     <>

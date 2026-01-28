@@ -7,6 +7,7 @@ export { default as Schedule } from './Schedule';
 export { default as Notification } from './Notification';
 export { default as Participant } from './Participant';
 export { default as ClubMember } from './ClubMember';
+export { default as ClubApplication } from './ClubApplication';
 
 export type { IUser } from './User';
 export type { IClub } from './Club';
@@ -17,3 +18,4 @@ export type { ISchedule, EventType } from './Schedule';
 export type { INotification, ReminderDays } from './Notification';
 export type { IParticipant } from './Participant';
 export type { IClubMember } from './ClubMember';
+export type { IClubApplication } from './ClubApplication';

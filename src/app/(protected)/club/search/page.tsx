@@ -6,38 +6,78 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ClubCard } from '@/components/cards/ClubCard';
-import { DemoState, loadState, Club } from '@/data/demoData';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ClubSearchPage() {
-    const [state, setState] = useState<DemoState | null>(null);
+    const [clubs, setClubs] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState('');
     const [regionFilter, setRegionFilter] = useState('all');
-
-    // Additional placeholders for filters matching mockup
     const [fieldFilter, setFieldFilter] = useState('all');
     const [trustFilter, setTrustFilter] = useState('all');
 
+    // Application Modal State
+    const [selectedClub, setSelectedClub] = useState<any | null>(null);
+    const [applyMessage, setApplyMessage] = useState('');
+    const [isApplying, setIsApplying] = useState(false);
+
     useEffect(() => {
-        setState(loadState());
+        const fetchClubs = async () => {
+            try {
+                const res = await fetch('/api/clubs');
+                const data = await res.json();
+                if (data.success) {
+                    setClubs(data.clubs);
+                }
+            } catch (error) {
+                console.error('Fetch clubs error:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchClubs();
     }, []);
 
     const filteredClubs = useMemo(() => {
-        if (!state) return [];
-        return state.clubs.filter(club => {
-            const matchesQuery = club.name.toLowerCase().includes(query.toLowerCase()) ||
-                (club.school && club.school.toLowerCase().includes(query.toLowerCase()));
-            // Mock region filter (assuming club has no region field in demoData yet, we skip strict filtering or add it later)
-            // For now just substring match
-            const matchesRegion = regionFilter === 'all' || true;
-
-            return matchesQuery && matchesRegion;
+        return clubs.filter(club => {
+            const matchesQuery = club.clubName.toLowerCase().includes(query.toLowerCase()) ||
+                (club.schoolName && club.schoolName.toLowerCase().includes(query.toLowerCase()));
+            const matchesField = fieldFilter === 'all' || club.clubTheme === fieldFilter;
+            // Region and Trust filters are placeholders in this mock/db hybrid for now
+            return matchesQuery && matchesField;
         });
-    }, [state, query, regionFilter]);
+    }, [clubs, query, regionFilter, fieldFilter]);
 
-    if (!state) return null;
+    const handleApply = async () => {
+        if (!selectedClub) return;
+        setIsApplying(true);
+        try {
+            const res = await fetch('/api/club/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    clubId: selectedClub._id,
+                    message: applyMessage
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('가입 신청이 완료되었습니다.');
+                setSelectedClub(null);
+                setApplyMessage('');
+            } else {
+                alert(data.message || '가입 신청 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            alert('오류가 발생했습니다.');
+        } finally {
+            setIsApplying(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -111,13 +151,24 @@ export default function ClubSearchPage() {
                 </div>
 
                 {/* Club Grid */}
-                {filteredClubs.length > 0 ? (
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                ) : filteredClubs.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                         {filteredClubs.map(club => (
                             <ClubCard
-                                key={club.id}
-                                club={club}
-                                onClick={() => alert(`${club.name} 상세 페이지 (Demo)`)}
+                                key={club._id}
+                                club={{
+                                    id: club._id,
+                                    name: club.clubName,
+                                    school: club.schoolName,
+                                    size: club.maxMembers || 0,
+                                    description: club.description,
+                                    onApply: () => setSelectedClub(club)
+                                } as any}
+                                onClick={() => alert(`${club.clubName} 상세 페이지 (Demo)`)}
                             />
                         ))}
                     </div>
@@ -127,6 +178,37 @@ export default function ClubSearchPage() {
                     </div>
                 )}
             </main>
+
+            {/* Application Modal */}
+            <Dialog open={!!selectedClub} onOpenChange={(open) => !open && setSelectedClub(null)}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>{selectedClub?.clubName} 가입 신청</DialogTitle>
+                        <DialogDescription>
+                            동아리장에게 보낼 간단한 자기소개나 지원 동기를 작성해주세요.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <Textarea
+                            placeholder="안녕하세요! 이번에 동아리에 지원하게 된... (최대 500자)"
+                            value={applyMessage}
+                            onChange={(e) => setApplyMessage(e.target.value)}
+                            className="min-h-[150px]"
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setSelectedClub(null)}>취소</Button>
+                        <Button
+                            onClick={handleApply}
+                            disabled={isApplying || !applyMessage.trim()}
+                        >
+                            {isApplying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            신청하기
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
+

@@ -1,5 +1,6 @@
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Club } from '@/data/demoData';
 
 interface ClubCardProps {
@@ -39,9 +40,23 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
                 </div>
             </div>
 
-            <div className="flex flex-col items-center justify-center h-14 w-14 shrink-0 rounded-full border-2 border-primary/20 bg-primary/5 group-hover:bg-primary/10 transition-colors">
-                <span className="text-[10px] font-bold text-primary">신뢰</span>
-                <span className="text-sm font-bold text-primary">{score}</span>
+            <div className="flex flex-col items-center gap-3 shrink-0">
+                <div className="flex flex-col items-center justify-center h-14 w-14 rounded-full border-2 border-primary/20 bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                    <span className="text-[10px] font-bold text-primary">신뢰</span>
+                    <span className="text-sm font-bold text-primary">{score}</span>
+                </div>
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[11px] px-3 rounded-full border-primary/50 text-primary hover:bg-primary hover:text-white"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        // This will be handled by the parent
+                        (club as any).onApply?.();
+                    }}
+                >
+                    가입 신청
+                </Button>
             </div>
         </div>
     );

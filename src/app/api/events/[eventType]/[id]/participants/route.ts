@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
-import { Contest, Forum, CoResearch, User, Participant } from '@/models';
+import { Contest, Forum, CoResearch, User, Participant, Club, ClubMember } from '@/models';
 import mongoose from 'mongoose';
 
 // GET - Fetch participants for a specific event (host only)
@@ -84,9 +84,36 @@ export async function GET(
             eventId: id,
         }).sort({ createdAt: -1 });
 
+        // Enrich participants with Club Member count
+        const enrichedParticipants = await Promise.all(
+            participants.map(async (p) => {
+                const participantObj = p.toObject();
+                let clubMemberCount = 0;
+                let clubDetails = null;
+
+                if (p.clubName) {
+                    const club = await Club.findOne({ clubName: p.clubName });
+                    if (club) {
+                        clubMemberCount = await ClubMember.countDocuments({ clubId: club._id });
+                        clubDetails = {
+                            _id: club._id,
+                            description: club.description,
+                            schoolName: club.schoolName,
+                            memberCount: clubMemberCount
+                        };
+                    }
+                }
+
+                return {
+                    ...participantObj,
+                    clubDetails
+                };
+            })
+        );
+
         return NextResponse.json({
             success: true,
-            participants,
+            participants: enrichedParticipants,
             counts: {
                 total: participants.length,
                 pending: participants.filter((p) => p.status === 'pending').length,

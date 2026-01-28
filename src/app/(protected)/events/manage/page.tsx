@@ -30,10 +30,16 @@ interface Participant {
     userName: string;
     userEmail: string;
     userSchool: string;
-    clubName: string;
-    message: string;
+    clubName?: string;
+    message?: string;
     status: 'pending' | 'approved' | 'rejected';
     createdAt: string;
+    clubDetails?: {
+        _id: string;
+        description: string;
+        schoolName: string;
+        memberCount: number;
+    };
 }
 
 export default function EventManagePage() {
@@ -297,9 +303,7 @@ export default function EventManagePage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>신청자</TableHead>
-                                                <TableHead>소속</TableHead>
-                                                <TableHead className="hidden md:table-cell">메시지</TableHead>
+                                                <TableHead className="w-[60%]">참가자 정보</TableHead>
                                                 <TableHead>상태</TableHead>
                                                 <TableHead className="text-right">관리</TableHead>
                                             </TableRow>
@@ -308,22 +312,43 @@ export default function EventManagePage() {
                                             {participants.map((participant) => (
                                                 <TableRow key={participant._id}>
                                                     <TableCell>
-                                                        <div className="font-medium">{participant.userName}</div>
-                                                        <div className="text-xs text-muted-foreground">{participant.userEmail}</div>
-                                                        <div className="text-xs text-muted-foreground md:hidden mt-1">{formatDate(participant.createdAt)}</div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="text-sm">{participant.userSchool}</div>
-                                                        {participant.clubName && <Badge variant="secondary" className="mt-1 text-[10px] h-5">{participant.clubName}</Badge>}
-                                                    </TableCell>
-                                                    <TableCell className="hidden md:table-cell max-w-[200px]">
-                                                        {participant.message ? (
-                                                            <span title={participant.message} className="text-sm text-muted-foreground line-clamp-2">
-                                                                {participant.message}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-xs text-muted-foreground italic">메시지 없음</span>
-                                                        )}
+                                                        <div className="flex-1 space-y-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <h3 className="font-semibold text-base">{participant.userName}</h3>
+                                                                <span className="text-xs text-muted-foreground px-2 py-0.5 bg-secondary rounded-full">
+                                                                    {participant.userSchool}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-sm text-foreground/80">{participant.userEmail}</p>
+
+                                                            {participant.clubName && (
+                                                                <div className="mt-2 text-sm bg-muted/40 p-2 rounded-lg border border-border/50">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-bold text-primary">{participant.clubName}</span>
+                                                                        {participant.clubDetails && (
+                                                                            <span className="text-xs text-muted-foreground">
+                                                                                (멤버 {participant.clubDetails.memberCount}명)
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    {participant.clubDetails?.description && (
+                                                                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                                                            {participant.clubDetails.description}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            {participant.message && (
+                                                                <div className="mt-2 text-sm bg-muted/30 p-3 rounded-lg text-muted-foreground">
+                                                                    "{participant.message}"
+                                                                </div>
+                                                            )}
+
+                                                            <div className="text-xs text-muted-foreground pt-1">
+                                                                신청일: {new Date(participant.createdAt).toLocaleDateString()}
+                                                            </div>
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>{getStatusBadge(participant.status)}</TableCell>
                                                     <TableCell className="text-right">
