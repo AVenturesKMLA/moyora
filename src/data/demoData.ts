@@ -99,7 +99,7 @@ export const DEMO_DATA: DemoState = {
             tags: ['BM', '창업', '컨설팅'],
             size: 22,
             trust: 82,
-            leader: '김민준',
+            leader: '최도윤',
             phone: '010-1234-5678',
             email: 'pragmatism@school.kr',
             description: '비즈니스 모델 분석과 창업 컨설팅을 전문으로 하는 동아리입니다. 실제 기업과 협업하여 컨설팅 프로젝트를 진행합니다.',
