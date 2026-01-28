@@ -174,6 +174,7 @@ export default function EventManagePage() {
         <div className="min-h-screen bg-background flex flex-col">
             <NavBar />
 
+            <nav className="container relative z-10 py-6">
                 <div className="flex items-center gap-4 mb-2">
                     <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-sm">
                         <ArrowLeft className="h-4 w-4" /> 대시보드로 돌아가기
@@ -213,10 +214,10 @@ export default function EventManagePage() {
                                 </div>
                             ) : (
                                 filteredEvents.map((event) => (
-                                    <div
+                                    <button
                                         key={event._id}
                                         className={`
-                                            p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md
+                                            w-full text-left p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary
                                             ${selectedEvent?._id === event._id
                                                 ? 'bg-primary/5 border-primary shadow-sm'
                                                 : 'bg-card border-border hover:bg-accent/50'}
@@ -236,7 +237,7 @@ export default function EventManagePage() {
                                             <Users className="h-3 w-3" />
                                             <span>{event.participantCount}명 참가 신청</span>
                                         </div>
-                                    </div>
+                                    </button>
                                 ))
                             )}
                         </div>

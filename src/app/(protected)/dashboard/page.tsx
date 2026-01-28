@@ -278,23 +278,25 @@ function StatsCard({ title, value, subtext, icon }: { title: string, value: stri
 
 function ProjectCard({ title, team, progress, status }: { title: string, team: string, progress: number, status: string }) {
     return (
-        <Card className="w-[300px] inline-block whitespace-normal shadow-sm hover:shadow-md transition-all cursor-pointer border-l-4 border-l-primary/40">
-            <CardContent className="p-5 space-y-4">
-                <div className="space-y-1">
-                    <h3 className="font-semibold leading-tight line-clamp-1">{title}</h3>
-                    <p className="text-xs text-muted-foreground line-clamp-1">참여: {team}</p>
-                </div>
-                <div className="space-y-2">
-                    <div className="flex justify-between text-xs items-center">
-                        <span className="text-muted-foreground">진척도</span>
-                        <Badge variant="secondary" className="text-[10px] h-5">{status}</Badge>
+        <Link href="/projects" className="inline-block">
+            <Card className="w-[300px] whitespace-normal shadow-sm hover:shadow-md transition-all cursor-pointer border-l-4 border-l-primary/40">
+                <CardContent className="p-5 space-y-4">
+                    <div className="space-y-1">
+                        <h3 className="font-semibold leading-tight line-clamp-1">{title}</h3>
+                        <p className="text-xs text-muted-foreground line-clamp-1">참여: {team}</p>
                     </div>
-                    <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                        <div className="h-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-xs items-center">
+                            <span className="text-muted-foreground">진척도</span>
+                            <Badge variant="secondary" className="text-[10px] h-5">{status}</Badge>
+                        </div>
+                        <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                        </div>
                     </div>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+        </Link>
     )
 }
 
