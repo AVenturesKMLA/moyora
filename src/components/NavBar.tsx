@@ -23,7 +23,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, Bell, User, LogOut, LayoutDashboard, Calendar } from 'lucide-react';
+import { Menu, Bell, User, LogOut, LayoutDashboard, Calendar, Users } from 'lucide-react';
 
 interface NavBarProps {
     showDashboardLink?: boolean;
@@ -61,7 +61,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 items-center">
                 <div className="mr-8 flex items-center gap-2">
-                    <Link href="/" className="flex items-center gap-2 font-bold">
+                    <Link href={isLoggedIn ? "/dashboard" : "/"} className="flex items-center gap-2 font-bold">
                         <Image src="/moyora.svg" alt="Moyora Logo" width={32} height={32} className="rounded-lg" />
                         <span className="text-xl">모여라</span>
                     </Link>
@@ -79,6 +79,9 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                         <>
                             <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
                                 대시보드
+                            </Link>
+                            <Link href="/collab" className="text-sm font-medium transition-colors hover:text-primary">
+                                협업
                             </Link>
                             <Link href="/schedule" className="text-sm font-medium transition-colors hover:text-primary">
                                 일정
@@ -175,6 +178,10 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             <Link href="/dashboard" className="flex items-center gap-2 text-lg font-medium">
                                                 <LayoutDashboard className="h-5 w-5" />
                                                 대시보드
+                                            </Link>
+                                            <Link href="/collab" className="flex items-center gap-2 text-lg font-medium">
+                                                <Users className="h-5 w-5" />
+                                                협업
                                             </Link>
                                             <Link href="/schedule" className="flex items-center gap-2 text-lg font-medium">
                                                 <Calendar className="h-5 w-5" />
