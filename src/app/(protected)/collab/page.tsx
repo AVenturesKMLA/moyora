@@ -128,13 +128,14 @@ export default function CollabPage() {
         <div className="min-h-screen bg-background pb-20">
             <NavBar />
             <div className="container py-8 animate-fade-in relative z-10">
-                <section className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <div className="text-2xl font-extrabold text-foreground">협업 모집</div>
-                            <div className="text-sm text-muted-foreground mt-1.5">
+                {/* New Header Layout matching Dashboard */}
+                <div className="mb-6 space-y-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <h1 className="text-3xl font-bold tracking-tight text-foreground">협업 모집</h1>
+                            <p className="text-muted-foreground text-sm">
                                 모집 공고 → 지원/연락 → 프로젝트 룸 생성
-                            </div>
+                            </p>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -174,61 +175,58 @@ export default function CollabPage() {
                                     )}
                                 </div>
                             )}
-
-                            <Button onClick={() => setShowNewModal(true)}>
+                            <Button onClick={() => setShowNewModal(true)} className="rounded-full shadow-md font-semibold">
                                 모집 올리기
                             </Button>
                         </div>
                     </div>
 
-                    <div className="p-6 space-y-6">
-                        {/* Toolbar */}
-                        <div className="flex flex-wrap gap-4 items-center justify-between">
-                            <div className="flex flex-wrap gap-3 items-center flex-1">
-                                <Input
-                                    className="w-full md:w-64"
-                                    placeholder="검색: 제목/유형/지역"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                />
-                                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                                    <SelectTrigger className="w-[140px]">
-                                        <SelectValue placeholder="유형 전체" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">유형 전체</SelectItem>
-                                        {types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                                <Select value={regionFilter} onValueChange={setRegionFilter}>
-                                    <SelectTrigger className="w-[140px]">
-                                        <SelectValue placeholder="지역 전체" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">지역 전체</SelectItem>
-                                        {regions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="text-sm text-muted-foreground">결과 {filtered.length}개</div>
-                        </div>
+                    <div className="flex flex-col sm:flex-row gap-2 pt-2 pb-2">
+                        <Input
+                            className="w-full sm:w-[300px] h-10 bg-background"
+                            placeholder="검색: 제목/유형/지역"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                        <Select value={typeFilter} onValueChange={setTypeFilter}>
+                            <SelectTrigger className="w-[120px] h-10 bg-background">
+                                <SelectValue placeholder="유형 전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">유형 전체</SelectItem>
+                                {types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select value={regionFilter} onValueChange={setRegionFilter}>
+                            <SelectTrigger className="w-[120px] h-10 bg-background">
+                                <SelectValue placeholder="지역 전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">지역 전체</SelectItem>
+                                {regions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
 
-                        {/* Cards */}
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filtered.map(collab => {
-                                const club = state.clubs.find(c => c.id === collab.club_id);
-                                return (
-                                    <CollabCard
-                                        key={collab.id}
-                                        collab={collab}
-                                        club={club}
-                                        onClick={() => setSelectedCollabId(collab.id)}
-                                    />
-                                );
-                            })}
+                        <div className="ml-auto flex items-center text-sm text-muted-foreground">
+                            결과 {filtered.length}개
                         </div>
                     </div>
-                </section>
+                </div>
+
+                {/* Cards Grid */}
+                <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {filtered.map(collab => {
+                        const club = state.clubs.find(c => c.id === collab.club_id);
+                        return (
+                            <CollabCard
+                                key={collab.id}
+                                collab={collab}
+                                club={club}
+                                onClick={() => setSelectedCollabId(collab.id)}
+                            />
+                        );
+                    })}
+                </div>
 
                 <CollabModal
                     collab={selectedCollab}

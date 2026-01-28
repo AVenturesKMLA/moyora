@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const FloatingShapes = dynamic(() => import('@/components/canvas/FloatingShapes'), { ssr: false });
+// 3D Removed
 
 interface FormErrors {
     [key: string]: string;
@@ -121,9 +121,7 @@ export default function ClubRegisterPage() {
             <NavBar />
 
             {/* Background Decorations */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
-                <FloatingShapes />
-            </div>
+            {/* Background Decorations - Removed 3D */}
 
             <main className="flex-1 container max-w-3xl py-12 relative z-10">
                 <div className="mb-8 text-center space-y-2">

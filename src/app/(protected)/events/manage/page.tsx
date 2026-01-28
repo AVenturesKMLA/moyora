@@ -14,8 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "../../../../components/ui/separator"
 import { Calendar, MapPin, Users, Check, X, Clock, AlertCircle, ArrowLeft } from "lucide-react"
 
-const FloatingShapes = dynamic(() => import('@/components/canvas/FloatingShapes'), { ssr: false });
-const Manage3D = dynamic(() => import('@/components/canvas/Manage3D'), { ssr: false });
+// 3D Components removed
 
 interface Event {
     _id: string;
@@ -175,9 +174,8 @@ export default function EventManagePage() {
         <div className="min-h-screen bg-background flex flex-col">
             <NavBar />
             {/* Keeping 3D elements if they don't break layout, but positioning absolutely in background */}
-            <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
-                <FloatingShapes />
-            </div>
+            {/* 3D elements removed */}
+
 
             <nav className="container relative z-10 py-6">
                 <div className="flex items-center gap-4 mb-2">
@@ -210,8 +208,8 @@ export default function EventManagePage() {
                     </CardHeader>
                     <ScrollArea className="flex-1">
                         <div className="p-4 space-y-3">
-                            {/* Manage3D might be too heavy for inside scroll area, keeping it out or minimal */}
-                            {/* <Manage3D /> */}
+                            {/* Manage3D removed */}
+
 
                             {filteredEvents.length === 0 ? (
                                 <div className="text-center py-12 text-muted-foreground text-sm">

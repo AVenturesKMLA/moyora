@@ -14,9 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area" // Assuming ScrollArea 
 import { Calendar, MapPin, Phone, User, Trophy, MessageSquare, Microscope, AlertCircle, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const FloatingShapes = dynamic(() => import('@/components/canvas/FloatingShapes'), { ssr: false });
-const Schedule3D = dynamic(() => import('@/components/canvas/Schedule3D'), { ssr: false });
-
+// 3D components removed
 interface Event {
     _id: string;
     eventType: 'contest' | 'forum' | 'co-research';
@@ -198,15 +196,9 @@ export default function SchedulePage() {
         <div className="min-h-screen bg-background relative flex flex-col">
             <NavBar />
 
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
-                <FloatingShapes />
-            </div>
-
             <main className="flex-1 container py-12 relative z-10 space-y-12">
                 <div className="text-center space-y-4">
-                    <div className="h-[200px] w-full flex items-center justify-center pointer-events-none select-none">
-                        <div className="scale-75 md:scale-100"><Schedule3D /></div>
-                    </div>
+                    {/* 3D Schedule removed */}
                     <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">📅 일정 탐색</h1>
                     <p className="text-muted-foreground mx-auto max-w-[600px]">
                         전국의 모든 동아리 이벤트를 한눈에 확인하세요.
