@@ -22,7 +22,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
                         {club.name}
                     </h3>
                     <p className="text-sm text-muted-foreground truncate">
-                        {club.school_name || "소속 학교 미정"}
+                        {club.school || "소속 학교 미정"}
                     </p>
                 </div>
 
@@ -34,7 +34,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
                         </Badge>
                     ))}
                     <Badge variant="outline" className="rounded-full font-normal text-muted-foreground bg-muted/20 border-0 text-[11px] px-2">
-                        Member {club.member_count || 10}
+                        Member {club.size || 10}
                     </Badge>
                 </div>
             </div>

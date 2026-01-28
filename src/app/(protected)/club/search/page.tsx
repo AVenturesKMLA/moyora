@@ -27,7 +27,7 @@ export default function ClubSearchPage() {
         if (!state) return [];
         return state.clubs.filter(club => {
             const matchesQuery = club.name.toLowerCase().includes(query.toLowerCase()) ||
-                club.school_name?.toLowerCase().includes(query.toLowerCase());
+                (club.school && club.school.toLowerCase().includes(query.toLowerCase()));
             // Mock region filter (assuming club has no region field in demoData yet, we skip strict filtering or add it later)
             // For now just substring match
             const matchesRegion = regionFilter === 'all' || true;
