@@ -209,6 +209,7 @@ export default function DashboardPage() {
                                 dashboardData.recentClubs.map((club) => (
                                     <RecentClubCard
                                         key={club._id}
+                                        id={club._id}
                                         name={club.name}
                                         school={club.school}
                                         desc={club.desc}
@@ -300,9 +301,9 @@ function ProjectCard({ title, team, progress, status }: { title: string, team: s
     )
 }
 
-function RecentClubCard({ name, school, desc, score }: { name: string, school: string, desc: string, score: number }) {
+function RecentClubCard({ id, name, school, desc, score }: { id: string, name: string, school: string, desc: string, score: number }) {
     return (
-        <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
+        <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors group">
             <div className="space-y-1">
                 <h4 className="font-semibold">{name}</h4>
                 <p className="text-xs text-muted-foreground">{school}</p>
@@ -314,9 +315,14 @@ function RecentClubCard({ name, school, desc, score }: { name: string, school: s
                     ))}
                 </div>
             </div>
-            <div className="flex flex-col items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-primary/20 bg-primary/5">
-                <span className="text-[10px] font-bold text-primary">신뢰</span>
-                <span className="text-xs sm:text-sm font-bold text-primary">{score}</span>
+            <div className="flex items-center gap-3">
+                <div className="flex flex-col items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-primary/20 bg-primary/5">
+                    <span className="text-[10px] font-bold text-primary">신뢰</span>
+                    <span className="text-xs sm:text-sm font-bold text-primary">{score}</span>
+                </div>
+                <Button size="sm" variant="outline" className="h-8 text-xs px-3 rounded-full border-primary/40 text-primary hover:bg-primary hover:text-white" asChild>
+                    <Link href={`/club/search?apply=${id}`}>가입 신청</Link>
+                </Button>
             </div>
         </div>
     )

@@ -9,6 +9,7 @@ import { ClubCard } from '@/components/cards/ClubCard';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Search, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -25,6 +26,8 @@ export default function ClubSearchPage() {
     const [applyMessage, setApplyMessage] = useState('');
     const [isApplying, setIsApplying] = useState(false);
 
+    const searchParams = useSearchParams();
+
     useEffect(() => {
         const fetchClubs = async () => {
             try {
@@ -32,6 +35,15 @@ export default function ClubSearchPage() {
                 const data = await res.json();
                 if (data.success) {
                     setClubs(data.clubs);
+
+                    // Check for ?apply=ID query param
+                    const applyId = searchParams.get('apply');
+                    if (applyId) {
+                        const clubToApply = data.clubs.find((c: any) => c._id === applyId);
+                        if (clubToApply) {
+                            setSelectedClub(clubToApply);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Fetch clubs error:', error);
@@ -40,7 +52,7 @@ export default function ClubSearchPage() {
             }
         };
         fetchClubs();
-    }, []);
+    }, [searchParams]);
 
     const filteredClubs = useMemo(() => {
         return clubs.filter(club => {
