@@ -38,10 +38,10 @@ export default function NotificationDropdown() {
                 ) : (
                     notifications.map(notification => (
                         <DropdownMenuItem
-                            key={notification.id}
+                            key={notification._id}
                             className={`flex cursor-pointer items-start gap-3 p-3 ${!notification.isRead ? 'bg-muted/50' : ''
                                 }`}
-                            onClick={() => markAsRead(notification.id)}
+                            onClick={() => markAsRead(notification._id)}
                         >
                             <div className="mt-0.5">
                                 {notification.type === 'success' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
@@ -50,7 +50,7 @@ export default function NotificationDropdown() {
                             </div>
                             <div className="flex-1 space-y-1">
                                 <p className="text-sm font-medium leading-none">
-                                    {notification.title}
+                                    {notification.title || notification.eventName}
                                     {!notification.isRead && (
                                         <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-red-500 align-middle" />
                                     )}
@@ -59,7 +59,7 @@ export default function NotificationDropdown() {
                                     {notification.message}
                                 </p>
                                 <span className="text-[10px] text-muted-foreground/60">
-                                    {notification.timestamp}
+                                    {notification.createdAt ? new Date(notification.createdAt).toLocaleString() : ''}
                                 </span>
                             </div>
                         </DropdownMenuItem>
