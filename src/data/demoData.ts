@@ -350,55 +350,55 @@ export function generateDocument(templateId: string, values: string[]): string {
 
     if (templateId === 't1') {
         const [fromSchool, toSchool, club, person, when, purpose, req] = values;
-        return \`공문
+        return `공문
 
-발신: \${fromSchool}
-수신: \${toSchool}
+발신: ${fromSchool}
+수신: ${toSchool}
 제목: 동아리 협업 요청의 건
-일자: \${today}
+일자: ${today}
 
 1. 귀 교의 무궁한 발전을 기원합니다.
-2. \${fromSchool} \${club}는(은) \${purpose}을(를) 목적으로 귀 교와의 협업을 요청드립니다.
-3. 협업 일정(안): \${when}
-4. 요청사항: \${req}
-5. 담당자: \${person}
+2. ${fromSchool} ${club}는(은) ${purpose}을(를) 목적으로 귀 교와의 협업을 요청드립니다.
+3. 협업 일정(안): ${when}
+4. 요청사항: ${req}
+5. 담당자: ${person}
 
-붙임: 협업 개요 1부. 끝.\`;
-  }
-  
-  if (templateId === 't2') {
-    const [a, b, event, period, roles, cost, dispute] = values;
-    return \`협약서(MOU)
+붙임: 협업 개요 1부. 끝.`;
+    }
 
-본 협약은 \${a}와(과) \${b}가(이) '\${event}' 운영을 위해 아래와 같이 체결한다.
+    if (templateId === 't2') {
+        const [a, b, event, period, roles, cost, dispute] = values;
+        return `협약서(MOU)
 
-1. 기간: \${period}
-2. 역할 분담: \${roles}
-3. 비용 분담: \${cost}
+본 협약은 ${a}와(과) ${b}가(이) '${event}' 운영을 위해 아래와 같이 체결한다.
+
+1. 기간: ${period}
+2. 역할 분담: ${roles}
+3. 비용 분담: ${cost}
 4. 안전 및 책임: 각 기관은 행사 운영 중 안전수칙 준수 및 관리 책임을 다한다.
 5. 저작권/산출물: 공동 제작 산출물의 사용 범위는 상호 합의에 따른다.
-6. 분쟁 해결: \${dispute}
+6. 분쟁 해결: ${dispute}
 
-체결일: \${today}
+체결일: ${today}
 서명:
-- \${a} (서명)
-- \${b} (서명)\`;
-  }
-  
-  if (templateId === 't3') {
-    const [place, when, people, gear, safety, owner] = values;
-    return \`대관 요청서
+- ${a} (서명)
+- ${b} (서명)`;
+    }
 
-요청 장소: \${place}
-사용 일시: \${when}
-예상 인원: \${people}
-필요 장비: \${gear}
-안전 계획: \${safety}
-책임자: \${owner}
+    if (templateId === 't3') {
+        const [place, when, people, gear, safety, owner] = values;
+        return `대관 요청서
+
+요청 장소: ${place}
+사용 일시: ${when}
+예상 인원: ${people}
+필요 장비: ${gear}
+안전 계획: ${safety}
+책임자: ${owner}
 
 상기 내용으로 대관을 요청드립니다.
-일자: \${today}\`;
-  }
-  
-  return '템플릿 출력';
+일자: ${today}`;
+    }
+
+    return '템플릿 출력';
 }
