@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
@@ -7,6 +9,21 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
+        // Only allow in development
+        if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json({ success: false, error: 'Not Found' }, { status: 404 });
+        }
+
+        const session = await getServerSession(authOptions);
+        if (!session?.user) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const user = session.user as { role?: string };
+        if (user.role !== 'superadmin') {
+            return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+        }
+
         await connectDB();
 
         const hashedPassword = await bcrypt.hash('password123', 10);

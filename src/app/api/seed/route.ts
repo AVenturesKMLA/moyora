@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { Contest, Forum, CoResearch, Schedule, User } from '@/models';
 import bcrypt from 'bcryptjs';
@@ -6,6 +8,16 @@ import bcrypt from 'bcryptjs';
 // POST - Seed sample data for testing
 export async function POST() {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user) {
+            return NextResponse.json({ success: false, message: '로그인이 필요합니다' }, { status: 401 });
+        }
+
+        const user = session.user as { role?: string };
+        if (user.role !== 'superadmin') {
+            return NextResponse.json({ success: false, message: '권한이 없습니다' }, { status: 403 });
+        }
+
         await connectDB();
 
         // Drop stale username index if it exists (from old schema)
