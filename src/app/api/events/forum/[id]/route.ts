@@ -5,12 +5,13 @@ import { Forum } from '@/models';
 // GET - Fetch forum details by ID
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         await connectDB();
 
-        const forum = await Forum.findById(params.id);
+        const forum = await Forum.findById(id);
 
         if (!forum) {
             return NextResponse.json(

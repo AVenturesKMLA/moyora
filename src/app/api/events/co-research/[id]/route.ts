@@ -5,12 +5,13 @@ import { CoResearch } from '@/models';
 // GET - Fetch co-research details by ID
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         await connectDB();
 
-        const coResearch = await CoResearch.findById(params.id);
+        const coResearch = await CoResearch.findById(id);
 
         if (!coResearch) {
             return NextResponse.json(

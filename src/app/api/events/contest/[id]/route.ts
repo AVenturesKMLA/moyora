@@ -5,12 +5,13 @@ import { Contest } from '@/models';
 // GET - Fetch contest details by ID
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         await connectDB();
 
-        const contest = await Contest.findById(params.id);
+        const contest = await Contest.findById(id);
 
         if (!contest) {
             return NextResponse.json(
