@@ -17,7 +17,7 @@ export interface ProjectData {
     type: string;
 }
 
-export function ProjectListCard({ project, onEnterRoom }: { project: ProjectData, onEnterRoom?: () => void }) {
+export function ProjectListCard({ project, onEnterRoom, buttonLabel }: { project: ProjectData, onEnterRoom?: () => void, buttonLabel?: string }) {
     const isCompleted = project.status === 'completed';
 
     return (
@@ -75,7 +75,7 @@ export function ProjectListCard({ project, onEnterRoom }: { project: ProjectData
                                 className="bg-muted/10 hover:bg-muted font-medium text-xs h-8"
                                 onClick={onEnterRoom}
                             >
-                                프로젝트 룸 입장 <ArrowRight className="w-3 h-3 ml-1" />
+                                {buttonLabel || '프로젝트 룸 입장'} <ArrowRight className="w-3 h-3 ml-1" />
                             </Button>
                         </div>
                     </div>

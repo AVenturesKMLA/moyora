@@ -5,6 +5,7 @@ import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { CollabCard } from '@/components/cards/CollabCard';
 import { CollabModal } from '@/components/modals/CollabModal';
 // import { NewCollabModal } from '@/components/modals/NewCollabModal';
@@ -12,6 +13,8 @@ import { EditCollabModal } from '@/components/modals/EditCollabModal';
 import { RatingModal } from '@/components/modals/RatingModal';
 import { DemoState, Collab as CollabType, loadState, saveState, Club, Application } from '@/data/demoData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2, Mail, School } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
 import { Bell, Calendar as CalendarIcon, List as ListIcon, ChevronRight, Briefcase } from 'lucide-react';
@@ -32,6 +35,10 @@ export default function CollabPage() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showRatingModal, setShowRatingModal] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [myEvents, setMyEvents] = useState<any[]>([]);
+    const [selectedEventForApplicants, setSelectedEventForApplicants] = useState<any | null>(null);
+    const [applicants, setApplicants] = useState<any[]>([]);
+    const [isFetchingApplicants, setIsFetchingApplicants] = useState(false);
 
     const [activeTab, setActiveTab] = useState('cards');
 
@@ -71,8 +78,59 @@ export default function CollabPage() {
             }
         };
 
+        const fetchMyEvents = async () => {
+            if (!session?.user) return;
+            try {
+                const res = await fetch('/api/events/my-events');
+                const data = await res.json();
+                if (data.success) {
+                    setMyEvents(data.events);
+                }
+            } catch (err) {
+                console.error('Failed to fetch my events:', err);
+            }
+        };
+
         fetchCollabs();
-    }, []);
+        fetchMyEvents();
+    }, [session]);
+
+    const fetchApplicants = async (event: any) => {
+        setSelectedEventForApplicants(event);
+        setIsFetchingApplicants(true);
+        try {
+            const res = await fetch(`/api/collab/applicants?eventId=${event._id}&eventType=${event.eventType}`);
+            const data = await res.json();
+            if (data.success) {
+                setApplicants(data.participants);
+            }
+        } catch (err) {
+            console.error('Failed to fetch applicants:', err);
+        } finally {
+            setIsFetchingApplicants(false);
+        }
+    };
+
+    const handleUpdateStatus = async (appId: string, status: 'approved' | 'rejected') => {
+        try {
+            const res = await fetch(`/api/participate/${appId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Update local state
+                setApplicants(prev => prev.map(a => a._id === appId ? { ...a, status } : a));
+                alert(`지원자가 ${status === 'approved' ? '승인' : '거절'}되었습니다.`);
+            } else {
+                alert(data.message || '상태 변경 중 오류가 발생했습니다.');
+            }
+        } catch (err) {
+            console.error('Failed to update status:', err);
+            alert('시스템 오류가 발생했습니다.');
+        }
+    };
 
     const updateState = (newState: DemoState) => {
         setState(newState);
@@ -356,33 +414,29 @@ export default function CollabPage() {
 
                     <TabsContent value="projects" className="animate-fade-in">
                         <div className="space-y-4">
-                            {/* Using Mock Data for Projects for now as it was in the Projects page */}
-                            <ProjectListCard
-                                project={{
-                                    id: 'p1',
-                                    title: '전국 BM 케이스 스프린트: 핀테크 혁신',
-                                    team: ['PRAGMATISM', 'Quant Forge'],
-                                    description: '다양한 핀테크 앱의 BM을 분석하고 새로운 비즈니스 모델을 제안하는 단기 스프린트입니다.',
-                                    progress: 48,
-                                    status: 'in_progress',
-                                    dueDate: '2025-02-15',
-                                    type: 'Contest'
-                                }}
-                                onEnterRoom={() => alert('프로젝트 룸 입장 (Demo)')}
-                            />
-                            <ProjectListCard
-                                project={{
-                                    id: 'p2',
-                                    title: '환경 데이터 수집 봉사 + 리포트 발간',
-                                    team: ['BioEdge', 'S2 Lab'],
-                                    description: '지역별 대기질 및 수질 데이터를 직접 측정하고 이를 분석하여 환경 리포트를 작성합니다.',
-                                    progress: 26,
-                                    status: 'in_progress',
-                                    dueDate: '2025-03-01',
-                                    type: 'Co-Research'
-                                }}
-                                onEnterRoom={() => alert('프로젝트 룸 입장 (Demo)')}
-                            />
+                            {myEvents.length > 0 ? (
+                                myEvents.map((event) => (
+                                    <ProjectListCard
+                                        key={event._id}
+                                        project={{
+                                            id: event._id,
+                                            title: event.eventName,
+                                            team: [session?.user?.name || '나'],
+                                            description: event.description,
+                                            progress: 0,
+                                            status: 'in_progress',
+                                            dueDate: new Date(event.eventDate).toLocaleDateString(),
+                                            type: event.eventType === 'contest' ? '통합 대회' : event.eventType === 'forum' ? '연합 포럼' : '공동 연구'
+                                        }}
+                                        onEnterRoom={() => fetchApplicants(event)}
+                                        buttonLabel="지원 현황 보기"
+                                    />
+                                ))
+                            ) : (
+                                <div className="text-center py-12 border rounded-xl bg-muted/20 text-muted-foreground">
+                                    내가 등록한 프로젝트가 없습니다.
+                                </div>
+                            )}
                         </div>
                     </TabsContent>
                 </Tabs>
@@ -390,7 +444,7 @@ export default function CollabPage() {
                 <CollabModal
                     collab={selectedCollab}
                     club={collabClub || (selectedCollab as any)?.virtualClub}
-                    open={!!selectedCollabId && !showEditModal && !showRatingModal}
+                    open={!!selectedCollabId && !showEditModal && !showRatingModal && !selectedEventForApplicants}
                     onOpenChange={(open) => !open && setSelectedCollabId(null)}
                     onApply={() => {
                         if (!myClub) {
@@ -442,6 +496,81 @@ export default function CollabPage() {
                         />
                     </>
                 )}
+
+                {/* Applicant List Modal */}
+                <Dialog open={!!selectedEventForApplicants} onOpenChange={(open) => !open && setSelectedEventForApplicants(null)}>
+                    <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <Mail className="w-5 h-5 text-primary" />
+                                지원자 현황: {selectedEventForApplicants?.eventName}
+                            </DialogTitle>
+                        </DialogHeader>
+
+                        {isFetchingApplicants ? (
+                            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                <p className="text-muted-foreground">지원자 정보를 불러오는 중...</p>
+                            </div>
+                        ) : applicants.length > 0 ? (
+                            <div className="space-y-4 mt-4">
+                                {applicants.map((app) => (
+                                    <div key={app._id} className="p-4 border rounded-xl space-y-3 bg-muted/10">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <div className="font-bold text-lg">{app.userName}</div>
+                                                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+                                                    <School className="w-3.5 h-3.5" />
+                                                    {app.userSchool} {app.clubName && `· ${app.clubName}`}
+                                                </div>
+                                            </div>
+                                            <Badge variant={app.status === 'approved' ? 'default' : app.status === 'rejected' ? 'destructive' : 'secondary'}>
+                                                {app.status === 'approved' ? '승인됨' : app.status === 'rejected' ? '거절됨' : '대기중'}
+                                            </Badge>
+                                        </div>
+
+                                        {app.message && (
+                                            <div className="bg-background p-3 rounded-lg text-sm border border-border/50">
+                                                <div className="text-xs font-semibold text-muted-foreground mb-1">지원 메시지</div>
+                                                {app.message}
+                                            </div>
+                                        )}
+
+                                        <div className="flex gap-2 justify-end pt-1">
+                                            {app.status === 'pending' && (
+                                                <>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="text-green-600 border-green-200 hover:bg-green-50"
+                                                        onClick={() => handleUpdateStatus(app._id, 'approved')}
+                                                    >
+                                                        승인
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="text-destructive border-destructive/20 hover:bg-destructive/5"
+                                                        onClick={() => handleUpdateStatus(app._id, 'rejected')}
+                                                    >
+                                                        거절
+                                                    </Button>
+                                                </>
+                                            )}
+                                            <Button variant="outline" size="sm" asChild>
+                                                <a href={`mailto:${app.userEmail}`}>연락하기</a>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 text-muted-foreground">
+                                아직 지원자가 없습니다.
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );
