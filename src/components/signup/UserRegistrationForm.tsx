@@ -46,10 +46,14 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData((prev) => {
+            const newData = { ...prev, [name]: value };
+            // Automatically set schoolId to match schoolName if that's what's changing
+            if (name === 'schoolName') {
+                newData.schoolId = value;
+            }
+            return newData;
+        });
         if (errors[name]) {
             setErrors((prev) => {
                 const newErrors = { ...prev };
@@ -107,6 +111,7 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
             router.push('/login?registered=true');
         } catch (error) {
             if (error instanceof ZodError) {
+                console.log('Signup validation failed:', error.errors);
                 const newErrors: { [key: string]: string } = {};
                 error.errors.forEach((err) => {
                     if (err.path[0]) {
@@ -141,6 +146,18 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                         </Alert>
                     )}
 
+                    {Object.keys(errors).length > 0 && !Object.keys(errors).some(k => ['email', 'password', 'confirmPassword', 'agreedToTerms', 'name', 'birthday', 'phone', 'schoolName'].includes(k)) && (
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>
+                                입력 정보에 오류가 있습니다. 모든 항목을 올바르게 채워주세요.
+                                {Object.entries(errors).map(([key, msg]) => !['email', 'password', 'confirmPassword', 'agreedToTerms', 'name', 'birthday', 'phone', 'schoolName'].includes(key) && (
+                                    <div key={key} className="text-xs mt-1">• {msg}</div>
+                                ))}
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -150,8 +167,9 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="bg-background"
+                                    className={errors.name ? 'border-destructive focus-visible:ring-destructive' : 'bg-background'}
                                 />
+                                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -161,9 +179,10 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                                     name="birthday"
                                     value={formData.birthday}
                                     onChange={handleChange}
-                                    className="bg-background"
+                                    className={errors.birthday ? 'border-destructive focus-visible:ring-destructive' : 'bg-background'}
                                     placeholder="YYYY-MM-DD"
                                 />
+                                {errors.birthday && <p className="text-xs text-destructive">{errors.birthday}</p>}
                             </div>
                         </div>
 
@@ -174,9 +193,23 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
-                                className="bg-background"
+                                className={errors.phone ? 'border-destructive focus-visible:ring-destructive' : 'bg-background'}
                                 placeholder="010-0000-0000"
                             />
+                            {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="schoolName">학교명</Label>
+                            <Input
+                                id="schoolName"
+                                name="schoolName"
+                                value={formData.schoolName}
+                                onChange={handleChange}
+                                className={errors.schoolName ? 'border-destructive focus-visible:ring-destructive' : 'bg-background'}
+                                placeholder="학교명을 입력해주세요"
+                            />
+                            {errors.schoolName && <p className="text-xs text-destructive">{errors.schoolName}</p>}
                         </div>
 
                         <div className="space-y-2">
