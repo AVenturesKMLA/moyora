@@ -56,13 +56,19 @@ export default function ClubSearchPage() {
 
     const filteredClubs = useMemo(() => {
         return clubs.filter(club => {
-            const matchesQuery = club.clubName.toLowerCase().includes(query.toLowerCase()) ||
+            const matchesQuery = !query ||
+                club.clubName.toLowerCase().includes(query.toLowerCase()) ||
                 (club.schoolName && club.schoolName.toLowerCase().includes(query.toLowerCase()));
+
             const matchesField = fieldFilter === 'all' || club.clubTheme === fieldFilter;
-            // Region and Trust filters are placeholders in this mock/db hybrid for now
-            return matchesQuery && matchesField;
+
+            const matchesRegion = regionFilter === 'all' ||
+                (club.location?.toLowerCase().includes(regionFilter.toLowerCase())) ||
+                (club.schoolName && club.schoolName.toLowerCase().includes(regionFilter.toLowerCase()));
+
+            return matchesQuery && matchesField && matchesRegion;
         });
-    }, [clubs, query, regionFilter, fieldFilter]);
+    }, [clubs, query, fieldFilter, regionFilter]);
 
     const handleApply = async () => {
         if (!selectedClub) return;

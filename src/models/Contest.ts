@@ -27,7 +27,6 @@ const ContestSchema = new Schema<IContest>(
         schoolId: {
             type: String,
             required: [true, '학교 고유 ID가 필요합니다'],
-            index: true,
         },
         contestName: {
             type: String,
