@@ -70,15 +70,23 @@ export default function CollabRegisterPage() {
         if (!validateForm()) return;
 
         setIsLoading(true);
-        // Simulate API Call
         try {
-            // In a real app, this would be a POST to /api/collab
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await fetch('/api/collab', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || '등록 중 오류가 발생했습니다.');
+            }
 
             // Success
             router.push('/collab');
-        } catch (error) {
-            setErrors({ submit: '등록 중 오류가 발생했습니다.' });
+        } catch (error: any) {
+            setErrors({ submit: error.message || '등록 중 오류가 발생했습니다.' });
         } finally {
             setIsLoading(false);
         }

@@ -44,7 +44,34 @@ export default function CollabPage() {
     }, []);
 
     useEffect(() => {
-        setState(loadState());
+        const fetchCollabs = async () => {
+            const demo = loadState();
+            setState(demo);
+
+            try {
+                const res = await fetch('/api/collab');
+                const data = await res.json();
+                if (data.success && data.collabs) {
+                    // Update state with real collabs prepended
+                    setState(prev => {
+                        if (!prev) return demo;
+
+                        // Avoid duplicates if any, though unlikely since real have OID
+                        const realIds = new Set(data.collabs.map((c: any) => c.id));
+                        const uniqueDemoCollabs = demo.collabs.filter(c => !realIds.has(c.id));
+
+                        return {
+                            ...prev,
+                            collabs: [...data.collabs, ...uniqueDemoCollabs]
+                        };
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to fetch real collabs:', err);
+            }
+        };
+
+        fetchCollabs();
     }, []);
 
     const updateState = (newState: DemoState) => {
@@ -243,7 +270,7 @@ export default function CollabPage() {
                                     <CollabCard
                                         key={collab.id}
                                         collab={collab}
-                                        club={club}
+                                        club={club || (collab as any).virtualClub}
                                         onClick={() => setSelectedCollabId(collab.id)}
                                     />
                                 );
@@ -313,7 +340,7 @@ export default function CollabPage() {
                                                     <div className="text-xs text-primary font-semibold">{collab.type}</div>
                                                     <h3 className="font-bold text-lg">{collab.title}</h3>
                                                     <p className="text-sm text-muted-foreground">
-                                                        {club?.name || '알 수 없음'} · {collab.region}
+                                                        {(club || (collab as any).virtualClub)?.name || '알 수 없음'} · {collab.region}
                                                     </p>
                                                 </div>
                                                 <Button variant="ghost" size="sm" className="hidden sm:flex self-center">
@@ -362,7 +389,7 @@ export default function CollabPage() {
 
                 <CollabModal
                     collab={selectedCollab}
-                    club={collabClub}
+                    club={collabClub || (selectedCollab as any)?.virtualClub}
                     open={!!selectedCollabId && !showEditModal && !showRatingModal}
                     onOpenChange={(open) => !open && setSelectedCollabId(null)}
                     onApply={() => {
