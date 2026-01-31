@@ -30,14 +30,14 @@ interface UserRegistrationFormProps {
 export default function UserRegistrationForm({ identityData, studentIdData }: UserRegistrationFormProps) {
     const router = useRouter();
     const [formData, setFormData] = useState<Partial<SignupInput>>({
-        name: identityData?.name || '',
+        name: '',
         email: '',
         password: '',
         confirmPassword: '',
-        birthday: identityData?.birthday || '',
-        phone: identityData?.phone || '',
-        schoolName: studentIdData?.schoolName || '',
-        schoolId: studentIdData?.schoolName || 'UNKNOWN_SCHOOL', // Fallback to schoolName
+        birthday: '',
+        phone: '',
+        schoolName: '',
+        schoolId: '',
         agreedToTerms: false,
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -142,7 +142,7 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">이름</Label>
                                 <Input
@@ -162,8 +162,21 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                                     value={formData.birthday}
                                     onChange={handleChange}
                                     className="bg-background"
+                                    placeholder="YYYY-MM-DD"
                                 />
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="phone">전화번호</Label>
+                            <Input
+                                id="phone"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className="bg-background"
+                                placeholder="010-0000-0000"
+                            />
                         </div>
 
                         <div className="space-y-2">

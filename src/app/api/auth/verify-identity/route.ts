@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+
 const PORTONE_API_SECRET = process.env.PORTONE_API_SECRET;
 
 export async function POST(request: NextRequest) {
@@ -55,11 +58,29 @@ export async function POST(request: NextRequest) {
         // Properties available in verifiedCustomer: name, gender, birthDate, phone, ci, di, etc.
         const { name, birthDate, phone } = data.verifiedCustomer;
 
+        // Normalizing birthday to YYYY-MM-DD if needed (PortOne birthDate is usually YYYY-MM-DD)
+        const normalizedBirthday = birthDate;
+
+        // Check if user already exists with this phone number
+        // await connectDB();
+        // const existingUser = await User.findOne({ phone });
+
+        // if (existingUser) {
+        //     return NextResponse.json(
+        //         {
+        //             success: false,
+        //             message: '이미 등록된 전화번호 입니다. 기존 계정으로 로그인해 주세요.',
+        //             code: 'PHONE_ALREADY_EXISTS'
+        //         },
+        //         { status: 409 }
+        //     );
+        // }
+
         return NextResponse.json({
             success: true,
             data: {
                 name,
-                birthday: birthDate,
+                birthday: normalizedBirthday,
                 phone
             }
         });

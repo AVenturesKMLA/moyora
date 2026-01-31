@@ -175,18 +175,18 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                     </Button>
 
                     <div className="rounded-2xl border border-dashed bg-muted/30 p-4 text-center">
-                        <p className="mb-2 text-xs text-muted-foreground">Credentials not ready? Use the simulator for testing:</p>
+                        <p className="mb-2 text-xs text-muted-foreground text-center">테스트용 인증 시뮬레이터</p>
                         <Button
                             variant="secondary"
                             size="sm"
                             className="w-full"
                             onClick={() => onComplete({
                                 name: '이모여',
-                                phone: '010-1234-5678',
+                                phone: `010-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`,
                                 birthday: '1995-01-01'
                             })}
                         >
-                            인증 시뮬레이터 실행 (Test Bypass)
+                            임의 번호로 인증 성공 처리
                         </Button>
                     </div>
 

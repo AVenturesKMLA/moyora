@@ -26,13 +26,10 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         // Check if user already exists
-        const existingUser = await User.findOne({
-            $or: [{ email }, { phone }]
-        });
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
-            const conflictField = existingUser.email === email ? '이메일' : '전화번호';
             return NextResponse.json(
-                { success: false, message: `이미 등록된 ${conflictField}입니다` },
+                { success: false, message: '이미 등록된 이메일입니다' },
                 { status: 409 }
             );
         }
