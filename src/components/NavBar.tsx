@@ -92,7 +92,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                 </nav>
 
                 {/* Right Actions */}
-                <div className="flex items-center gap-2">
+                <div className="ml-auto flex items-center gap-2">
                     {/* Auth & Notifications (Desktop) */}
                     <div className="hidden md:flex md:items-center md:gap-2">
                         {isLoggedIn ? (
