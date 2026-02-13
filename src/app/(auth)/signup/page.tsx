@@ -26,7 +26,7 @@ export default function SignupPage() {
 
   const handleIdentityComplete = (data: any) => {
     setIdentityData(data);
-    setStep(2); // Move to Student ID Scanner
+    setStep(3); // Move to Final Registration Form (Skip Student ID Scanner)
   };
 
   const handleScanComplete = (data: any) => {

@@ -130,6 +130,10 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
     return (
         <div className="space-y-6 pb-10 pt-4">
             <div className="text-center">
+                <div className="mb-6 inline-flex items-center justify-center rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20">
+                    <ShieldCheck className="mr-1.5 h-4 w-4" />
+                    본인인증이 완료되었습니다
+                </div>
                 <h2 className="text-2xl font-bold tracking-tight text-foreground">마지막 단계</h2>
                 <p className="mt-2 text-sm text-muted-foreground">로그인에 사용할 정보를 입력해주세요</p>
                 <div className="mt-3 inline-flex max-w-full items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/30">

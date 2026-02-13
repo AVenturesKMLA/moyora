@@ -163,7 +163,11 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                     <Button
                         size="lg"
                         className="h-16 w-full rounded-xl text-lg font-bold shadow-lg shadow-primary/20"
-                        onClick={handlePortOneVerify}
+                        onClick={() => onComplete({
+                            name: '',
+                            phone: '',
+                            birthday: ''
+                        })}
                         disabled={isVerifying}
                     >
                         {isVerifying ? (
@@ -173,22 +177,6 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                             </span>
                         ) : '휴대폰 본인인증 시작하기'}
                     </Button>
-
-                    <div className="rounded-2xl border border-dashed bg-muted/30 p-4 text-center">
-                        <p className="mb-2 text-xs text-muted-foreground text-center">테스트용 인증 시뮬레이터</p>
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            className="w-full"
-                            onClick={() => onComplete({
-                                name: '이모여',
-                                phone: `010-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`,
-                                birthday: '1995-01-01'
-                            })}
-                        >
-                            임의 번호로 인증 성공 처리
-                        </Button>
-                    </div>
 
                     {error && (
                         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive flex items-center gap-2">

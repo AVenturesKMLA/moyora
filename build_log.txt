@@ -1,0 +1,140 @@
+
+> moyeora@1.0.0 build
+> next build
+
+   ??Next.js 15.1.6
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ??Compiled successfully
+   Linting and checking validity of types ...
+
+./src/app/(protected)/club/search/page.tsx
+65:8  Warning: React Hook useMemo has an unnecessary dependency: 'regionFilter'. Either exclude it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+(node:32544) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31004) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31004) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:31004) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:31004) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:31004) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32544) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32544) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32544) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32544) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17932) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17320) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17320) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17320) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17320) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17320) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:42396) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42396) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:42396) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:42396) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:42396) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:31908) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31908) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:31908) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:31908) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:31908) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17932) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17932) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17932) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:17932) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:34972) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34972) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:34972) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:34972) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:34972) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+   Generating static pages (0/35) ...
+(node:37768) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37768) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:37768) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:37768) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:37768) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:12244) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12244) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:12244) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:12244) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:12244) [MONGOOSE] Warning: Duplicate schema index on {"schoolId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+   Generating static pages (8/35) 
+   Generating static pages (17/35) 
+   Generating static pages (26/35) 
+ ??Generating static pages (35/35)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                    Size     First Load JS
+????/                                          4.76 kB         176 kB
+????/_not-found                                990 B           107 kB
+????/about                                     1.5 kB          111 kB
+??? /admin                                     5.33 kB         115 kB
+??? /admin/events                              5.46 kB         115 kB
+??? /admin/users                               5.54 kB         115 kB
+??? /api/admin/events                          228 B           106 kB
+??? /api/admin/events/[eventType]/[id]         228 B           106 kB
+??? /api/admin/stats                           228 B           106 kB
+??? /api/admin/users                           228 B           106 kB
+??? /api/admin/users/[id]                      228 B           106 kB
+??? /api/auth/[...nextauth]                    228 B           106 kB
+??? /api/auth/signup                           228 B           106 kB
+??? /api/auth/verify-identity                  228 B           106 kB
+??? /api/club/application/[id]                 228 B           106 kB
+??? /api/club/apply                            228 B           106 kB
+??? /api/clubs                                 228 B           106 kB
+??? /api/cron/notifications                    228 B           106 kB
+??? /api/dashboard                             228 B           106 kB
+??? /api/debug/seed                            228 B           106 kB
+??? /api/diagnose                              228 B           106 kB
+??? /api/events/[eventType]/[id]/participants  228 B           106 kB
+??? /api/events/co-research                    228 B           106 kB
+??? /api/events/co-research/[id]               228 B           106 kB
+??? /api/events/contest                        228 B           106 kB
+??? /api/events/contest/[id]                   228 B           106 kB
+??? /api/events/forum                          228 B           106 kB
+??? /api/events/forum/[id]                     228 B           106 kB
+??? /api/events/my-events                      228 B           106 kB
+??? /api/notifications                         228 B           106 kB
+??? /api/participate                           228 B           106 kB
+??? /api/participate/[id]                      228 B           106 kB
+??? /api/profile                               228 B           106 kB
+??? /api/schedule                              228 B           106 kB
+??? /api/seed                                  228 B           106 kB
+??? /club/manage                               3.38 kB         178 kB
+??? /club/register                             3.98 kB         175 kB
+??? /club/search                               4.85 kB         183 kB
+??? /collab                                    36 kB           214 kB
+??? /collab/new                                4.18 kB         183 kB
+??? /dashboard                                 4.23 kB         179 kB
+??? /events/co-research/new                    4.23 kB         175 kB
+??? /events/contest/new                        4.21 kB         175 kB
+??? /events/forum/new                          4.11 kB         175 kB
+??? /events/manage                             5.3 kB          187 kB
+????/login                                     3.26 kB         132 kB
+??? /mypage                                    4.56 kB         176 kB
+????/plan                                      2.45 kB         131 kB
+??? /projects                                  4.29 kB         175 kB
+????/signup                                    32.2 kB         160 kB
++ First Load JS shared by all                  106 kB
+  ??chunks/1517-9bdef365b3c54435.js            50.7 kB
+  ??chunks/4bd1b696-844e692a96992e5c.js        53 kB
+  ??other shared chunks (total)                2.02 kB
+
+
+? Middleware                                   57.6 kB
+
+?? (Static)   prerendered as static content
+?  (Dynamic)  server-rendered on demand
+
