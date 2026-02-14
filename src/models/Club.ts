@@ -16,6 +16,8 @@ export interface IClub extends Document {
     meetingTime?: string;
     maxMembers?: number;
     recruitStatus: 'open' | 'close';
+    trustScore: number;
+    trustCount: number;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -87,6 +89,17 @@ const ClubSchema = new Schema<IClub>(
             enum: ['open', 'close'],
             default: 'open',
         },
+        trustScore: {
+            type: Number,
+            default: 70,
+            min: 0,
+            max: 100,
+        },
+        trustCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
     },
     {
         timestamps: true,
@@ -102,3 +115,4 @@ ClubSchema.index({ clubName: 'text', clubTheme: 'text' });
 const Club: Model<IClub> = mongoose.models.Club || mongoose.model<IClub>('Club', ClubSchema);
 
 export default Club;
+

@@ -8,6 +8,9 @@ import bcrypt from 'bcryptjs';
 // POST - Seed sample data for testing
 export async function POST() {
     try {
+        if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json({ success: false, message: 'Not Found' }, { status: 404 });
+        }
         const session = await getServerSession(authOptions);
         if (!session?.user) {
             return NextResponse.json({ success: false, message: '로그인이 필요합니다' }, { status: 401 });
@@ -213,8 +216,8 @@ export async function POST() {
             success: true,
             message: '샘플 데이터가 생성되었습니다',
             data: {
-                superAdmin: { email: 'admin@moyeora.kr', password: 'admin1234', role: 'superadmin' },
-                testUser: { email: 'test@school.kr', password: 'test1234', role: 'user' },
+                superAdmin: { email: 'admin@moyeora.kr', role: 'superadmin' },
+                testUser: { email: 'test@school.kr', role: 'user' },
                 contests: contests.length,
                 forums: forums.length,
                 coResearch: coResearchProjects.length,
@@ -229,3 +232,4 @@ export async function POST() {
         );
     }
 }
+

@@ -3,14 +3,15 @@ import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { Contest, Forum, CoResearch, User, Participant, Club, ClubMember } from '@/models';
 import mongoose from 'mongoose';
+import { authOptions } from '@/lib/auth';
 
 // GET - Fetch participants for a specific event (host only)
 export async function GET(
-    request: NextRequest,
+    _request: NextRequest,
     { params }: { params: Promise<{ eventType: string; id: string }> }
 ) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json(
                 { success: false, message: '로그인이 필요합니다' },
@@ -20,7 +21,6 @@ export async function GET(
 
         const { eventType, id } = await params;
 
-        // Validate eventType
         if (!['contest', 'forum', 'co-research'].includes(eventType)) {
             return NextResponse.json(
                 { success: false, message: '유효하지 않은 이벤트 유형입니다' },
@@ -28,7 +28,6 @@ export async function GET(
             );
         }
 
-        // Validate ObjectId
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return NextResponse.json(
                 { success: false, message: '유효하지 않은 이벤트 ID입니다' },
@@ -46,7 +45,6 @@ export async function GET(
             );
         }
 
-        // Get the event and check if user is the host
         let event;
         switch (eventType) {
             case 'contest':
@@ -67,7 +65,6 @@ export async function GET(
             );
         }
 
-        // Authorization: Only host or superadmin can view participants
         const isSuperAdmin = user.role === 'superadmin';
         const isHost = event.userId.toString() === user._id.toString();
 
@@ -78,47 +75,74 @@ export async function GET(
             );
         }
 
-        // Fetch participants
         const participants = await Participant.find({
             eventType,
             eventId: id,
-        }).sort({ createdAt: -1 });
+        }).sort({ createdAt: -1 }).lean();
 
-        // Enrich participants with Club Member count
-        const enrichedParticipants = await Promise.all(
-            participants.map(async (p) => {
-                const participantObj = p.toObject();
-                let clubMemberCount = 0;
-                let clubDetails = null;
+        const clubNames = [
+            ...new Set(
+                participants
+                    .map((p: any) => (typeof p.clubName === 'string' ? p.clubName.trim() : ''))
+                    .filter(Boolean)
+            ),
+        ];
 
-                if (p.clubName) {
-                    const club = await Club.findOne({ clubName: p.clubName });
-                    if (club) {
-                        clubMemberCount = await ClubMember.countDocuments({ clubId: club._id });
-                        clubDetails = {
-                            _id: club._id,
-                            description: club.description,
-                            schoolName: club.schoolName,
-                            memberCount: clubMemberCount
-                        };
-                    }
-                }
+        const clubDetailsByName = new Map<
+            string,
+            {
+                _id: string;
+                description?: string;
+                schoolName: string;
+                memberCount: number;
+                trustScore: number;
+            }
+        >();
 
-                return {
-                    ...participantObj,
-                    clubDetails
-                };
-            })
-        );
+        if (clubNames.length > 0) {
+            const clubs = await Club.find({ clubName: { $in: clubNames } })
+                .select('_id clubName description schoolName trustScore')
+                .lean();
+
+            const clubIds = clubs.map((club: any) => club._id);
+            const memberCounts = clubIds.length > 0
+                ? await ClubMember.aggregate([
+                    { $match: { clubId: { $in: clubIds } } },
+                    { $group: { _id: '$clubId', count: { $sum: 1 } } },
+                ])
+                : [];
+
+            const memberCountMap = new Map(
+                memberCounts.map((row: any) => [row._id.toString(), row.count as number])
+            );
+
+            clubs.forEach((club: any) => {
+                clubDetailsByName.set(club.clubName, {
+                    _id: club._id.toString(),
+                    description: club.description,
+                    schoolName: club.schoolName,
+                    memberCount: memberCountMap.get(club._id.toString()) || 0,
+                    trustScore: typeof club.trustScore === 'number' ? club.trustScore : 70,
+                });
+            });
+        }
+
+        const enrichedParticipants = participants.map((participant: any) => {
+            const clubName = typeof participant.clubName === 'string' ? participant.clubName.trim() : '';
+            return {
+                ...participant,
+                clubDetails: clubName ? clubDetailsByName.get(clubName) || null : null,
+            };
+        });
 
         return NextResponse.json({
             success: true,
             participants: enrichedParticipants,
             counts: {
                 total: participants.length,
-                pending: participants.filter((p) => p.status === 'pending').length,
-                approved: participants.filter((p) => p.status === 'approved').length,
-                rejected: participants.filter((p) => p.status === 'rejected').length,
+                pending: participants.filter((p: any) => p.status === 'pending').length,
+                approved: participants.filter((p: any) => p.status === 'approved').length,
+                rejected: participants.filter((p: any) => p.status === 'rejected').length,
             },
         });
     } catch (error) {
@@ -129,3 +153,4 @@ export async function GET(
         );
     }
 }
+

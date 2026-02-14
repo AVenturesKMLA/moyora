@@ -3,18 +3,14 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import NavBar from '@/components/NavBar';
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "../../../../components/ui/separator"
-import { Calendar, MapPin, Users, Check, X, Clock, AlertCircle, ArrowLeft } from "lucide-react"
-
-// 3D Components removed
+import { Button } from '@/components/ui/button';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, MapPin, Users, Check, X, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface Event {
     _id: string;
@@ -39,11 +35,21 @@ interface Participant {
         description: string;
         schoolName: string;
         memberCount: number;
+        trustScore?: number;
     };
 }
 
+interface RatingTarget {
+    clubId: string | null;
+    clubName: string;
+    rated: boolean;
+    rating: {
+        score: number;
+    } | null;
+}
+
 export default function EventManagePage() {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [participants, setParticipants] = useState<Participant[]>([]);
@@ -51,6 +57,9 @@ export default function EventManagePage() {
     const [loadingParticipants, setLoadingParticipants] = useState(false);
     const [filter, setFilter] = useState<string>('all');
     const [updating, setUpdating] = useState<string | null>(null);
+    const [ratingDraft, setRatingDraft] = useState<Record<string, string>>({});
+    const [ratedScoreMap, setRatedScoreMap] = useState<Record<string, number>>({});
+    const [ratingSubmitting, setRatingSubmitting] = useState<string | null>(null);
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -72,12 +81,37 @@ export default function EventManagePage() {
         }
     };
 
+    const fetchRatings = useCallback(async (event: Event) => {
+        try {
+            const res = await fetch(`/api/events/${event.eventType}/${event._id}/ratings`);
+            const data = await res.json();
+            if (data.success) {
+                const nextMap: Record<string, number> = {};
+                (data.targets as RatingTarget[]).forEach((target) => {
+                    if (target.clubId && target.rating?.score) {
+                        nextMap[target.clubId] = Math.round(target.rating.score);
+                    }
+                });
+                setRatedScoreMap(nextMap);
+            }
+        } catch (error) {
+            console.error('Failed to fetch ratings:', error);
+        }
+    }, []);
+
     const fetchParticipants = useCallback(async (event: Event) => {
         setLoadingParticipants(true);
         setSelectedEvent(event);
+        setRatingDraft({});
+        setRatedScoreMap({});
+
         try {
-            const res = await fetch(`/api/events/${event.eventType}/${event._id}/participants`);
-            const data = await res.json();
+            const [participantsRes] = await Promise.all([
+                fetch(`/api/events/${event.eventType}/${event._id}/participants`),
+                fetchRatings(event),
+            ]);
+
+            const data = await participantsRes.json();
             if (data.success) {
                 setParticipants(data.participants);
             }
@@ -86,7 +120,7 @@ export default function EventManagePage() {
         } finally {
             setLoadingParticipants(false);
         }
-    }, []);
+    }, [fetchRatings]);
 
     const updateParticipantStatus = async (participantId: string, newStatus: 'approved' | 'rejected') => {
         setUpdating(participantId);
@@ -103,7 +137,6 @@ export default function EventManagePage() {
                         p._id === participantId ? { ...p, status: newStatus } : p
                     )
                 );
-                // Update event participant count display
                 if (selectedEvent) {
                     fetchMyEvents();
                 }
@@ -115,21 +148,45 @@ export default function EventManagePage() {
         }
     };
 
+    const submitClubRating = async (targetClubId: string) => {
+        if (!selectedEvent) return;
+        const score = Number(ratingDraft[targetClubId] || ratedScoreMap[targetClubId] || 0);
+        if (!Number.isInteger(score) || score < 1 || score > 5) {
+            alert('평가 점수는 1~5 중에서 선택해주세요.');
+            return;
+        }
+
+        setRatingSubmitting(targetClubId);
+        try {
+            const res = await fetch(`/api/events/${selectedEvent.eventType}/${selectedEvent._id}/ratings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    targetClubId,
+                    score,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setRatedScoreMap((prev) => ({ ...prev, [targetClubId]: score }));
+                alert(`평가 저장 완료 (현재 신뢰 점수: ${data.trustScore})`);
+            } else {
+                alert(data.message || '평가 저장에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Failed to save rating:', error);
+            alert('평가 저장 중 오류가 발생했습니다.');
+        } finally {
+            setRatingSubmitting(null);
+        }
+    };
+
     const getEventTypeLabel = (type: string) => {
         switch (type) {
             case 'contest': return '대회';
             case 'forum': return '포럼';
             case 'co-research': return '공동연구';
             default: return type;
-        }
-    };
-
-    const getEventTypeBadgeVariant = (type: string) => {
-        switch (type) {
-            case 'contest': return 'default'; // blue-ish usually
-            case 'forum': return 'destructive'; // red-ish? or maybe secondary
-            case 'co-research': return 'secondary';
-            default: return 'outline';
         }
     };
 
@@ -154,15 +211,7 @@ export default function EventManagePage() {
         });
     };
 
-    const formatDateTime = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('ko-KR', {
-            year: '2-digit',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+    const isPastEvent = selectedEvent ? new Date(selectedEvent.eventDate).getTime() < Date.now() : false;
 
     const filteredEvents = filter === 'all'
         ? events
@@ -190,8 +239,6 @@ export default function EventManagePage() {
             </nav>
 
             <div className="flex-1 container relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12 items-start h-[calc(100vh-180px)]">
-
-                {/* Sidebar: Events List */}
                 <Card className="lg:col-span-4 h-full flex flex-col border-border/60 bg-card/80 backdrop-blur-sm shadow-md overflow-hidden">
                     <CardHeader className="pb-3 border-b">
                         <div className="flex items-center justify-between">
@@ -211,9 +258,6 @@ export default function EventManagePage() {
                     </CardHeader>
                     <ScrollArea className="flex-1">
                         <div className="p-4 space-y-3">
-                            {/* Manage3D removed */}
-
-
                             {filteredEvents.length === 0 ? (
                                 <div className="text-center py-12 text-muted-foreground text-sm">
                                     등록한 이벤트가 없습니다
@@ -250,7 +294,6 @@ export default function EventManagePage() {
                     </ScrollArea>
                 </Card>
 
-                {/* Main Panel: Participants */}
                 <Card className="lg:col-span-8 h-full flex flex-col border-border/60 bg-card/80 backdrop-blur-sm shadow-md overflow-hidden">
                     {!selectedEvent ? (
                         <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
@@ -309,100 +352,135 @@ export default function EventManagePage() {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {participants.map((participant) => (
-                                                <TableRow key={participant._id}>
-                                                    <TableCell>
-                                                        <div className="flex-1 space-y-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <h3 className="font-semibold text-base">{participant.userName}</h3>
-                                                                <span className="text-xs text-muted-foreground px-2 py-0.5 bg-secondary rounded-full">
-                                                                    {participant.userSchool}
-                                                                </span>
-                                                            </div>
-                                                            <p className="text-sm text-foreground/80">{participant.userEmail}</p>
+                                            {participants.map((participant) => {
+                                                const clubId = participant.clubDetails?._id || '';
+                                                const selectedScore = ratingDraft[clubId] || String(ratedScoreMap[clubId] || '');
+                                                const canRate = isPastEvent && participant.status === 'approved' && !!clubId;
 
-                                                            {participant.clubName && (
-                                                                <div className="mt-2 text-sm bg-muted/40 p-2 rounded-lg border border-border/50">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span className="font-bold text-primary">{participant.clubName}</span>
-                                                                        {participant.clubDetails && (
-                                                                            <span className="text-xs text-muted-foreground">
-                                                                                (멤버 {participant.clubDetails.memberCount}명)
-                                                                            </span>
+                                                return (
+                                                    <TableRow key={participant._id}>
+                                                        <TableCell>
+                                                            <div className="flex-1 space-y-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <h3 className="font-semibold text-base">{participant.userName}</h3>
+                                                                    <span className="text-xs text-muted-foreground px-2 py-0.5 bg-secondary rounded-full">
+                                                                        {participant.userSchool}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-sm text-foreground/80">{participant.userEmail}</p>
+
+                                                                {participant.clubName && (
+                                                                    <div className="mt-2 text-sm bg-muted/40 p-2 rounded-lg border border-border/50">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="font-bold text-primary">{participant.clubName}</span>
+                                                                            {participant.clubDetails && (
+                                                                                <span className="text-xs text-muted-foreground">
+                                                                                    (멤버 {participant.clubDetails.memberCount}명 · 신뢰 {participant.clubDetails.trustScore ?? 70})
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        {participant.clubDetails?.description && (
+                                                                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                                                                {participant.clubDetails.description}
+                                                                            </p>
+                                                                        )}
+
+                                                                        {canRate && (
+                                                                            <div className="mt-2 flex items-center gap-2">
+                                                                                <Select
+                                                                                    value={selectedScore || ''}
+                                                                                    onValueChange={(v) => setRatingDraft((prev) => ({ ...prev, [clubId]: v }))}
+                                                                                >
+                                                                                    <SelectTrigger className="h-8 w-[90px] text-xs">
+                                                                                        <SelectValue placeholder="평점" />
+                                                                                    </SelectTrigger>
+                                                                                    <SelectContent>
+                                                                                        <SelectItem value="1">1점</SelectItem>
+                                                                                        <SelectItem value="2">2점</SelectItem>
+                                                                                        <SelectItem value="3">3점</SelectItem>
+                                                                                        <SelectItem value="4">4점</SelectItem>
+                                                                                        <SelectItem value="5">5점</SelectItem>
+                                                                                    </SelectContent>
+                                                                                </Select>
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="outline"
+                                                                                    className="h-8 text-xs"
+                                                                                    disabled={ratingSubmitting === clubId || !selectedScore}
+                                                                                    onClick={() => submitClubRating(clubId)}
+                                                                                >
+                                                                                    {ratingSubmitting === clubId ? '저장중...' : ratedScoreMap[clubId] ? '평가 수정' : '평가 저장'}
+                                                                                </Button>
+                                                                            </div>
                                                                         )}
                                                                     </div>
-                                                                    {participant.clubDetails?.description && (
-                                                                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                                                                            {participant.clubDetails.description}
-                                                                        </p>
-                                                                    )}
-                                                                </div>
-                                                            )}
+                                                                )}
 
-                                                            {participant.message && (
-                                                                <div className="mt-2 text-sm bg-muted/30 p-3 rounded-lg text-muted-foreground">
-                                                                    "{participant.message}"
-                                                                </div>
-                                                            )}
+                                                                {participant.message && (
+                                                                    <div className="mt-2 text-sm bg-muted/30 p-3 rounded-lg text-muted-foreground">
+                                                                        "{participant.message}"
+                                                                    </div>
+                                                                )}
 
-                                                            <div className="text-xs text-muted-foreground pt-1">
-                                                                신청일: {new Date(participant.createdAt).toLocaleDateString()}
+                                                                <div className="text-xs text-muted-foreground pt-1">
+                                                                    신청일: {new Date(participant.createdAt).toLocaleDateString()}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>{getStatusBadge(participant.status)}</TableCell>
-                                                    <TableCell className="text-right">
-                                                        <div className="flex justify-end gap-2">
-                                                            {participant.status === 'pending' && (
-                                                                <>
+                                                        </TableCell>
+                                                        <TableCell>{getStatusBadge(participant.status)}</TableCell>
+                                                        <TableCell className="text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                {participant.status === 'pending' && (
+                                                                    <>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-200"
+                                                                            onClick={() => updateParticipantStatus(participant._id, 'approved')}
+                                                                            disabled={updating === participant._id}
+                                                                            title="승인"
+                                                                        >
+                                                                            {updating === participant._id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <Check className="h-4 w-4" />}
+                                                                        </Button>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200"
+                                                                            onClick={() => updateParticipantStatus(participant._id, 'rejected')}
+                                                                            disabled={updating === participant._id}
+                                                                            title="거절"
+                                                                        >
+                                                                            {updating === participant._id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <X className="h-4 w-4" />}
+                                                                        </Button>
+                                                                    </>
+                                                                )}
+                                                                {participant.status === 'approved' && (
                                                                     <Button
                                                                         size="sm"
-                                                                        variant="outline"
-                                                                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-200"
-                                                                        onClick={() => updateParticipantStatus(participant._id, 'approved')}
-                                                                        disabled={updating === participant._id}
-                                                                        title="승인"
-                                                                    >
-                                                                        {updating === participant._id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <Check className="h-4 w-4" />}
-                                                                    </Button>
-                                                                    <Button
-                                                                        size="sm"
-                                                                        variant="outline"
-                                                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200"
+                                                                        variant="ghost"
+                                                                        className="h-8 px-2 text-xs text-muted-foreground hover:text-red-600"
                                                                         onClick={() => updateParticipantStatus(participant._id, 'rejected')}
                                                                         disabled={updating === participant._id}
-                                                                        title="거절"
                                                                     >
-                                                                        {updating === participant._id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <X className="h-4 w-4" />}
+                                                                        취소
                                                                     </Button>
-                                                                </>
-                                                            )}
-                                                            {participant.status === 'approved' && (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="ghost"
-                                                                    className="h-8 px-2 text-xs text-muted-foreground hover:text-red-600"
-                                                                    onClick={() => updateParticipantStatus(participant._id, 'rejected')}
-                                                                    disabled={updating === participant._id}
-                                                                >
-                                                                    취소
-                                                                </Button>
-                                                            )}
-                                                            {participant.status === 'rejected' && (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="ghost"
-                                                                    className="h-8 px-2 text-xs text-muted-foreground hover:text-green-600"
-                                                                    onClick={() => updateParticipantStatus(participant._id, 'approved')}
-                                                                    disabled={updating === participant._id}
-                                                                >
-                                                                    재승인
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
+                                                                )}
+                                                                {participant.status === 'rejected' && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="ghost"
+                                                                        className="h-8 px-2 text-xs text-muted-foreground hover:text-green-600"
+                                                                        onClick={() => updateParticipantStatus(participant._id, 'approved')}
+                                                                        disabled={updating === participant._id}
+                                                                    >
+                                                                        재승인
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
                                         </TableBody>
                                     </Table>
                                 )}
@@ -411,6 +489,6 @@ export default function EventManagePage() {
                     )}
                 </Card>
             </div>
-        </div >
+        </div>
     );
 }

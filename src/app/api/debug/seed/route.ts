@@ -77,9 +77,9 @@ export async function GET() {
             success: true,
             message: `${createdCount}개의 예시 계정이 생성되었습니다. (이미 존재하는 계정 제외)`,
             accounts: [
-                { role: '일반 학생', email: 'student@moyora.kr', password: 'password123' },
-                { role: '동아리장', email: 'leader@moyora.kr', password: 'password123' },
-                { role: '최고 관리자', email: 'admin@moyora.kr', password: 'password123' },
+                { role: '일반 학생', email: 'student@moyora.kr' },
+                { role: '동아리장', email: 'leader@moyora.kr' },
+                { role: '최고 관리자', email: 'admin@moyora.kr' },
             ]
         });
     } catch (error) {

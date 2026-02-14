@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import { EventType } from './Schedule';
 
 export type ReminderDays = 7 | 3 | 1;
+export type NotificationDays = ReminderDays | 0;
 
 export interface INotification extends Document {
     _id: mongoose.Types.ObjectId;
@@ -11,7 +12,7 @@ export interface INotification extends Document {
     eventName: string;
     eventDate: Date;
     eventPlace: string;
-    daysUntil: ReminderDays;
+    daysUntil: NotificationDays;
     isRead: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -49,7 +50,7 @@ const NotificationSchema = new Schema<INotification>(
         },
         daysUntil: {
             type: Number,
-            enum: [7, 3, 1],
+            enum: [0, 7, 3, 1],
             required: [true, '알림 일수가 필요합니다'],
         },
         isRead: {
@@ -75,3 +76,4 @@ const Notification: Model<INotification> =
     mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);
 
 export default Notification;
+

@@ -66,9 +66,12 @@ export default function ClubSearchPage() {
                 (club.location?.toLowerCase().includes(regionFilter.toLowerCase())) ||
                 (club.schoolName && club.schoolName.toLowerCase().includes(regionFilter.toLowerCase()));
 
-            return matchesQuery && matchesField && matchesRegion;
+            const trust = typeof club.trustScore === 'number' ? club.trustScore : 70;
+            const matchesTrust = trustFilter === 'all' || (trustFilter === 'high' && trust >= 80) || (trustFilter === 'mid' && trust >= 70);
+
+            return matchesQuery && matchesField && matchesRegion && matchesTrust;
         });
-    }, [clubs, query, fieldFilter, regionFilter]);
+    }, [clubs, query, fieldFilter, regionFilter, trustFilter]);
 
     const handleApply = async () => {
         if (!selectedClub) return;
@@ -184,6 +187,7 @@ export default function ClubSearchPage() {
                                     school: club.schoolName,
                                     size: club.maxMembers || 0,
                                     description: club.description,
+                                    trustScore: typeof club.trustScore === 'number' ? club.trustScore : 70,
                                     onApply: () => setSelectedClub(club)
                                 } as any}
                                 onClick={() => alert(`${club.clubName} 상세 페이지 (Demo)`)}
@@ -229,4 +233,6 @@ export default function ClubSearchPage() {
         </div>
     );
 }
+
+
 

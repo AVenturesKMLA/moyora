@@ -1,16 +1,28 @@
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Club } from '@/data/demoData';
+
+interface ClubCardData {
+    id?: string;
+    name: string;
+    school?: string;
+    size?: number;
+    trust?: number;
+    trustScore?: number;
+    onApply?: () => void;
+}
 
 interface ClubCardProps {
-    club: Club;
+    club: ClubCardData;
     onClick?: () => void;
 }
 
 export function ClubCard({ club, onClick }: ClubCardProps) {
-    // Generate a consistent random-looking score based on club id if not present, or valid mock data
-    const score = 80 + (club.name.length % 20);
+    const score =
+        typeof club.trustScore === 'number'
+            ? club.trustScore
+            : typeof club.trust === 'number'
+                ? club.trust
+                : 70;
 
     return (
         <div
@@ -23,12 +35,11 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
                         {club.name}
                     </h3>
                     <p className="text-sm text-muted-foreground truncate">
-                        {club.school || "소속 학교 미정"}
+                        {club.school || '소속 학교 미정'}
                     </p>
                 </div>
 
                 <div className="flex gap-1.5 flex-wrap">
-                    {/* Mock tags based on description or name for demo */}
                     {['BM', '창업', '로보틱스'].slice(0, 1 + (club.name.length % 2)).map((tag, i) => (
                         <Badge key={i} variant="outline" className="rounded-full font-normal text-muted-foreground bg-muted/20 border-0 text-[11px] px-2">
                             {tag}
@@ -51,8 +62,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
                     className="h-7 text-[11px] px-3 rounded-full border-primary/50 text-primary hover:bg-primary hover:text-white"
                     onClick={(e) => {
                         e.stopPropagation();
-                        // This will be handled by the parent
-                        (club as any).onApply?.();
+                        club.onApply?.();
                     }}
                 >
                     가입 신청

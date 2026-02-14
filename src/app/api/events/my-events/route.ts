@@ -32,42 +32,66 @@ export async function GET() {
             CoResearch.find({ userId: user._id }).lean(),
         ]);
 
-        const getParticipantCount = async (eventType: string, eventId: string) => {
-            return Participant.countDocuments({ eventType, eventId });
+        const contestIds = contests.map((e: any) => e._id);
+        const forumIds = forums.map((e: any) => e._id);
+        const researchIds = coResearchProjects.map((e: any) => e._id);
+
+        const countMatchOr: Array<Record<string, unknown>> = [];
+        if (contestIds.length > 0) countMatchOr.push({ eventType: 'contest', eventId: { $in: contestIds } });
+        if (forumIds.length > 0) countMatchOr.push({ eventType: 'forum', eventId: { $in: forumIds } });
+        if (researchIds.length > 0) countMatchOr.push({ eventType: 'co-research', eventId: { $in: researchIds } });
+
+        const participantCounts = countMatchOr.length > 0
+            ? await Participant.aggregate([
+                { $match: { $or: countMatchOr } },
+                {
+                    $group: {
+                        _id: {
+                            eventType: '$eventType',
+                            eventId: '$eventId',
+                        },
+                        count: { $sum: 1 },
+                    },
+                },
+            ])
+            : [];
+
+        const countMap = new Map<string, number>();
+        participantCounts.forEach((row: any) => {
+            const key = `${row._id.eventType}:${row._id.eventId.toString()}`;
+            countMap.set(key, row.count as number);
+        });
+
+        const getParticipantCount = (eventType: 'contest' | 'forum' | 'co-research', eventId: any) => {
+            return countMap.get(`${eventType}:${eventId.toString()}`) || 0;
         };
 
-        const contestsWithCounts = await Promise.all(
-            contests.map(async (event: any) => ({
-                ...event,
-                eventType: 'contest',
-                eventName: event.contestName,
-                eventDate: event.contestDate,
-                eventPlace: event.contestPlace,
-                participantCount: await getParticipantCount('contest', event._id.toString()),
-            }))
-        );
+        const contestsWithCounts = contests.map((event: any) => ({
+            ...event,
+            eventType: 'contest',
+            eventName: event.contestName,
+            eventDate: event.contestDate,
+            eventPlace: event.contestPlace,
+            participantCount: getParticipantCount('contest', event._id),
+        }));
 
-        const forumsWithCounts = await Promise.all(
-            forums.map(async (event: any) => ({
-                ...event,
-                eventType: 'forum',
-                eventName: event.forumName,
-                eventDate: event.forumDate,
-                eventPlace: event.forumPlace,
-                participantCount: await getParticipantCount('forum', event._id.toString()),
-            }))
-        );
+        const forumsWithCounts = forums.map((event: any) => ({
+            ...event,
+            eventType: 'forum',
+            eventName: event.forumName,
+            eventDate: event.forumDate,
+            eventPlace: event.forumPlace,
+            participantCount: getParticipantCount('forum', event._id),
+        }));
 
-        const coResearchWithCounts = await Promise.all(
-            coResearchProjects.map(async (event: any) => ({
-                ...event,
-                eventType: 'co-research',
-                eventName: event.researchName,
-                eventDate: event.researchDate,
-                eventPlace: event.researchPlace,
-                participantCount: await getParticipantCount('co-research', event._id.toString()),
-            }))
-        );
+        const coResearchWithCounts = coResearchProjects.map((event: any) => ({
+            ...event,
+            eventType: 'co-research',
+            eventName: event.researchName,
+            eventDate: event.researchDate,
+            eventPlace: event.researchPlace,
+            participantCount: getParticipantCount('co-research', event._id),
+        }));
 
         const allEvents = [
             ...contestsWithCounts,

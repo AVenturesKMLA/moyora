@@ -194,7 +194,7 @@ export async function GET() {
                     name: c.clubName,
                     school: c.schoolName,
                     desc: c.category || 'General',
-                    score: 80 + Math.floor(Math.random() * 20)
+                    score: typeof c.trustScore === 'number' ? c.trustScore : 70
                 })),
                 trendingCollabs: [
                     ...upcomingContests.map((e: any) => ({
@@ -229,3 +229,4 @@ export async function GET() {
         );
     }
 }
+

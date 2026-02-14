@@ -99,18 +99,27 @@ export async function PATCH(
         participation.status = status;
         await participation.save();
 
-        // Create notification for the applicant
+        // Create or update applicant notification for this participation request
         const statusText = status === 'approved' ? '승인' : status === 'rejected' ? '거절' : '대기';
-        await Notification.create({
-            userId: participation.userId,
-            eventType: participation.eventType,
-            eventId: participation.eventId,
-            eventName: `${eventName} - 참가 신청 ${statusText}`,
-            eventDate: new Date(),
-            eventPlace: '참가 상태 변경 알림',
-            daysUntil: 0,
-            isRead: false,
-        });
+        await Notification.findOneAndUpdate(
+            {
+                userId: participation.userId,
+                eventType: participation.eventType,
+                eventId: participation._id,
+                daysUntil: 0,
+            },
+            {
+                eventName: `${eventName} - 참가 신청 ${statusText}`,
+                eventDate: new Date(),
+                eventPlace: '참가 상태 변경 알림',
+                isRead: false,
+            },
+            {
+                upsert: true,
+                new: true,
+                setDefaultsOnInsert: true,
+            }
+        );
 
         return NextResponse.json({
             success: true,
@@ -171,3 +180,6 @@ export async function GET(
         );
     }
 }
+
+
+

@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
             await Notification.create({
                 userId: hostUserId,
                 eventType,
-                eventId,
+                eventId: participation._id,
                 eventName: `${user.name}님이 참가 신청`,
                 eventDate: new Date(),
                 eventPlace: '참가 신청 알림',
@@ -159,3 +159,5 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
+
