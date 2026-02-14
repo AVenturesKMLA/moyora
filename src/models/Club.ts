@@ -35,8 +35,7 @@ const ClubSchema = new Schema<IClub>(
         schoolId: {
             type: String,
             required: [true, '학교 고유 ID가 필요합니다'],
-            index: true,
-        },
+},
         clubTheme: {
             type: String,
             required: [true, '동아리 분야를 입력해주세요'],
@@ -96,6 +95,7 @@ const ClubSchema = new Schema<IClub>(
 
 // Indexes
 ClubSchema.index({ userId: 1 });
+ClubSchema.index({ schoolId: 1 });
 ClubSchema.index({ schoolName: 1 });
 ClubSchema.index({ clubName: 'text', clubTheme: 'text' });
 

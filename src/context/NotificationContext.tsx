@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useSession } from 'next-auth/react';
 
 export interface Notification {
     _id: string; // MongoDB uses _id
@@ -27,11 +28,19 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
+    const { status } = useSession();
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
     useEffect(() => {
-        fetchNotifications();
-    }, []);
+        if (status === 'authenticated') {
+            fetchNotifications();
+            return;
+        }
+
+        if (status === 'unauthenticated') {
+            setNotifications([]);
+        }
+    }, [status]);
 
     const fetchNotifications = async () => {
         try {

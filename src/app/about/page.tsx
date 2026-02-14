@@ -1,10 +1,6 @@
-'use client';
-
-import React from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
-  Building2,
   Rocket,
   Users2,
   Globe,
@@ -12,7 +8,6 @@ import {
   Palette,
   Megaphone,
   Handshake,
-  Target,
   FileBadge
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -178,8 +173,8 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold">협력 희망 대상</h2>
           <div className="flex flex-wrap justify-center gap-3">
             {[
-              "전국 동아리", "학생단체", "교육 기관",
-              "청소년 지원 기관", "기업 파트너", "기관 파트너"
+              '전국 동아리', '학생단체', '교육 기관',
+              '청소년 지원 기관', '기업 파트너', '기관 파트너'
             ].map((target) => (
               <Badge key={target} variant="secondary" className="px-5 py-2 text-sm font-semibold">
                 {target}

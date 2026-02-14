@@ -49,8 +49,7 @@ const ScheduleSchema = new Schema<ISchedule>(
         schoolId: {
             type: String,
             required: [true, '학교 고유 ID가 필요합니다'],
-            index: true,
-        },
+},
         userId: {
             type: Schema.Types.ObjectId,
             ref: 'User',

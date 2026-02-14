@@ -1,14 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import MobileGuard from '@/components/signup/MobileGuard';
-import IdentityVerification from '@/components/signup/IdentityVerification';
-import StudentIDScanner from '@/components/signup/StudentIDScanner';
-import UserRegistrationForm from '@/components/signup/UserRegistrationForm';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft } from 'lucide-react';
+
+const IdentityVerification = dynamic(() => import('@/components/signup/IdentityVerification'), {
+  loading: () => <div className="py-8 text-center text-sm text-muted-foreground">인증 모듈 로딩 중...</div>,
+});
+
+const StudentIDScanner = dynamic(() => import('@/components/signup/StudentIDScanner'), {
+  ssr: false,
+  loading: () => <div className="py-8 text-center text-sm text-muted-foreground">학생증 스캐너 로딩 중...</div>,
+});
+
+const UserRegistrationForm = dynamic(() => import('@/components/signup/UserRegistrationForm'), {
+  loading: () => <div className="py-8 text-center text-sm text-muted-foreground">회원가입 폼 로딩 중...</div>,
+});
 
 export default function SignupPage() {
   const [step, setStep] = useState<number>(1);

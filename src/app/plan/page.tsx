@@ -1,14 +1,13 @@
-'use client';
-
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, ArrowLeft } from 'lucide-react';
 
-export default function PlanPage() {
-    const { data: session } = useSession();
+export default async function PlanPage() {
+    const session = await getServerSession(authOptions);
 
     return (
         <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
@@ -46,8 +45,8 @@ export default function PlanPage() {
                                 <li className="flex items-center"><CheckCircle2 className="mr-2 h-5 w-5 text-primary" /> 기본 커뮤니티 접근</li>
                                 <li className="flex items-center"><CheckCircle2 className="mr-2 h-5 w-5 text-primary" /> 프로젝트 룸 개설 (제한적)</li>
                             </ul>
-                            <Button className="w-full mt-4" variant={session ? "outline" : "default"} asChild>
-                                <Link href={session ? "/dashboard" : "/signup"}>{session ? "현재 이용중" : "무료로 시작하기"}</Link>
+                            <Button className="w-full mt-4" variant={session ? 'outline' : 'default'} asChild>
+                                <Link href={session ? '/dashboard' : '/signup'}>{session ? '현재 이용중' : '무료로 시작하기'}</Link>
                             </Button>
                         </CardContent>
                     </Card>

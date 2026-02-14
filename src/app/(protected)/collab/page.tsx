@@ -7,20 +7,27 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { CollabCard } from '@/components/cards/CollabCard';
-import { CollabModal } from '@/components/modals/CollabModal';
 // import { NewCollabModal } from '@/components/modals/NewCollabModal';
-import { EditCollabModal } from '@/components/modals/EditCollabModal';
-import { RatingModal } from '@/components/modals/RatingModal';
 import { DemoState, Collab as CollabType, loadState, saveState, Club, Application } from '@/data/demoData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2, Mail, School } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+
 import { Card } from '@/components/ui/card';
 import { Bell, Calendar as CalendarIcon, List as ListIcon, ChevronRight, Briefcase } from 'lucide-react';
 import { ProjectListCard } from '@/components/cards/ProjectListCard';
 import { useSession } from 'next-auth/react';
-import { v4 as uuidv4 } from 'uuid';
+import dynamic from 'next/dynamic';
+
+const CollabModal = dynamic(() => import('@/components/modals/CollabModal').then((mod) => mod.CollabModal));
+const EditCollabModal = dynamic(() => import('@/components/modals/EditCollabModal').then((mod) => mod.EditCollabModal));
+const RatingModal = dynamic(() => import('@/components/modals/RatingModal').then((mod) => mod.RatingModal));
+const Calendar = dynamic(() => import('@/components/ui/calendar').then((mod) => mod.Calendar));
+
+const createId = () =>
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 export default function CollabPage() {
     const { data: session } = useSession();
@@ -174,7 +181,7 @@ export default function CollabPage() {
 
     // Handlers
     const handleAddCollab = (data: Omit<CollabType, 'id'>) => {
-        const newCollab = { ...data, id: uuidv4() };
+        const newCollab = { ...data, id: createId() };
         updateState({
             ...state,
             collabs: [newCollab, ...state.collabs]
@@ -193,7 +200,7 @@ export default function CollabPage() {
     const handleAddApplication = (app: Omit<Application, 'id'>) => {
         updateState({
             ...state,
-            applications: [...state.applications, { ...app, id: uuidv4() }]
+            applications: [...state.applications, { ...app, id: createId() }]
         });
         setSelectedCollabId(null);
     };
