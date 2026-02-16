@@ -122,36 +122,48 @@ export async function GET() {
             status: 'pending',
         });
 
-        // Enrich Participations (Note: This could be optimized further with aggregation, but doing strictly parallel for now)
-        // To optimize loop: gather all event IDs first
-        // But types are different, so keep simplified logic for now but in Promise.all if possible? 
-        // Current logic maps and awaits individually. Let's execute all enrichments in parallel.
+        // Enrich Participations (Optimized with batch fetching)
+        const contestIds = participations
+            .filter((p: any) => p.eventType === 'contest')
+            .map((p: any) => p.eventId);
+        const forumIds = participations
+            .filter((p: any) => p.eventType === 'forum')
+            .map((p: any) => p.eventId);
+        const researchIds = participations
+            .filter((p: any) => p.eventType === 'co-research')
+            .map((p: any) => p.eventId);
 
-        const participationsWithDetails = await Promise.all(participations.map(async (p: any) => {
+        const [contests, forums, researches] = await Promise.all([
+            contestIds.length > 0 ? Contest.find({ _id: { $in: contestIds } }).lean() : Promise.resolve([]),
+            forumIds.length > 0 ? Forum.find({ _id: { $in: forumIds } }).lean() : Promise.resolve([]),
+            researchIds.length > 0 ? CoResearch.find({ _id: { $in: researchIds } }).lean() : Promise.resolve([]),
+        ]);
+
+        const contestMap = new Map((contests as any[]).map((c) => [c._id.toString(), c]));
+        const forumMap = new Map((forums as any[]).map((f) => [f._id.toString(), f]));
+        const researchMap = new Map((researches as any[]).map((r) => [r._id.toString(), r]));
+
+        const participationsWithDetails = participations.map((p: any) => {
             let eventName = '';
             let eventDate = null;
             let eventPlace = '';
 
-            // This is the N+1 problem part. 
-            // Optimization for later: Fetch all related Contests/Forums/Research in one go using $in [ids]
-            // For now, assume low volume.
-
             if (p.eventType === 'contest') {
-                const contest = await Contest.findById(p.eventId).lean() as any;
+                const contest = contestMap.get(p.eventId.toString());
                 if (contest) {
                     eventName = contest.contestName;
                     eventDate = contest.contestDate;
                     eventPlace = contest.contestPlace;
                 }
             } else if (p.eventType === 'forum') {
-                const forum = await Forum.findById(p.eventId).lean() as any;
+                const forum = forumMap.get(p.eventId.toString());
                 if (forum) {
                     eventName = forum.forumName;
                     eventDate = forum.forumDate;
                     eventPlace = forum.forumPlace;
                 }
             } else if (p.eventType === 'co-research') {
-                const research = await CoResearch.findById(p.eventId).lean() as any;
+                const research = researchMap.get(p.eventId.toString());
                 if (research) {
                     eventName = research.researchName;
                     eventDate = research.researchDate;
@@ -165,7 +177,7 @@ export async function GET() {
                 eventDate,
                 eventPlace,
             };
-        }));
+        });
 
         const notifications = notificationsRaw || [];
 
