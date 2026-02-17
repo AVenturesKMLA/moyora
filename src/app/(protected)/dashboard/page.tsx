@@ -1,8 +1,9 @@
-'use client';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-import { useSession } from 'next-auth/react';
+
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,36 +81,30 @@ interface DashboardData {
     }>;
 }
 
-export default function DashboardPage() {
-    const { data: session, status } = useSession();
-    const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+async function getDashboardData() {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/dashboard`, {
+        cache: "no-store"
+    });
 
-    useEffect(() => {
-        if (status === 'authenticated') {
-            fetchDashboardData();
-        }
-    }, [status]);
+    const data = await res.json();
+    return data;
+}
 
-    const fetchDashboardData = async () => {
-        try {
-            const res = await fetch('/api/dashboard');
-            const data = await res.json();
-            if (data.success) {
-                setDashboardData(data.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch dashboard data:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+export default async function DashboardPage() {
+    const session = await getServerSession(authOptions);
 
-    if (status === 'loading' || isLoading) {
-        return <DashboardSkeleton />;
+    if (!session) {
+        redirect("/login");
     }
 
+    const result = await getDashboardData();
+    const dashboardData = result?.data;
+
     return (
+        <div className="min-h-screen bg-background pb-20">
+            <NavBar />
+            <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-12">
+                {   return (
         <div className="min-h-screen bg-background pb-20">
             <NavBar />
             <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-12">
@@ -252,8 +247,13 @@ export default function DashboardPage() {
             </main>
         </div>
     );
+}}
+            </main>
+        </div>
+    );
 }
 
+    
 // --- Components ---
 
 function StatsCard({ title, value, subtext, icon }: { title: string, value: string, subtext: string, icon: React.ReactNode }) {
