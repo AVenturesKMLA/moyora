@@ -102,10 +102,7 @@ export default async function DashboardPage() {
         <div className="min-h-screen bg-background pb-20">
             <NavBar />
             <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-12">
-                {   return (
-        <div className="min-h-screen bg-background pb-20">
-            <NavBar />
-            <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-12">
+              
 
                 {/* 1. Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -245,7 +242,6 @@ export default async function DashboardPage() {
             </main>
         </div>
     );
-}}
             </main>
         </div>
     );
