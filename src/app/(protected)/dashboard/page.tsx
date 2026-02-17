@@ -242,9 +242,6 @@ export default async function DashboardPage() {
             </main>
         </div>
     );
-            </main>
-        </div>
-    );
 }
 
     
