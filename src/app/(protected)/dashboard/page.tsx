@@ -1,8 +1,7 @@
-'use client';
-
-import { useSession } from 'next-auth/react';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,39 +79,31 @@ interface DashboardData {
     }>;
 }
 
-export default function DashboardPage() {
-    const { data: session, status } = useSession();
-    const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+async function getDashboardData() {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/dashboard`, {
+    next: { revalidate: 60 }
+});
 
-    useEffect(() => {
-        if (status === 'authenticated') {
-            fetchDashboardData();
-        }
-    }, [status]);
 
-    const fetchDashboardData = async () => {
-        try {
-            const res = await fetch('/api/dashboard');
-            const data = await res.json();
-            if (data.success) {
-                setDashboardData(data.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch dashboard data:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const data = await res.json();
+    return data;
+}
 
-    if (status === 'loading' || isLoading) {
-        return <DashboardSkeleton />;
+export default async function DashboardPage() {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+        redirect("/login");
     }
+
+    const result = await getDashboardData();
+    const dashboardData = result?.data;
 
     return (
         <div className="min-h-screen bg-background pb-20">
             <NavBar />
             <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-12">
+              
 
                 {/* 1. Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -244,9 +235,8 @@ export default function DashboardPage() {
                             ) : (
                                 <p className="text-sm text-muted-foreground">예정된 협업 이벤트가 없습니다.</p>
                             )}
-                        </div>
+                                                    </div>
                     </div>
-
                 </div>
 
             </main>
@@ -254,6 +244,7 @@ export default function DashboardPage() {
     );
 }
 
+    
 // --- Components ---
 
 function StatsCard({ title, value, subtext, icon }: { title: string, value: string, subtext: string, icon: React.ReactNode }) {
@@ -349,29 +340,3 @@ function TrendingCollabCard({ title, host, date, type }: { title: string, host: 
     )
 }
 
-function DashboardSkeleton() {
-    return (
-        <div className="min-h-screen bg-background pb-20">
-            <NavBar />
-            <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-8">
-                <div className="space-y-2">
-                    <Skeleton className="h-10 w-64" />
-                    <Skeleton className="h-6 w-96" />
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <Skeleton className="h-32 rounded-xl" />
-                    <Skeleton className="h-32 rounded-xl" />
-                    <Skeleton className="h-32 rounded-xl" />
-                </div>
-                <div className="space-y-4">
-                    <Skeleton className="h-8 w-32" />
-                    <div className="flex space-x-4 overflow-hidden">
-                        <Skeleton className="h-40 w-[300px] shrink-0 rounded-xl" />
-                        <Skeleton className="h-40 w-[300px] shrink-0 rounded-xl" />
-                        <Skeleton className="h-40 w-[300px] shrink-0 rounded-xl" />
-                    </div>
-                </div>
-            </main>
-        </div>
-    )
-}
