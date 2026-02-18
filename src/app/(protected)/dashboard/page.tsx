@@ -81,8 +81,9 @@ interface DashboardData {
 
 async function getDashboardData() {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/dashboard`, {
-        cache: "no-store"
-    });
+    next: { revalidate: 60 }
+});
+
 
     const data = await res.json();
     return data;
@@ -234,6 +235,10 @@ export default async function DashboardPage() {
                             ) : (
                                 <p className="text-sm text-muted-foreground">예정된 협업 이벤트가 없습니다.</p>
                             )}
+                                                    </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     );
