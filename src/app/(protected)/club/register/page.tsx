@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { AlertCircle, CheckCircle2, ImagePlus, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import SchoolNameInput from '@/components/ui/SchoolNameInput'
 
@@ -38,6 +38,23 @@ export default function ClubRegisterPage() {
         contactPhone: '',
         maxMembers: ''
     });
+
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+    const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setLogoFile(file);
+        const reader = new FileReader();
+        reader.onload = (ev) => setLogoPreview(ev.target?.result as string);
+        reader.readAsDataURL(file);
+    };
+
+    const removeLogo = () => {
+        setLogoFile(null);
+        setLogoPreview(null);
+    };
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -148,6 +165,28 @@ export default function ClubRegisterPage() {
                                     </AlertDescription>
                                 </Alert>
                             )}
+
+                            {/* Logo Upload */}
+                            <div className="space-y-2">
+                                <Label>동아리 로고 <span className="text-xs text-muted-foreground font-normal">(선택, 정사각형 권장)</span></Label>
+                                <div className="flex items-center gap-4">
+                                    {logoPreview ? (
+                                        <div className="relative h-20 w-20 shrink-0">
+                                            <img src={logoPreview} alt="logo preview" className="h-20 w-20 rounded-xl object-cover border" />
+                                            <button type="button" onClick={removeLogo} className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary transition-colors bg-muted/20">
+                                            <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                                            <span className="text-[10px] text-muted-foreground mt-1">로고 업로드</span>
+                                            <input type="file" accept="image/*" className="sr-only" onChange={handleLogoChange} />
+                                        </label>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">정사각형 (1:1) 비율의 이미지를 사용하면 가장 잘 보입니다.<br />지원 형식: PNG, JPG (5MB 이하)</p>
+                                </div>
+                            </div>
 
                             {/* Row 1 */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -243,7 +243,7 @@ export default function DashboardPage() {
                     {/* Active Clubs (currently running projects) */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-bold tracking-tight">프로젝트 중인 동아리</h2>
+                            <h2 className="text-xl font-bold tracking-tight">활동 중인 동아리</h2>
                             <Button variant="ghost" className="text-sm font-medium" asChild>
                                 <Link href="/club/search">전체 보기</Link>
                             </Button>

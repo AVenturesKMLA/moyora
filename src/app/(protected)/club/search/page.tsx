@@ -12,6 +12,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export default function ClubSearchPage() {
     const [clubs, setClubs] = useState<any[]>([]);
@@ -24,6 +25,9 @@ export default function ClubSearchPage() {
     // Application Modal State
     const [selectedClub, setSelectedClub] = useState<any | null>(null);
     const [applyMessage, setApplyMessage] = useState('');
+    const [applyName, setApplyName] = useState('');
+    const [applyPhone, setApplyPhone] = useState('');
+    const [applyEmail, setApplyEmail] = useState('');
     const [isApplying, setIsApplying] = useState(false);
 
     const searchParams = useSearchParams();
@@ -82,7 +86,10 @@ export default function ClubSearchPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     clubId: selectedClub._id,
-                    message: applyMessage
+                    message: applyMessage,
+                    applicantName: applyName,
+                    applicantPhone: applyPhone,
+                    applicantEmail: applyEmail,
                 })
             });
             const data = await res.json();
@@ -90,6 +97,9 @@ export default function ClubSearchPage() {
                 alert('가입 신청이 완료되었습니다.');
                 setSelectedClub(null);
                 setApplyMessage('');
+                setApplyName('');
+                setApplyPhone('');
+                setApplyEmail('');
             } else {
                 alert(data.message || '가입 신청 중 오류가 발생했습니다.');
             }
@@ -201,28 +211,45 @@ export default function ClubSearchPage() {
                 )}
             </main>
 
-            {/* Application Modal */}
             <Dialog open={!!selectedClub} onOpenChange={(open) => !open && setSelectedClub(null)}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[480px]">
                     <DialogHeader>
                         <DialogTitle>{selectedClub?.clubName} 가입 신청</DialogTitle>
                         <DialogDescription>
-                            동아리장에게 보낼 간단한 자기소개나 지원 동기를 작성해주세요.
+                            동아리장에게 보낼 정보를 입력해주세요.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <Textarea
-                            placeholder="안녕하세요! 이번에 동아리에 지원하게 된... (최대 500자)"
-                            value={applyMessage}
-                            onChange={(e) => setApplyMessage(e.target.value)}
-                            className="min-h-[150px]"
-                        />
+                    <div className="grid gap-4 py-2">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="apply-name">이름 <span className="text-destructive">*</span></Label>
+                                <Input id="apply-name" placeholder="홍길동" value={applyName} onChange={e => setApplyName(e.target.value)} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="apply-phone">연락처</Label>
+                                <Input id="apply-phone" placeholder="010-0000-0000" value={applyPhone} onChange={e => setApplyPhone(e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="apply-email">이메일</Label>
+                            <Input id="apply-email" type="email" placeholder="example@email.com" value={applyEmail} onChange={e => setApplyEmail(e.target.value)} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="apply-msg">지원 동기 / 자기소개</Label>
+                            <Textarea
+                                id="apply-msg"
+                                placeholder="안녕하세요! 이번에 동아리에 지원하게 된... (최대 500자)"
+                                value={applyMessage}
+                                onChange={(e) => setApplyMessage(e.target.value)}
+                                className="min-h-[120px]"
+                            />
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setSelectedClub(null)}>취소</Button>
                         <Button
                             onClick={handleApply}
-                            disabled={isApplying || !applyMessage.trim()}
+                            disabled={isApplying || !applyName.trim()}
                         >
                             {isApplying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                             신청하기

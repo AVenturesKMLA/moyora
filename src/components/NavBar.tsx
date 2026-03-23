@@ -1,3 +1,4 @@
+// NavBar — profile dropdown shows ONLY 마이페이지 + 로그아웃
 'use client';
 
 import Link from 'next/link';
@@ -23,7 +24,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, Bell, User, LogOut, LayoutDashboard, Calendar, Users } from 'lucide-react';
+import { Menu, Bell, User, LogOut, LayoutDashboard, Users } from 'lucide-react';
 
 interface NavBarProps {
     showDashboardLink?: boolean;
@@ -93,11 +94,11 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
 
                 {/* Right Actions */}
                 <div className="ml-auto flex items-center gap-2">
-                    {/* Auth & Notifications (Desktop) */}
                     <div className="hidden md:flex md:items-center md:gap-2">
                         {isLoggedIn ? (
                             <>
                                 <NotificationButton />
+                                {/* Profile dropdown: ONLY 마이페이지 + 로그아웃 */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -107,7 +108,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             </Avatar>
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                                    <DropdownMenuContent className="w-48" align="end" forceMount>
                                         <DropdownMenuLabel className="font-normal">
                                             <div className="flex flex-col space-y-1">
                                                 <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
@@ -118,33 +119,9 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem asChild>
-                                            <Link href="/dashboard" className="cursor-pointer">
-                                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                                <span>대시보드</span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
                                             <Link href="/mypage" className="cursor-pointer">
                                                 <User className="mr-2 h-4 w-4" />
                                                 <span>마이페이지</span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/club/search" className="cursor-pointer">
-                                                <Users className="mr-2 h-4 w-4" />
-                                                <span>동아리 찾기</span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/club/manage" className="cursor-pointer">
-                                                <Users className="mr-2 h-4 w-4" />
-                                                <span>동아리 관리</span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/club/register" className="cursor-pointer">
-                                                <Users className="mr-2 h-4 w-4" />
-                                                <span>동아리 등록</span>
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
@@ -211,10 +188,6 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             <Link href="/mypage" className="flex items-center gap-2 text-lg font-medium">
                                                 <User className="h-5 w-5" />
                                                 마이페이지
-                                            </Link>
-                                            <Link href="/club/manage" className="flex items-center gap-2 text-lg font-medium">
-                                                <Users className="h-5 w-5" />
-                                                동아리 관리
                                             </Link>
                                             <div className="my-2 border-t" />
                                             <button onClick={handleSignOut} className="flex items-center gap-2 text-lg font-medium text-red-600">

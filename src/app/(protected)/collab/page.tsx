@@ -344,79 +344,166 @@ export default function CollabPage() {
                     </TabsContent>
 
                     <TabsContent value="schedule" className="animate-fade-in">
-                        <div className="flex flex-col md:flex-row gap-8">
-                            <div className="flex-shrink-0 mx-auto md:mx-0">
-                                <Card className="p-4 border-border/60 shadow-sm inline-block">
-                                    <Calendar
-                                        mode="single"
-                                        selected={selectedDate}
-                                        onSelect={setSelectedDate}
-                                        className="rounded-md border"
-                                        modifiers={{
-                                            hasEvent: (date) => state?.collabs.some(c => {
-                                                const d = new Date(c.dateStart);
-                                                return d.getDate() === date.getDate() &&
-                                                    d.getMonth() === date.getMonth() &&
-                                                    d.getFullYear() === date.getFullYear();
-                                            }) || false
-                                        }}
-                                        modifiersClassNames={{
-                                            hasEvent: "font-bold text-primary underline decoration-primary decoration-2 underline-offset-4"
-                                        }}
-                                    />
-                                </Card>
-                            </div>
+                        {(() => {
+                            const today = selectedDate || new Date();
+                            const year = today.getFullYear();
+                            const month = today.getMonth();
+                            const firstDay = new Date(year, month, 1).getDay();
+                            const daysInMonth = new Date(year, month + 1, 0).getDate();
+                            const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+                            const TYPE_COLORS: Record<string, string> = {
+                                '공동연구': 'bg-blue-500',
+                                '포럼': 'bg-green-500',
+                                '대회': 'bg-orange-500',
+                            };
 
-                            <div className="flex-1 space-y-4">
-                                <h3 className="font-bold text-lg flex items-center gap-2">
-                                    <CalendarIcon className="w-5 h-5 text-primary" />
-                                    {selectedDate ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 일정` : '일정 선택'}
-                                </h3>
+                            const eventsByDate = (state?.collabs || []).reduce<Record<number, typeof state.collabs>>((acc, c) => {
+                                const d = new Date(c.dateStart);
+                                if (d.getMonth() === month && d.getFullYear() === year) {
+                                    const day = d.getDate();
+                                    acc[day] = acc[day] ? [...acc[day], c] : [c];
+                                }
+                                return acc;
+                            }, {});
 
-                                {(() => {
-                                    if (!selectedDate || !state) return <div>날짜를 선택해주세요.</div>;
-                                    const dailyEvents = state.collabs.filter(c => {
-                                        const d = new Date(c.dateStart);
-                                        return d.getDate() === selectedDate.getDate() &&
-                                            d.getMonth() === selectedDate.getMonth() &&
-                                            d.getFullYear() === selectedDate.getFullYear();
-                                    });
+                            const selectedDay = selectedDate && selectedDate.getMonth() === month && selectedDate.getFullYear() === year
+                                ? selectedDate.getDate() : null;
 
-                                    if (dailyEvents.length === 0) {
-                                        return (
-                                            <div className="text-center py-12 border rounded-xl bg-muted/20 text-muted-foreground">
-                                                해당 날짜에 등록된 일정이 없습니다.
-                                            </div>
-                                        );
-                                    }
+                            const prevMonth = () => {
+                                const d = new Date(year, month - 1, 1);
+                                setSelectedDate(d);
+                            };
+                            const nextMonth = () => {
+                                const d = new Date(year, month + 1, 1);
+                                setSelectedDate(d);
+                            };
 
-                                    return dailyEvents.map(collab => {
-                                        const club = state.clubs.find(c => c.id === collab.club_id);
-                                        return (
-                                            <div
-                                                key={collab.id}
-                                                className="flex flex-col sm:flex-row gap-4 p-4 border rounded-xl bg-card hover:border-primary/50 transition-colors cursor-pointer"
-                                                onClick={() => setSelectedCollabId(collab.id)}
+                            const dailyEvents = selectedDay ? (eventsByDate[selectedDay] || []) : [];
+
+                            return (
+                                <div className="flex flex-col xl:flex-row gap-6">
+                                    {/* Calendar Grid */}
+                                    <div className="rounded-2xl border bg-card shadow-sm overflow-hidden min-w-[320px] max-w-[420px] w-full xl:w-auto">
+                                        {/* Month Nav */}
+                                        <div className="flex items-center justify-between px-5 py-4 border-b bg-muted/30">
+                                            <button
+                                                onClick={prevMonth}
+                                                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                                             >
-                                                <div className="flex-shrink-0 w-full sm:w-24 flex flex-col justify-center items-center bg-muted/20 rounded-lg p-2">
-                                                    <div className="text-sm font-bold text-muted-foreground">{collab.time || 'All Day'}</div>
+                                                ‹
+                                            </button>
+                                            <h3 className="font-bold text-base">
+                                                {year}년 {month + 1}월
+                                            </h3>
+                                            <button
+                                                onClick={nextMonth}
+                                                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                                            >
+                                                ›
+                                            </button>
+                                        </div>
+
+                                        {/* Day Headers */}
+                                        <div className="grid grid-cols-7 px-3 pt-3 pb-1">
+                                            {DAYS.map((d, i) => (
+                                                <div
+                                                    key={d}
+                                                    className={`text-center text-xs font-semibold pb-2 ${i === 0 ? 'text-red-500' : i === 6 ? 'text-blue-500' : 'text-muted-foreground'}`}
+                                                >
+                                                    {d}
                                                 </div>
-                                                <div className="flex-1 space-y-1">
-                                                    <div className="text-xs text-primary font-semibold">{collab.type}</div>
-                                                    <h3 className="font-bold text-lg">{collab.title}</h3>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {(club || (collab as any).virtualClub)?.name || '알 수 없음'} · {collab.region}
-                                                    </p>
+                                            ))}
+                                        </div>
+
+                                        {/* Day Cells */}
+                                        <div className="grid grid-cols-7 gap-px px-3 pb-3">
+                                            {Array.from({ length: firstDay }).map((_, i) => <div key={`empty-${i}`} />)}
+                                            {Array.from({ length: daysInMonth }).map((_, i) => {
+                                                const day = i + 1;
+                                                const hasEvents = !!eventsByDate[day];
+                                                const isSelected = day === selectedDay;
+                                                const isToday = new Date().getDate() === day && new Date().getMonth() === month && new Date().getFullYear() === year;
+                                                const dayOfWeek = (firstDay + i) % 7;
+                                                return (
+                                                    <button
+                                                        key={day}
+                                                        onClick={() => setSelectedDate(new Date(year, month, day))}
+                                                        className={`relative flex flex-col items-center justify-start pt-1.5 pb-1 h-11 rounded-lg text-sm font-medium transition-all
+                                                            ${isSelected ? 'bg-primary text-primary-foreground shadow-md' : isToday ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}
+                                                            ${dayOfWeek === 0 && !isSelected ? 'text-red-500' : ''}
+                                                            ${dayOfWeek === 6 && !isSelected ? 'text-blue-500' : ''}
+                                                        `}
+                                                    >
+                                                        {day}
+                                                        {hasEvents && (
+                                                            <div className="flex gap-0.5 mt-0.5">
+                                                                {(eventsByDate[day] || []).slice(0, 3).map((ev, idx) => {
+                                                                    const color = TYPE_COLORS[ev.type] || 'bg-violet-500';
+                                                                    return <span key={idx} className={`h-1 w-1 rounded-full ${isSelected ? 'bg-white/80' : color}`} />;
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Legend */}
+                                        <div className="flex items-center gap-4 px-5 py-3 border-t bg-muted/20 text-xs text-muted-foreground">
+                                            {Object.entries(TYPE_COLORS).map(([label, color]) => (
+                                                <div key={label} className="flex items-center gap-1.5">
+                                                    <span className={`h-2 w-2 rounded-full ${color}`} />
+                                                    {label}
                                                 </div>
-                                                <Button variant="ghost" size="sm" className="hidden sm:flex self-center">
-                                                    <ChevronRight className="w-4 h-4" />
-                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Event List Panel */}
+                                    <div className="flex-1 space-y-3">
+                                        <h3 className="font-bold text-base flex items-center gap-2 text-foreground">
+                                            <CalendarIcon className="w-4 h-4 text-primary" />
+                                            {selectedDate
+                                                ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
+                                                : '날짜를 선택하세요'}
+                                        </h3>
+
+                                        {dailyEvents.length === 0 ? (
+                                            <div className="flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-border text-muted-foreground text-sm">
+                                                <CalendarIcon className="w-8 h-8 mb-2 opacity-30" />
+                                                {selectedDate ? '이 날에는 등록된 일정이 없습니다.' : '왼쪽 캘린더에서 날짜를 선택하세요.'}
                                             </div>
-                                        );
-                                    });
-                                })()}
-                            </div>
-                        </div>
+                                        ) : dailyEvents.map(collab => {
+                                            const club = state?.clubs.find(c => c.id === collab.club_id);
+                                            const dotColor = TYPE_COLORS[collab.type] || 'bg-violet-500';
+                                            return (
+                                                <div
+                                                    key={collab.id}
+                                                    onClick={() => setSelectedCollabId(collab.id)}
+                                                    className="group flex gap-4 p-4 rounded-2xl border bg-card hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
+                                                >
+                                                    <div className="flex flex-col items-center gap-1 pt-0.5">
+                                                        <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${dotColor}`} />
+                                                        <div className="w-px flex-1 bg-border" />
+                                                    </div>
+                                                    <div className="flex-1 space-y-1 min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xs font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">{collab.type}</span>
+                                                            {collab.time && <span className="text-xs text-muted-foreground">{collab.time}</span>}
+                                                        </div>
+                                                        <h4 className="font-bold text-sm group-hover:text-primary transition-colors truncate">{collab.title}</h4>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {(club || (collab as any).virtualClub)?.name || '알 수 없음'} · {collab.region}
+                                                        </p>
+                                                    </div>
+                                                    <ChevronRight className="w-4 h-4 text-muted-foreground self-center shrink-0 group-hover:text-primary transition-colors" />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </TabsContent>
 
                     <TabsContent value="projects" className="animate-fade-in">
