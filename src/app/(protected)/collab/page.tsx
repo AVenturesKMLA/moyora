@@ -205,11 +205,28 @@ export default function CollabPage() {
         setSelectedCollabId(null);
     };
 
-    const handleAddRating = (collab_id: string, rated_club_id: string, rating: number) => {
-        updateState({
-            ...state,
-            ratings: [...state.ratings, { collab_id, rated_club_id, rating, rated_at: new Date().toISOString() }]
-        });
+    const handleAddRating = async (collab_id: string, ratings: { clubId: string; rating: number }[]) => {
+        try {
+            const res = await fetch('/api/club/rate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ collabId: collab_id, ratings }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Update local state just for UI responsiveness
+                const newRatings = ratings.map(r => ({ collab_id, rated_club_id: r.clubId, rating: r.rating, rated_at: new Date().toISOString() }));
+                updateState({
+                    ...state,
+                    ratings: [...state.ratings, ...newRatings]
+                });
+            } else {
+                alert(data.message || '평가 제출 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Failed to submit ratings:', error);
+            alert('시스템 오류가 발생했습니다.');
+        }
     };
 
     const getApplicantClubs = (): Club[] => {
@@ -581,8 +598,8 @@ export default function CollabPage() {
                             clubs={getApplicantClubs()}
                             open={showRatingModal}
                             onOpenChange={setShowRatingModal}
-                            onSubmitRatings={(ratings) => {
-                                ratings.forEach(r => handleAddRating(selectedCollab.id, r.clubId, r.rating));
+                            onSubmitRatings={async (ratings) => {
+                                await handleAddRating(selectedCollab.id, ratings);
                                 setShowRatingModal(false);
                                 setSelectedCollabId(null);
                                 alert('평가 완료');
