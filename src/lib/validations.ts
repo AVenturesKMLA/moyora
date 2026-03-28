@@ -29,6 +29,9 @@ export const signupSchema = z.object({
     schoolId: z
         .string()
         .min(1, '학교 고유 ID가 필요합니다'),
+    sessionToken: z
+        .string()
+        .min(1, '본인인증을 다시 시도해주세요'),
     agreedToTerms: z
         .boolean()
         .refine((val) => val === true, '이용약관에 동의해주세요'),

@@ -17,6 +17,7 @@ interface IdentityData {
     name?: string;
     birthday?: string;
     phone?: string;
+    sessionToken?: string;
 }
 
 interface StudentIdData {
@@ -31,14 +32,15 @@ interface UserRegistrationFormProps {
 export default function UserRegistrationForm({ identityData, studentIdData }: UserRegistrationFormProps) {
     const router = useRouter();
     const [formData, setFormData] = useState<Partial<SignupInput>>({
-        name: '',
+        name: identityData?.name || '',
         email: '',
         password: '',
         confirmPassword: '',
-        birthday: '',
-        phone: '',
+        birthday: identityData?.birthday || '',
+        phone: identityData?.phone || '',
         schoolName: '',
         schoolId: '',
+        sessionToken: identityData?.sessionToken || '',
         agreedToTerms: false,
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -172,15 +174,14 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">이름</Label>
+                                <Label htmlFor="name">이름 (본인인증 됨)</Label>
                                 <Input
                                     id="name"
                                     name="name"
                                     value={formData.name}
-                                    onChange={handleChange}
-                                    className={errors.name ? 'border-destructive focus-visible:ring-destructive' : 'bg-background'}
+                                    readOnly
+                                    className="bg-muted text-muted-foreground cursor-not-allowed"
                                 />
-                                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
                             </div>
 
                             <div className="space-y-2">
@@ -189,11 +190,9 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                                     id="birthday"
                                     name="birthday"
                                     value={formData.birthday}
-                                    onChange={handleChange}
-                                    className={errors.birthday ? 'border-destructive focus-visible:ring-destructive' : 'bg-background'}
-                                    placeholder="YYYY-MM-DD"
+                                    readOnly
+                                    className="bg-muted text-muted-foreground cursor-not-allowed"
                                 />
-                                {errors.birthday && <p className="text-xs text-destructive">{errors.birthday}</p>}
                             </div>
                         </div>
 
@@ -203,11 +202,9 @@ export default function UserRegistrationForm({ identityData, studentIdData }: Us
                                 id="phone"
                                 name="phone"
                                 value={formData.phone}
-                                onChange={handleChange}
-                                className={errors.phone ? 'border-destructive focus-visible:ring-destructive' : 'bg-background'}
-                                placeholder="010-0000-0000"
+                                readOnly
+                                className="bg-muted text-muted-foreground cursor-not-allowed"
                             />
-                            {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
                         </div>
 
                         <div className="space-y-2">

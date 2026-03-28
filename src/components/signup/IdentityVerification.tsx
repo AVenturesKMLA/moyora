@@ -9,6 +9,7 @@ interface IdentityData {
     name: string;
     phone: string;
     birthday: string;
+    sessionToken: string;
 }
 
 interface IdentityVerificationProps {
@@ -163,11 +164,7 @@ export default function IdentityVerification({ onComplete }: IdentityVerificatio
                     <Button
                         size="lg"
                         className="h-16 w-full rounded-xl text-lg font-bold shadow-lg shadow-primary/20"
-                        onClick={() => onComplete({
-                            name: '',
-                            phone: '',
-                            birthday: ''
-                        })}
+                        onClick={handlePortOneVerify}
                         disabled={isVerifying}
                     >
                         {isVerifying ? (
