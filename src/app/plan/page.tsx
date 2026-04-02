@@ -46,7 +46,7 @@ export default async function PlanPage() {
                                 <li className="flex items-center"><CheckCircle2 className="mr-2 h-5 w-5 text-primary" /> 프로젝트 룸 개설 (제한적)</li>
                             </ul>
                             <Button className="w-full mt-4" variant={session ? 'outline' : 'default'} asChild>
-                                <Link href={session ? '/dashboard' : '/signup'}>{session ? '현재 이용중' : '무료로 시작하기'}</Link>
+                                <Link href={session ? '/' : '/signup'}>{session ? '현재 이용중' : '무료로 시작하기'}</Link>
                             </Button>
                         </CardContent>
                     </Card>

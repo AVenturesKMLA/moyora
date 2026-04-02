@@ -80,7 +80,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     {isLoggedIn && (
                         <>
                             <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
-                                대시보드
+                                홈
                             </Link>
                             <Link href="/collab" className="text-sm font-medium transition-colors hover:text-primary">
                                 협업
@@ -175,7 +175,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                             </div>
                                             <Link href="/dashboard" className="flex items-center gap-2 text-lg font-medium">
                                                 <LayoutDashboard className="h-5 w-5" />
-                                                대시보드
+                                                홈
                                             </Link>
                                             <Link href="/collab" className="flex items-center gap-2 text-lg font-medium">
                                                 <Users className="h-5 w-5" />

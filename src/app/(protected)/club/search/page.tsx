@@ -9,12 +9,13 @@ import { ClubCard } from '@/components/cards/ClubCard';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Search, Loader2 } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 export default function ClubSearchPage() {
+    const router = useRouter();
     const [clubs, setClubs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState('');
@@ -58,11 +59,32 @@ export default function ClubSearchPage() {
         fetchClubs();
     }, [searchParams]);
 
+    const extractChosung = (str: string) => {
+        const CHO_HANGUL = [
+            'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ',
+            'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
+            'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ',
+            'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+        ];
+        let result = '';
+        for (let i = 0; i < str.length; i++) {
+            const code = str.charCodeAt(i) - 44032;
+            if (code > -1 && code < 11172) {
+                result += CHO_HANGUL[Math.floor(code / 588)];
+            } else {
+                result += str.charAt(i);
+            }
+        }
+        return result;
+    };
+
     const filteredClubs = useMemo(() => {
         return clubs.filter(club => {
+            const chosungQuery = extractChosung(query).toLowerCase();
             const matchesQuery = !query ||
                 club.clubName.toLowerCase().includes(query.toLowerCase()) ||
-                (club.schoolName && club.schoolName.toLowerCase().includes(query.toLowerCase()));
+                extractChosung(club.clubName).toLowerCase().includes(chosungQuery) ||
+                (club.schoolName && (club.schoolName.toLowerCase().includes(query.toLowerCase()) || extractChosung(club.schoolName).toLowerCase().includes(chosungQuery)));
 
             const matchesField = fieldFilter === 'all' || club.clubTheme === fieldFilter;
 
@@ -151,9 +173,14 @@ export default function ClubSearchPage() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">지역 전체</SelectItem>
-                            <SelectItem value="seoul">서울</SelectItem>
-                            <SelectItem value="gyeonggi">경기</SelectItem>
-                            <SelectItem value="daejeon">대전/충청</SelectItem>
+                            <SelectItem value="서울">서울</SelectItem>
+                            <SelectItem value="경기">경기</SelectItem>
+                            <SelectItem value="인천">인천</SelectItem>
+                            <SelectItem value="강원">강원</SelectItem>
+                            <SelectItem value="충청">충청/대전/세종</SelectItem>
+                            <SelectItem value="경상">경상/부산/대구/울산</SelectItem>
+                            <SelectItem value="전라">전라/광주</SelectItem>
+                            <SelectItem value="제주">제주</SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -163,9 +190,17 @@ export default function ClubSearchPage() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">분야 전체</SelectItem>
-                            <SelectItem value="tech">IT/공학</SelectItem>
-                            <SelectItem value="biz">경영/창업</SelectItem>
-                            <SelectItem value="art">예술/디자인</SelectItem>
+                            <SelectItem value="과학">과학</SelectItem>
+                            <SelectItem value="공학">공학</SelectItem>
+                            <SelectItem value="수학">수학</SelectItem>
+                            <SelectItem value="인문">인문</SelectItem>
+                            <SelectItem value="사회">사회</SelectItem>
+                            <SelectItem value="예술">예술/디자인</SelectItem>
+                            <SelectItem value="체육">체육</SelectItem>
+                            <SelectItem value="경제">경제</SelectItem>
+                            <SelectItem value="의학">의학</SelectItem>
+                            <SelectItem value="창업">창업</SelectItem>
+                            <SelectItem value="기타">기타</SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -200,7 +235,7 @@ export default function ClubSearchPage() {
                                     trustScore: typeof club.trustScore === 'number' ? club.trustScore : 70,
                                     onApply: () => setSelectedClub(club)
                                 } as any}
-                                onClick={() => alert(`${club.clubName} 상세 페이지 (Demo)`)}
+                                onClick={() => router.push(`/club/${club._id}`)}
                             />
                         ))}
                     </div>

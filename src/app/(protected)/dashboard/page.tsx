@@ -16,6 +16,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from '@/components/ui/dialog';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Calendar, Users, Trophy, ChevronRight, Star, TrendingUp, MapPin, Clock, ArrowRight } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
@@ -190,18 +191,21 @@ export default function DashboardPage() {
                         value="128"
                         subtext="명이 함께하고 있어요"
                         icon={<Users className="h-6 w-6 text-blue-500" />}
+                        href="/about"
                     />
                     <StatsCard
                         title="함께하는 동아리"
                         value={dashboardData?.stats.clubCount?.toString() || "6"}
                         subtext="개의 동아리가 등록됨"
                         icon={<Star className="h-6 w-6 text-yellow-500" />}
+                        href="/club/search"
                     />
                     <StatsCard
                         title="성사된 교류"
                         value={dashboardData?.stats.participationCount?.toString() || "0"}
                         subtext="건의 협업이 완료됨"
                         icon={<Trophy className="h-6 w-6 text-green-500" />}
+                        href="/collab"
                     />
                 </div>
 
@@ -376,9 +380,9 @@ function ProjectDetailModal({ project, onClose }: { project: ProjectItem | null;
 
 // --- Components ---
 
-function StatsCard({ title, value, subtext, icon }: { title: string, value: string, subtext: string, icon: React.ReactNode }) {
-    return (
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
+function StatsCard({ title, value, subtext, icon, href }: { title: string, value: string, subtext: string, icon: React.ReactNode, href?: string }) {
+    const cardContent = (
+        <Card className="shadow-sm hover:shadow-md transition-shadow h-full">
             <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                     <div className="space-y-2">
@@ -395,6 +399,11 @@ function StatsCard({ title, value, subtext, icon }: { title: string, value: stri
             </CardContent>
         </Card>
     );
+
+    if (href) {
+        return <Link href={href} className="block h-full outline-none">{cardContent}</Link>;
+    }
+    return cardContent;
 }
 
 function ProjectCard({ project, onClick }: { project: ProjectItem; onClick: () => void }) {
@@ -429,24 +438,30 @@ function ProjectCard({ project, onClick }: { project: ProjectItem; onClick: () =
     );
 }
 
-function RecentClubCard({ id, name, school, desc, score }: { id: string, name: string, school: string, desc: string, score: number }) {
+function RecentClubCard({ id, name, school, desc, score, logoUrl }: { id: string, name: string, school: string, desc: string, score: number, logoUrl?: string }) {
     return (
         <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors group">
-            <div className="space-y-1">
-                <h4 className="font-semibold">{name}</h4>
-                <p className="text-xs text-muted-foreground">{school}</p>
-                <div className="flex gap-1 mt-1">
-                    {desc.split(' · ').map((tag, i) => (
-                        <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground bg-muted/20 border-0">
-                            {tag}
-                        </Badge>
-                    ))}
+            <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-primary/20">
+                    <AvatarImage src={logoUrl || ''} alt={name} />
+                    <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">{name.substring(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                    <h4 className="font-semibold">{name}</h4>
+                    <p className="text-xs text-muted-foreground">{school}</p>
+                    <div className="flex gap-1 mt-1">
+                        {desc.split(' · ').map((tag, i) => (
+                            <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground bg-muted/20 border-0">
+                                {tag}
+                            </Badge>
+                        ))}
+                    </div>
                 </div>
             </div>
             <div className="flex items-center gap-3">
-                <div className="flex flex-col items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-primary/20 bg-primary/5">
-                    <span className="text-[10px] font-bold text-primary">신뢰</span>
-                    <span className="text-xs sm:text-sm font-bold text-primary">{score}</span>
+                <div className="hidden sm:flex flex-col items-center justify-center p-2 rounded-lg bg-primary/5">
+                    <span className="text-[10px] text-primary">신뢰</span>
+                    <span className="text-sm font-bold text-primary">{score}</span>
                 </div>
                 <Button size="sm" variant="outline" className="h-8 text-xs px-3 rounded-full border-primary/40 text-primary hover:bg-primary hover:text-white" asChild>
                     <Link href={`/club/search?apply=${id}`}>가입 신청</Link>
@@ -459,21 +474,23 @@ function RecentClubCard({ id, name, school, desc, score }: { id: string, name: s
 function TrendingCollabCard({ title, host, date, type }: { title: string, host: string, date: string, type: 'OPEN' | 'CLOSED' }) {
     const isOpen = type === 'OPEN';
     return (
-        <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors cursor-pointer group">
-            <div className="space-y-1 min-w-0">
-                <h4 className="font-semibold truncate group-hover:text-primary transition-colors">{title}</h4>
-                <p className="text-xs text-muted-foreground">{host}</p>
-                <div className="flex gap-2 text-xs text-muted-foreground mt-1 items-center">
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal">
-                        {type === 'OPEN' ? '모집중' : '마감'}
-                    </Badge>
-                    <span>{date}</span>
+        <Link href="/collab" className="block outline-none">
+            <div className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors cursor-pointer group">
+                <div className="space-y-1 min-w-0">
+                    <h4 className="font-semibold truncate group-hover:text-primary transition-colors">{title}</h4>
+                    <p className="text-xs text-muted-foreground">{host}</p>
+                    <div className="flex gap-2 text-xs text-muted-foreground mt-1 items-center">
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal">
+                            {type === 'OPEN' ? '모집중' : '마감'}
+                        </Badge>
+                        <span>{date}</span>
+                    </div>
                 </div>
+                <Button variant={isOpen ? "outline" : "secondary"} size="sm" className={cn("h-8 text-xs shrink-0 ml-2", isOpen ? "border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700" : "opacity-50")}>
+                    {isOpen ? 'OPEN' : '종료'}
+                </Button>
             </div>
-            <Button variant={isOpen ? "outline" : "secondary"} size="sm" className={cn("h-8 text-xs shrink-0 ml-2", isOpen ? "border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700" : "opacity-50")}>
-                {isOpen ? 'OPEN' : '종료'}
-            </Button>
-        </div>
+        </Link>
     )
 }
 

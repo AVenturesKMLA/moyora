@@ -84,6 +84,40 @@ export default function AboutPage() {
               </p>
             </CardContent>
           </Card>
+
+          <Card className="border-border/50 bg-secondary/20 transition-all hover:bg-secondary/30">
+            <CardHeader className="flex flex-row items-center space-x-4">
+              <div className="p-2 bg-pink-500/10 rounded-lg text-pink-500">
+                <Palette className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">교내 브랜드 굿즈 상점</CardTitle>
+                <CardDescription>A:Store 운영</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                학생들의 니즈를 반영한 기획부터 기획, 디자인, 판매까지의 비즈니스 사이클을 직접 실행합니다.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-secondary/20 transition-all hover:bg-secondary/30">
+            <CardHeader className="flex flex-row items-center space-x-4">
+              <div className="p-2 bg-green-500/10 rounded-lg text-green-500">
+                <Users2 className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">청소년 창업 인큐베이팅</CardTitle>
+                <CardDescription>아이디어를 현실로</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                사회 문제 해결을 위한 비즈니스 모델을 검증하고 시제품 제작 및 초기 마케팅을 지원합니다.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </section>
 

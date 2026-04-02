@@ -36,6 +36,7 @@ export default function CollabPage() {
     const [query, setQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState('all');
     const [regionFilter, setRegionFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [selectedCollabId, setSelectedCollabId] = useState<string | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -177,12 +178,43 @@ export default function CollabPage() {
                 }
             }
             if (regionFilter !== 'all' && p.region !== regionFilter) return false;
+
+            const parseEndOfDay = (dateStr: string) => {
+                const d = new Date(dateStr);
+                d.setHours(23, 59, 59, 999);
+                return d;
+            };
+
+            const now = new Date();
+            const startDate = new Date(p.dateStart);
+            startDate.setHours(0, 0, 0, 0); // start of day
+            const endDate = parseEndOfDay(p.dateEnd || p.dateStart);
+
+            let status = '모집중';
+            if (startDate > now) status = '모집예정';
+            else if (endDate < now) status = '종료';
+
+            if (statusFilter !== 'all') {
+                if (statusFilter === '신청완료') {
+                    if (!myClub) return false;
+                    const applied = state.applications.some(app => app.collab_id === p.id && app.applicant_club_id === myClub.id);
+                    if (!applied) return false;
+                } else if (statusFilter !== status) {
+                    return false;
+                }
+            }
+
             return true;
         });
 
         return results.sort((a, b) => {
-            const aDate = new Date(a.dateEnd || a.dateStart);
-            const bDate = new Date(b.dateEnd || b.dateStart);
+            const parseEndOfDay = (dateStr: string) => {
+                const d = new Date(dateStr);
+                d.setHours(23, 59, 59, 999);
+                return d;
+            };
+            const aDate = parseEndOfDay(a.dateEnd || a.dateStart);
+            const bDate = parseEndOfDay(b.dateEnd || b.dateStart);
             const aPast = !isNaN(aDate.getTime()) && aDate < new Date();
             const bPast = !isNaN(bDate.getTime()) && bDate < new Date();
             
@@ -193,7 +225,7 @@ export default function CollabPage() {
             // Sort by creation or start date descending
             return new Date(b.dateStart).getTime() - new Date(a.dateStart).getTime();
         });
-    }, [state, query, typeFilter, regionFilter]);
+    }, [state, query, typeFilter, regionFilter, statusFilter, myClub]);
 
     if (!state) return <div className="p-8">Loading...</div>;
 
@@ -313,6 +345,18 @@ export default function CollabPage() {
                             <SelectContent>
                                 <SelectItem value="all">지역 전체</SelectItem>
                                 {regions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-[120px] h-10 bg-background">
+                                <SelectValue placeholder="상태 전체" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">상태 전체</SelectItem>
+                                <SelectItem value="모집중">모집중</SelectItem>
+                                <SelectItem value="종료">종료</SelectItem>
+                                <SelectItem value="모집예정">모집예정</SelectItem>
+                                <SelectItem value="신청완료">신청완료</SelectItem>
                             </SelectContent>
                         </Select>
 
@@ -570,6 +614,8 @@ export default function CollabPage() {
                             alert('이미 신청한 협업입니다.');
                             return;
                         }
+
+                        if (!confirm('정말 신청하시겠습니까? 신청 후 취소하거나 철회할 수 없습니다.')) return;
 
                         // Local demo state update
                         handleAddApplication({
