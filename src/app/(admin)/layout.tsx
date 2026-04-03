@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import connectDB from '@/lib/mongodb';
+import { isDevAdminNoDbEnabled } from '@/lib/env-dev';
 import { User } from '@/models';
 import { authOptions } from '@/lib/auth';
 
@@ -13,6 +14,14 @@ export default async function AdminLayout({
 
     if (!session?.user?.email) {
         redirect('/login');
+    }
+
+    const devNoDb =
+        isDevAdminNoDbEnabled() &&
+        (session.user as { devAdminNoDb?: boolean }).devAdminNoDb === true;
+
+    if (devNoDb) {
+        return <>{children}</>;
     }
 
     await connectDB();

@@ -26,6 +26,9 @@ yarn-error.log*
 .env
 .env*.local
 
+# Local-only dev admin keys (see config/dev-admin.env.example)
+config/dev-admin.env
+
 # Vercel
 .vercel
 

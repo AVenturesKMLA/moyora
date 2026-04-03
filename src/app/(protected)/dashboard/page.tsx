@@ -317,7 +317,12 @@ function ProjectDetailModal({ project, onClose }: { project: ProjectItem | null;
             : `/collab`;
 
     return (
-        <Dialog open={!!project} onOpenChange={(open) => { if (!open) onClose(); }}>
+        <Dialog
+            open={!!project}
+            onOpenChange={(open: boolean) => {
+                if (!open) onClose();
+            }}
+        >
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <div className="flex items-center gap-2 mb-1">
