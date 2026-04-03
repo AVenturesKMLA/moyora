@@ -1,14 +1,13 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import React from 'react';
 import { useState, useEffect } from 'react';
+import { useSession } from '../../../../lib/useSession';
 import NavBar from '@/components/NavBar';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, Check, X, AlertCircle } from "lucide-react";
 
 interface Club {
     _id: string;
@@ -108,9 +107,9 @@ export default function ClubManagePage() {
             });
             const data = await res.json();
             if (data.success) {
-                setApplications(prev => prev.map(app =>
-                    app._id === appId ? { ...app, status } : app
-                ));
+                setApplications((prev: Application[]) =>
+                    prev.map(app => (app._id === appId ? { ...app, status } : app))
+                );
             } else {
                 alert(data.message);
             }
@@ -121,7 +120,7 @@ export default function ClubManagePage() {
         }
     };
 
-    if (loadingClubs) return <div className="p-8 text-center">Loading...</div>;
+    if (loadingClubs) return (<div className="p-8 text-center">Loading...</div>) as JSX.Element;
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -147,7 +146,7 @@ export default function ClubManagePage() {
                                         {myClubs.length === 0 ? (
                                             <p className="text-sm text-muted-foreground text-center py-4">운영 중인 동아리가 없습니다.</p>
                                         ) : (
-                                            myClubs.map(club => (
+                                            myClubs.map((club: Club) => (
                                                 <button
                                                     key={club._id}
                                                     onClick={() => setSelectedClub(club)}
@@ -179,9 +178,11 @@ export default function ClubManagePage() {
                                                 <CardDescription>가입 신청 관리 ({applications.length})</CardDescription>
                                             </div>
                                             <div className="flex gap-2 text-sm">
-                                                <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-200">
-                                                    대기 {applications.filter(a => a.status === 'pending').length}
-                                                </Badge>
+                                                    <span
+                                                        className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-yellow-500/10 text-yellow-600 border-yellow-200"
+                                                    >
+                                                        대기 {applications.filter((a: Application) => a.status === 'pending').length}
+                                                    </span>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -190,7 +191,7 @@ export default function ClubManagePage() {
                                             <div className="p-8 text-center text-muted-foreground">불러오는 중...</div>
                                         ) : applications.length === 0 ? (
                                             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                                                <AlertCircle className="w-10 h-10 mb-2 opacity-20" />
+                                                <div className="w-10 h-10 mb-2 opacity-20 rounded-full border" aria-hidden="true" />
                                                 <p>가입 신청 내역이 없습니다.</p>
                                             </div>
                                         ) : (
@@ -205,7 +206,7 @@ export default function ClubManagePage() {
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
-                                                    {applications.map((app) => (
+                                            {applications.map((app: Application) => (
                                                         <TableRow key={app._id}>
                                                             <TableCell>
                                                                 <div className="font-medium">{app.userId.name}</div>
@@ -221,17 +222,21 @@ export default function ClubManagePage() {
                                                                 {new Date(app.createdAt).toLocaleDateString()}
                                                             </TableCell>
                                                             <TableCell>
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className={
-                                                                        app.status === 'approved' ? 'text-green-600 bg-green-50 border-green-200' :
-                                                                            app.status === 'rejected' ? 'text-red-600 bg-red-50 border-red-200' :
-                                                                                'text-yellow-600 bg-yellow-50 border-yellow-200'
-                                                                    }
+                                                                <span
+                                                                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                                                                        app.status === 'approved'
+                                                                            ? 'text-green-600 bg-green-50 border-green-200'
+                                                                            : app.status === 'rejected'
+                                                                                ? 'text-red-600 bg-red-50 border-red-200'
+                                                                                : 'text-yellow-600 bg-yellow-50 border-yellow-200'
+                                                                    }`}
                                                                 >
-                                                                    {app.status === 'approved' ? '승인됨' :
-                                                                        app.status === 'rejected' ? '거절됨' : '대기중'}
-                                                                </Badge>
+                                                                    {app.status === 'approved'
+                                                                        ? '승인됨'
+                                                                        : app.status === 'rejected'
+                                                                            ? '거절됨'
+                                                                            : '대기중'}
+                                                                </span>
                                                             </TableCell>
                                                             <TableCell className="text-right">
                                                                 {app.status === 'pending' && (
@@ -243,7 +248,11 @@ export default function ClubManagePage() {
                                                                             onClick={() => handleUpdateStatus(app._id, 'approved')}
                                                                             disabled={updating === app._id}
                                                                         >
-                                                                            {updating === app._id ? <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full" /> : <Check className="h-4 w-4" />}
+                                                                            {updating === app._id ? (
+                                                                                <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full" />
+                                                                            ) : (
+                                                                                <span className="inline-block h-4 w-4 rounded-sm border border-current" aria-hidden="true" />
+                                                                            )}
                                                                         </Button>
                                                                         <Button
                                                                             size="sm"
@@ -252,7 +261,11 @@ export default function ClubManagePage() {
                                                                             onClick={() => handleUpdateStatus(app._id, 'rejected')}
                                                                             disabled={updating === app._id}
                                                                         >
-                                                                            {updating === app._id ? <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full" /> : <X className="h-4 w-4" />}
+                                                                            {updating === app._id ? (
+                                                                                <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full" />
+                                                                            ) : (
+                                                                                <span className="inline-block h-4 w-4 rounded-sm border border-current" aria-hidden="true" />
+                                                                            )}
                                                                         </Button>
                                                                     </div>
                                                                 )}

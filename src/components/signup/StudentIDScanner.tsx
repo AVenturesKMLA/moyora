@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import type { ComponentClass } from 'react';
+import type { WebcamProps } from 'react-webcam';
 import Webcam from 'react-webcam';
+
+const WebcamView = Webcam as ComponentClass<WebcamProps>;
 import Tesseract from 'tesseract.js';
 import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -11,12 +15,15 @@ import { Label } from '@/components/ui/label';
 import { Camera, RefreshCw, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import SchoolNameInput from '@/components/ui/SchoolNameInput';
 
+/** Minimal shape for controlled `Input` `onChange` (avoids implicit `any` with local react typings). */
+type FieldChangeEvent = { target: { value: string } };
+
 interface StudentIDScannerProps {
     onComplete: (data: { schoolName: string; studentName: string; rawText: string }) => void;
 }
 
 export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) {
-    const webcamRef = useRef<Webcam>(null);
+    const webcamRef = useRef<InstanceType<typeof Webcam> | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -208,7 +215,7 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
             <Card className="overflow-hidden border-border/40 shadow-sm">
                 {!imgSrc ? (
                     <div className="relative flex h-[440px] w-full flex-col items-center justify-center bg-black">
-                        <Webcam
+                        <WebcamView
                             audio={false}
                             ref={webcamRef}
                             screenshotFormat="image/jpeg"
@@ -294,7 +301,8 @@ export default function StudentIDScanner({ onComplete }: StudentIDScannerProps) 
                                 <Input
                                     id="name"
                                     value={scannedData.studentName}
-                                    onChange={(e) => setScannedData({ ...scannedData, studentName: e.target.value })}
+                                    onChange={(e: FieldChangeEvent) =>
+                                        setScannedData({ ...scannedData, studentName: e.target.value })}
                                     placeholder="인식되지 않음 (직접 입력)"
                                 />
                             </div>
