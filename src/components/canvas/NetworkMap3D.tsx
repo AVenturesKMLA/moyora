@@ -139,7 +139,7 @@ interface Connection {
 
 export default function NetworkMap3D() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const rotationRef = useRef(0);
+    const rotationRef = useRef<number>(0);
     const connectionsRef = useRef<Connection[]>([]);
     const [mounted, setMounted] = useState(false);
     const { resolvedTheme } = useTheme();

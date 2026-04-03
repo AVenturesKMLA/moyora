@@ -101,7 +101,9 @@ export default function ClubSearchForm({ identityData, studentIdData }: ClubSear
                 {isLoading ? '가입 처리 중...' : '등록 및 회원가입 완료하기'}
             </button>
 
-            <style jsx>{`
+            {
+                // @ts-expect-error styled-jsx adds non-DOM `jsx` prop (see react-shim)
+                <style jsx>{`
                 .search-section {
                     background: #fff;
                     padding: 20px;
@@ -185,6 +187,7 @@ export default function ClubSearchForm({ identityData, studentIdData }: ClubSear
                 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
             `}</style>
+            }
         </div>
     );
 }

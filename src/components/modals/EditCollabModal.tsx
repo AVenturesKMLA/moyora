@@ -1,5 +1,7 @@
-
 import { useState, useEffect } from 'react';
+
+/** Minimal shape for controlled Input/Textarea `onChange` (avoids implicit `any` with local react typings). */
+type FieldChangeEvent = { target: { value: string } };
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -97,7 +99,7 @@ export function EditCollabModal({ collab, open, onOpenChange, onSubmit }: EditCo
                             <div className="text-sm text-muted-foreground">제목</div>
                             <Input
                                 value={title}
-                                onChange={(e) => setTitle(e.target.value)}
+                                onChange={(e: FieldChangeEvent) => setTitle(e.target.value)}
                             />
                         </div>
 
@@ -124,13 +126,13 @@ export function EditCollabModal({ collab, open, onOpenChange, onSubmit }: EditCo
                                 <Input
                                     type="date"
                                     value={dateStart}
-                                    onChange={(e) => setDateStart(e.target.value)}
+                                    onChange={(e: FieldChangeEvent) => setDateStart(e.target.value)}
                                 />
                                 <span className="self-center">~</span>
                                 <Input
                                     type="date"
                                     value={dateEnd}
-                                    onChange={(e) => setDateEnd(e.target.value)}
+                                    onChange={(e: FieldChangeEvent) => setDateEnd(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -141,7 +143,7 @@ export function EditCollabModal({ collab, open, onOpenChange, onSubmit }: EditCo
                             <Input
                                 placeholder="선택사항 (예: 14:00)"
                                 value={time}
-                                onChange={(e) => setTime(e.target.value)}
+                                onChange={(e: FieldChangeEvent) => setTime(e.target.value)}
                             />
                         </div>
 
@@ -175,7 +177,7 @@ export function EditCollabModal({ collab, open, onOpenChange, onSubmit }: EditCo
                                 <Input
                                     placeholder="구체적인 주소 입력"
                                     value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
+                                    onChange={(e: FieldChangeEvent) => setAddress(e.target.value)}
                                 />
                             </div>
                         )}
@@ -188,7 +190,7 @@ export function EditCollabModal({ collab, open, onOpenChange, onSubmit }: EditCo
                                     className="min-h-[80px] resize-none"
                                     placeholder="회의 링크, ID, 비밀번호 등 자유롭게 입력"
                                     value={onlineInfo}
-                                    onChange={(e) => setOnlineInfo(e.target.value)}
+                                    onChange={(e: FieldChangeEvent) => setOnlineInfo(e.target.value)}
                                 />
                             </div>
                         )}
@@ -198,7 +200,7 @@ export function EditCollabModal({ collab, open, onOpenChange, onSubmit }: EditCo
                             <div className="text-sm text-muted-foreground">지역</div>
                             <Input
                                 value={region}
-                                onChange={(e) => setRegion(e.target.value)}
+                                onChange={(e: FieldChangeEvent) => setRegion(e.target.value)}
                             />
                         </div>
 
@@ -209,7 +211,7 @@ export function EditCollabModal({ collab, open, onOpenChange, onSubmit }: EditCo
                                 className="min-h-[60px] resize-none"
                                 placeholder="추가로 안내할 사항"
                                 value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
+                                onChange={(e: FieldChangeEvent) => setNotes(e.target.value)}
                             />
                         </div>
                     </div>

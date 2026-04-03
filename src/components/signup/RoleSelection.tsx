@@ -55,7 +55,9 @@ export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
                 </div>
             </button>
 
-            <style jsx>{`
+            {
+                // @ts-expect-error styled-jsx adds non-DOM `jsx` prop (see react-shim)
+                <style jsx>{`
                 .role-card {
                     display: flex;
                     align-items: center;
@@ -95,6 +97,7 @@ export default function RoleSelection({ onSelectRole }: RoleSelectionProps) {
                     to { opacity: 1; transform: translateY(0); }
                 }
             `}</style>
+            }
         </div>
     );
 }

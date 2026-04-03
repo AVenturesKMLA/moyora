@@ -164,7 +164,9 @@ export default function ClubRegistrationForm({ identityData, studentIdData }: Cl
                 </button>
             </form>
 
-            <style jsx>{`
+            {
+                // @ts-expect-error styled-jsx adds non-DOM `jsx` prop (see react-shim)
+                <style jsx>{`
                 .signup-form {
                     display: flex;
                     flex-direction: column;
@@ -240,6 +242,7 @@ export default function ClubRegistrationForm({ identityData, studentIdData }: Cl
                 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
             `}</style>
+            }
         </div>
     );
 }

@@ -60,7 +60,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
                     size="sm"
                     variant="outline"
                     className="h-7 text-[11px] px-3 rounded-full border-primary/50 text-primary hover:bg-primary hover:text-white"
-                    onClick={(e) => {
+                    onClick={(e: { stopPropagation(): void }) => {
                         e.stopPropagation();
                         club.onApply?.();
                     }}
