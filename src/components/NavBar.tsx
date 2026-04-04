@@ -63,7 +63,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-16 items-center">
                 <div className="mr-8 flex items-center gap-2">
-                    <Link href={isLoggedIn ? "/dashboard" : "/"} className="flex items-center gap-2 font-bold">
+                    <Link href="/" className="flex items-center gap-2 font-bold">
                         <Image src="/moyora_logo-removebg-preview.png" alt="Moyora Logo" width={32} height={32} className="rounded-lg" />
                         <span className="text-xl">모여라</span>
                     </Link>
@@ -190,7 +190,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                                 마이페이지
                                             </Link>
                                             <div className="my-2 border-t" />
-                                            <button onClick={handleSignOut} className="flex items-center gap-2 text-lg font-medium text-red-600">
+                                            <button type="button" onClick={handleSignOut} className="flex items-center gap-2 text-lg font-medium text-red-600">
                                                 <LogOut className="h-5 w-5" />
                                                 로그아웃
                                             </button>

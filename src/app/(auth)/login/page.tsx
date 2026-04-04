@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { DevAdminLoginButton } from '@/components/dev/DevAdminLoginButton';
 
 function LoginParams() {
   const searchParams = useSearchParams();
@@ -80,7 +81,7 @@ export default function LoginPage() {
 
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">모여라</h1>
-          <p className="mt-2 text-muted-foreground">고교 동아리 이벤트 플랫폼</p>
+          <p className="mt-2 text-muted-foreground">“고교 동아리 교류 플랫폼에 오신 것을 환영합니다!”</p>
         </div>
 
         <Card className="border-border/40 shadow-sm">
@@ -91,9 +92,7 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Suspense fallback={null}>
-              <LoginParams />
-            </Suspense>
+            <LoginParams />
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
@@ -145,6 +144,7 @@ export default function LoginPage() {
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 로그인
               </Button>
+              <DevAdminLoginButton />
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">

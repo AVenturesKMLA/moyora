@@ -175,7 +175,7 @@ export default function HomePage() {
                     </div>
                 ) : (
                     <div className="text-center py-12 text-muted-foreground">
-                        {activeCategory ? `${activeCategory} 분야의 동아리가 아직 없습니다.` : '등록된 동아리를 불러오는 중...'}
+                        {activeCategory ? `${activeCategory} 분야의 동아리가 아직 없습니다.` : '함께하는 동아리를 불러오는 중...'}
                     </div>
                 )}
 
@@ -204,21 +204,24 @@ export default function HomePage() {
                                 <Trophy className="h-6 w-6" />
                             </div>
                             <h3 className="text-xl font-bold">통합 대회</h3>
-                            <p className="text-muted-foreground">전국 규모의 동아리 대회에 참가하고 실력을 증명하세요. 다양한 분야의 경진대회가 여러분을 기다립니다.</p>
+                            <p className="text-muted-foreground">전국 규모의 동아리 대회에 참가하고 실력을 증명하세요.</p>
+                            <p className="text-muted-foreground">다양한 분야의 경진대회가 여러분을 기다립니다.</p>
                         </div>
                         <div className="rounded-2xl border bg-card p-8 space-y-4 hover:shadow-md transition-shadow bg-gradient-to-br from-green-50/50 to-transparent dark:from-green-950/20">
                             <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
                                 <MessageSquare className="h-6 w-6" />
                             </div>
                             <h3 className="text-xl font-bold">연합 포럼</h3>
-                            <p className="text-muted-foreground">다른 학교와 아이디어를 공유하고 토론하세요. 지식 공유의 장이 열립니다.</p>
+                            <p className="text-muted-foreground">다른 학교와 아이디어를 공유하고 토론하세요.</p>
+                            <p className="text-muted-foreground">지식 공유의 장이 열립니다.</p>
                         </div>
                         <div className="rounded-2xl border bg-card p-8 space-y-4 hover:shadow-md transition-shadow bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20">
                             <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
                                 <Microscope className="h-6 w-6" />
                             </div>
                             <h3 className="text-xl font-bold">공동 연구</h3>
-                            <p className="text-muted-foreground">관심 분야가 같은 여러 동아리와 함께 프로젝트를 진행해보세요. 학교 간 장벽 없는 연구 협력이 가능합니다.</p>
+                            <p className="text-muted-foreground">관심 분야가 같은 여러 동아리와 함께 프로젝트를 진행해보세요.<p/> 
+                            <p className="text-muted-foreground"></p>학교 간 장벽 없는 연구 협력이 가능합니다.</p>
                         </div>
                     </div>
                 </div>
@@ -227,15 +230,15 @@ export default function HomePage() {
             {/* How it works */}
             <section className="container py-16 md:py-24">
                 <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center pb-12">
-                    <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">3단계로 시작하는 동아리 활동</h2>
+                    <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">모여라 플랫폼, 3단계면 충분합니다</h2>
                     <p className="max-w-[85%] text-muted-foreground md:text-xl">복잡한 절차 없이, 오직 활동에만 집중하세요.</p>
                 </div>
 
                 <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                     {[
-                        { num: '01', title: '신원 검증', desc: '학생증을 통한 철저한 본인인증으로\n신뢰할 수 있는 커뮤니티를 보장합니다.' },
-                        { num: '02', title: '활동 참여', desc: '전국 곳곳의 동아리들과 협력하며\n탄탄한 스펙과 경험을 쌓으세요.' },
-                        { num: '03', title: '상호 평가', desc: '활동 후 서로를 평가하며\n건강한 동아리 생태계를 만들어갑니다.' },
+                        { num: '01', title: '간편한 가입/등록', desc: '신원 검증 기반 회원가입(학생증을 통한 본인인증으로 신뢰가는 이용을 시작하세요!)' },
+                        { num: '02', title: '활동 탐색 및 신청', desc: '활동 등록 및 참여(전국 곳곳 고등학교 동아리들과 탄탄한 스팩을 쌓아가세요!)' },
+                        { num: '03', title: '동아리 평가', desc: '다음에도 함께하고 싶은 동아리였나요? 여러분이 평가해주세요!' },
                     ].map(({ num, title, desc }) => (
                         <div key={num} className="flex flex-col items-center text-center space-y-4">
                             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">{num}</div>
