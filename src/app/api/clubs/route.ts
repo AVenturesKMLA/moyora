@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
         if (club) {
             return NextResponse.json(
-                { success: false, message: '이미 등록된 동아리 이름입니다.' },
+                { success: false, message: '이미 함께하는 동아리 이름입니다.' },
                 { status: 409 }
             );
         }

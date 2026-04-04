@@ -107,7 +107,7 @@ export default function AdminDashboard() {
                             <div className="stat-icon">🏫</div>
                             <div className="stat-content">
                                 <div className="stat-value">{stats?.totalClubs || 0}</div>
-                                <div className="stat-label">등록된 동아리</div>
+                                <div className="stat-label">함께하는 동아리</div>
                             </div>
                         </div>
 

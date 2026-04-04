@@ -232,7 +232,8 @@ export default function NetworkMap3D() {
             const h = rect.height;
             const cx = w / 2;
             const cy = h / 2;
-            const scale = Math.min(w, h) * 0.38;
+            // Slightly larger globe for more visual presence
+            const scale = Math.min(w, h) * 0.48;
 
             rotationRef.current += 0.002;
 
