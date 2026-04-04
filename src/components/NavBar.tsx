@@ -1,4 +1,3 @@
-// NavBar — profile dropdown shows ONLY 마이페이지 + 로그아웃
 'use client';
 
 import Link from 'next/link';
@@ -24,7 +23,15 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, Bell, User, LogOut, LayoutDashboard, Users } from 'lucide-react';
+import {
+    Menu,
+    Bell,
+    User,
+    LogOut,
+    LayoutDashboard,
+    Shield,
+    Users,
+} from 'lucide-react';
 
 interface NavBarProps {
     showDashboardLink?: boolean;
@@ -54,6 +61,11 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
     const { data: session, status } = useSession();
     const isLoggedIn = !!session?.user;
     const isLoading = status === 'loading';
+    const sessionUser = session?.user as
+        | { role?: string; devAdminNoDb?: boolean; image?: string | null; name?: string | null; email?: string | null }
+        | undefined;
+    const isAdmin =
+        sessionUser?.role === 'superadmin' || sessionUser?.devAdminNoDb === true;
 
     const handleSignOut = async () => {
         await signOut({ callbackUrl: '/login' });
@@ -64,24 +76,36 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
             <div className="container flex h-16 items-center">
                 <div className="mr-8 flex items-center gap-2">
                     <Link href="/" className="flex items-center gap-2 font-bold">
-                        <Image src="/moyora_logo-removebg-preview.png" alt="Moyora Logo" width={32} height={32} className="rounded-lg" />
+                        <Image
+                            src="/moyora_logo-removebg-preview.png"
+                            alt="Moyora Logo"
+                            width={32}
+                            height={32}
+                            className="rounded-lg"
+                        />
                         <span className="text-xl">모여라</span>
                     </Link>
                 </div>
 
-                {/* Desktop Navigation */}
                 <nav className="hidden md:flex md:flex-1 md:items-center md:gap-6">
                     <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
-                        회사소개
+                        소개
                     </Link>
                     <Link href="/plan" className="text-sm font-medium transition-colors hover:text-primary">
                         플랜
                     </Link>
                     {isLoggedIn && (
                         <>
-                            <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
-                                대시보드
-                            </Link>
+                            {showDashboardLink && (
+                                <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
+                                    대시보드
+                                </Link>
+                            )}
+                            {isAdmin && (
+                                <Link href="/admin" className="text-sm font-medium transition-colors hover:text-primary">
+                                    개발자 대시보드
+                                </Link>
+                            )}
                             <Link href="/collab" className="text-sm font-medium transition-colors hover:text-primary">
                                 협업
                             </Link>
@@ -92,28 +116,26 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     )}
                 </nav>
 
-                {/* Right Actions */}
                 <div className="ml-auto flex items-center gap-2">
                     <div className="hidden md:flex md:items-center md:gap-2">
                         {isLoggedIn ? (
                             <>
                                 <NotificationButton />
-                                {/* Profile dropdown: ONLY 마이페이지 + 로그아웃 */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                                             <Avatar className="h-9 w-9">
-                                                <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || ''} />
-                                                <AvatarFallback>{session?.user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                                                <AvatarImage src={sessionUser?.image || ''} alt={sessionUser?.name || ''} />
+                                                <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
                                             </Avatar>
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-48" align="end" forceMount>
+                                    <DropdownMenuContent className="w-56" align="end" forceMount>
                                         <DropdownMenuLabel className="font-normal">
                                             <div className="flex flex-col space-y-1">
-                                                <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
+                                                <p className="text-sm font-medium leading-none">{sessionUser?.name}</p>
                                                 <p className="text-xs leading-none text-muted-foreground">
-                                                    {session?.user?.email}
+                                                    {sessionUser?.email}
                                                 </p>
                                             </div>
                                         </DropdownMenuLabel>
@@ -124,8 +146,19 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                                 <span>마이페이지</span>
                                             </Link>
                                         </DropdownMenuItem>
+                                        {isAdmin && (
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/admin" className="cursor-pointer">
+                                                    <Shield className="mr-2 h-4 w-4" />
+                                                    <span>개발자 대시보드</span>
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        )}
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600" onClick={handleSignOut}>
+                                        <DropdownMenuItem
+                                            className="cursor-pointer text-red-600 focus:text-red-600"
+                                            onClick={handleSignOut}
+                                        >
                                             <LogOut className="mr-2 h-4 w-4" />
                                             <span>로그아웃</span>
                                         </DropdownMenuItem>
@@ -147,7 +180,6 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                         <ThemeToggle />
                     </div>
 
-                    {/* Mobile Menu */}
                     <div className="flex md:hidden">
                         <ThemeToggle />
                         <Sheet>
@@ -166,17 +198,25 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                         <>
                                             <div className="mb-4 flex items-center gap-4 rounded-lg border p-4">
                                                 <Avatar>
-                                                    <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                                                    <AvatarFallback>{sessionUser?.name?.charAt(0) || 'U'}</AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium">{session?.user?.name}</span>
-                                                    <span className="text-xs text-muted-foreground">{session?.user?.email}</span>
+                                                    <span className="font-medium">{sessionUser?.name}</span>
+                                                    <span className="text-xs text-muted-foreground">{sessionUser?.email}</span>
                                                 </div>
                                             </div>
-                                            <Link href="/dashboard" className="flex items-center gap-2 text-lg font-medium">
-                                                <LayoutDashboard className="h-5 w-5" />
-                                                대시보드
-                                            </Link>
+                                            {showDashboardLink && (
+                                                <Link href="/dashboard" className="flex items-center gap-2 text-lg font-medium">
+                                                    <LayoutDashboard className="h-5 w-5" />
+                                                    대시보드
+                                                </Link>
+                                            )}
+                                            {isAdmin && (
+                                                <Link href="/admin" className="flex items-center gap-2 text-lg font-medium">
+                                                    <Shield className="h-5 w-5" />
+                                                    개발자 대시보드
+                                                </Link>
+                                            )}
                                             <Link href="/collab" className="flex items-center gap-2 text-lg font-medium">
                                                 <Users className="h-5 w-5" />
                                                 협업
@@ -190,7 +230,11 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                                 마이페이지
                                             </Link>
                                             <div className="my-2 border-t" />
-                                            <button type="button" onClick={handleSignOut} className="flex items-center gap-2 text-lg font-medium text-red-600">
+                                            <button
+                                                type="button"
+                                                onClick={handleSignOut}
+                                                className="flex items-center gap-2 text-lg font-medium text-red-600"
+                                            >
                                                 <LogOut className="h-5 w-5" />
                                                 로그아웃
                                             </button>
@@ -209,7 +253,7 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                     )}
                                     <div className="my-2 border-t" />
                                     <Link href="/about" className="text-lg font-medium">
-                                        회사소개
+                                        소개
                                     </Link>
                                     <Link href="/plan" className="text-lg font-medium">
                                         플랜
