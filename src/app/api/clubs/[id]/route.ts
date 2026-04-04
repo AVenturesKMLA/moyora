@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Club } from '@/models';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params;
         await connectDB();
-        const club = await Club.findById(params.id).lean();
+        const club = await Club.findById(id).lean();
         
         if (!club) {
             return NextResponse.json({ success: false, message: '동아리를 찾을 수 없습니다' }, { status: 404 });
