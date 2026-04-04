@@ -97,7 +97,7 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                학생들의 니즈를 반영한 기획부터 기획, 디자인, 판매까지의 비즈니스 사이클을 직접 실행합니다.
+                학생들의 니즈를 반영한 기획부터 디자인, 제작, 판매까지의 비즈니스 사이클을 직접 실행합니다.
               </p>
             </CardContent>
           </Card>
