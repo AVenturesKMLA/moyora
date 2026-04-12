@@ -12,18 +12,45 @@ export async function POST() {
             return NextResponse.json({ success: false, message: 'Not Found' }, { status: 404 });
         }
 
-        // Ensure authentication and authorization
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ success: false, message: '로그인이 필요합니다' }, { status: 401 });
-        }
+        // In development, skip authentication for seeding
+        if (process.env.NODE_ENV !== 'development') {
+            // Ensure authentication and authorization
+            const session = await getServerSession(authOptions);
+            if (!session?.user) {
+                return NextResponse.json({ success: false, message: '로그인이 필요합니다' }, { status: 401 });
+            }
 
-        const user = session.user as { role?: string };
-        if (user.role !== 'superadmin') {
-            return NextResponse.json({ success: false, message: '권한이 없습니다' }, { status: 403 });
+            const user = session.user as { role?: string };
+            if (user.role !== 'superadmin') {
+                return NextResponse.json({ success: false, message: '권한이 없습니다' }, { status: 403 });
+            }
         }
 
         await connectDB();
+
+        // Create admin account if DEV_ADMIN_LOGIN_KEY is set
+        if (process.env.DEV_ADMIN_LOGIN_KEY) {
+            const adminEmail = 'admin@moyeora.kr';
+            const existingAdmin = await User.findOne({ email: adminEmail });
+
+            if (!existingAdmin) {
+                const adminPasswordHash = await bcrypt.hash(process.env.DEV_ADMIN_LOGIN_KEY, 12);
+                await User.create({
+                    name: '관리자',
+                    email: adminEmail,
+                    password: adminPasswordHash,
+                    birthday: new Date('1990-01-01'),
+                    phone: '010-0000-0000',
+                    schoolName: '모여라 개발팀',
+                    schoolId: 'ADMIN',
+                    role: 'superadmin',
+                    agreedToTerms: true,
+                });
+                console.log('Admin account created');
+            } else {
+                console.log('Admin account already exists');
+            }
+        }
 
         const createdUsers = [];
         const existingUsers = [];

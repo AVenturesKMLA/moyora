@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
+import { Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -164,6 +165,36 @@ export default function LoginPage() {
                 회원가입
               </Link>
             </div>
+            {process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_DEV_ADMIN_LOGIN_KEY && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={async () => {
+                  setIsLoading(true);
+                  setError('');
+                  try {
+                    const result = await signIn('credentials', {
+                      email: 'admin@moyeora.kr',
+                      password: process.env.NEXT_PUBLIC_DEV_ADMIN_LOGIN_KEY!,
+                      redirect: false,
+                    });
+                    if (result?.error) {
+                      setError(result.error);
+                    } else {
+                      window.location.href = '/dashboard';
+                    }
+                  } catch {
+                    setError('관리자 로그인 중 오류가 발생했습니다');
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                disabled={isLoading}
+              >
+                [개발 전용] 관리자로 로그인
+              </Button>
+            )}
           </CardFooter>
         </Card>
       </div>
