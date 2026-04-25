@@ -1,0 +1,300 @@
+'use client';
+
+import { useState, useMemo, useEffect } from 'react';
+import NavBar from '@/components/NavBar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ClubCard } from '@/components/cards/ClubCard';
+import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { Search, Loader2 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+
+export default function ClubSearchPage() {
+    const router = useRouter();
+    const [clubs, setClubs] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [query, setQuery] = useState('');
+    const [regionFilter, setRegionFilter] = useState('all');
+    const [fieldFilter, setFieldFilter] = useState('all');
+    const [trustFilter, setTrustFilter] = useState('all');
+
+    // Application Modal State
+    const [selectedClub, setSelectedClub] = useState<any | null>(null);
+    const [applyMessage, setApplyMessage] = useState('');
+    const [applyName, setApplyName] = useState('');
+    const [applyPhone, setApplyPhone] = useState('');
+    const [applyEmail, setApplyEmail] = useState('');
+    const [isApplying, setIsApplying] = useState(false);
+
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const fetchClubs = async () => {
+            try {
+                const res = await fetch('/api/clubs');
+                const data = await res.json();
+                if (data.success) {
+                    setClubs(data.clubs);
+
+                    // Check for ?apply=ID query param
+                    const applyId = searchParams.get('apply');
+                    if (applyId) {
+                        const clubToApply = data.clubs.find((c: any) => c._id === applyId);
+                        if (clubToApply) {
+                            setSelectedClub(clubToApply);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Fetch clubs error:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchClubs();
+    }, [searchParams]);
+
+    const extractChosung = (str: string) => {
+        const CHO_HANGUL = [
+            'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ',
+            'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
+            'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ',
+            'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+        ];
+        let result = '';
+        for (let i = 0; i < str.length; i++) {
+            const code = str.charCodeAt(i) - 44032;
+            if (code > -1 && code < 11172) {
+                result += CHO_HANGUL[Math.floor(code / 588)];
+            } else {
+                result += str.charAt(i);
+            }
+        }
+        return result;
+    };
+
+    const filteredClubs = useMemo(() => {
+        return clubs.filter(club => {
+            const chosungQuery = extractChosung(query).toLowerCase();
+            const matchesQuery = !query ||
+                club.clubName.toLowerCase().includes(query.toLowerCase()) ||
+                extractChosung(club.clubName).toLowerCase().includes(chosungQuery) ||
+                (club.schoolName && (club.schoolName.toLowerCase().includes(query.toLowerCase()) || extractChosung(club.schoolName).toLowerCase().includes(chosungQuery)));
+
+            const matchesField = fieldFilter === 'all' || club.clubTheme === fieldFilter;
+
+            const matchesRegion = regionFilter === 'all' ||
+                (club.location?.toLowerCase().includes(regionFilter.toLowerCase())) ||
+                (club.schoolName && club.schoolName.toLowerCase().includes(regionFilter.toLowerCase()));
+
+            const trust = typeof club.trustScore === 'number' ? club.trustScore : 70;
+            const matchesTrust = trustFilter === 'all' || (trustFilter === 'high' && trust >= 80) || (trustFilter === 'mid' && trust >= 70);
+
+            return matchesQuery && matchesField && matchesRegion && matchesTrust;
+        });
+    }, [clubs, query, fieldFilter, regionFilter, trustFilter]);
+
+    const handleApply = async () => {
+        if (!selectedClub) return;
+        setIsApplying(true);
+        try {
+            const res = await fetch('/api/club/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    clubId: selectedClub._id,
+                    message: applyMessage,
+                    applicantName: applyName,
+                    applicantPhone: applyPhone,
+                    applicantEmail: applyEmail,
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('가입 신청이 완료되었습니다.');
+                setSelectedClub(null);
+                setApplyMessage('');
+                setApplyName('');
+                setApplyPhone('');
+                setApplyEmail('');
+            } else {
+                alert(data.message || '가입 신청 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            alert('오류가 발생했습니다.');
+        } finally {
+            setIsApplying(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-background pb-20">
+            <NavBar />
+            <main className="container mx-auto max-w-7xl px-4 pt-8 md:px-6 md:pt-12 space-y-8 animate-fade-in relative z-10">
+
+                {/* Header */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">동아리 탐색</h1>
+                        <Badge variant="secondary" className="rounded-full px-3 py-1 text-sm font-medium">
+                            {filteredClubs.length}개 동아리
+                        </Badge>
+                    </div>
+                    <div className="flex flex-col sm:flex-row justify-between gap-4">
+                        <p className="text-muted-foreground text-sm max-w-2xl">
+                            필터링으로 원하는 동아리를 찾아보세요. 신뢰 점수와 태그를 통해 우리 학교와 꼭 맞는 파트너를 찾을 수 있습니다.
+                        </p>
+                        <Button className="rounded-full shadow-md font-semibold shrink-0" asChild>
+                            <Link href="/club/register">동아리 등록</Link>
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Filter Toolbar */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="relative w-full sm:w-[320px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            className="pl-9 h-10 bg-background"
+                            placeholder="동아리명, 학교명 검색"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                    </div>
+
+                    <Select value={regionFilter} onValueChange={setRegionFilter}>
+                        <SelectTrigger className="w-[130px] h-10 bg-background">
+                            <SelectValue placeholder="지역" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">지역 전체</SelectItem>
+                            <SelectItem value="서울">서울</SelectItem>
+                            <SelectItem value="경기">경기</SelectItem>
+                            <SelectItem value="인천">인천</SelectItem>
+                            <SelectItem value="강원">강원</SelectItem>
+                            <SelectItem value="충청">충청/대전/세종</SelectItem>
+                            <SelectItem value="경상">경상/부산/대구/울산</SelectItem>
+                            <SelectItem value="전라">전라/광주</SelectItem>
+                            <SelectItem value="제주">제주</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={fieldFilter} onValueChange={setFieldFilter}>
+                        <SelectTrigger className="w-[130px] h-10 bg-background">
+                            <SelectValue placeholder="분야" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">분야 전체</SelectItem>
+                            <SelectItem value="과학">과학</SelectItem>
+                            <SelectItem value="공학">공학</SelectItem>
+                            <SelectItem value="수학">수학</SelectItem>
+                            <SelectItem value="인문">인문</SelectItem>
+                            <SelectItem value="사회">사회</SelectItem>
+                            <SelectItem value="예술">예술/디자인</SelectItem>
+                            <SelectItem value="체육">체육</SelectItem>
+                            <SelectItem value="경제">경제</SelectItem>
+                            <SelectItem value="의학">의학</SelectItem>
+                            <SelectItem value="창업">창업</SelectItem>
+                            <SelectItem value="기타">기타</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={trustFilter} onValueChange={setTrustFilter}>
+                        <SelectTrigger className="w-[130px] h-10 bg-background">
+                            <SelectValue placeholder="신뢰 점수" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">전체</SelectItem>
+                            <SelectItem value="high">80점 이상</SelectItem>
+                            <SelectItem value="mid">70점 이상</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {/* Club Grid */}
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                ) : filteredClubs.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {filteredClubs.map(club => (
+                            <ClubCard
+                                key={club._id}
+                                club={{
+                                    id: club._id,
+                                    name: club.clubName,
+                                    school: club.schoolName,
+                                    size: club.maxMembers || 0,
+                                    description: club.description,
+                                    trustScore: typeof club.trustScore === 'number' ? club.trustScore : 70,
+                                    onApply: () => setSelectedClub(club)
+                                } as any}
+                                onClick={() => router.push(`/club/${club._id}`)}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-20">
+                        <p className="text-muted-foreground">검색 결과가 없습니다.</p>
+                    </div>
+                )}
+            </main>
+
+            <Dialog open={!!selectedClub} onOpenChange={(open) => !open && setSelectedClub(null)}>
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>{selectedClub?.clubName} 가입 신청</DialogTitle>
+                        <DialogDescription>
+                            동아리장에게 보낼 정보를 입력해주세요.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-2">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="apply-name">이름 <span className="text-destructive">*</span></Label>
+                                <Input id="apply-name" placeholder="홍길동" value={applyName} onChange={e => setApplyName(e.target.value)} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="apply-phone">연락처</Label>
+                                <Input id="apply-phone" placeholder="010-0000-0000" value={applyPhone} onChange={e => setApplyPhone(e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="apply-email">이메일</Label>
+                            <Input id="apply-email" type="email" placeholder="example@email.com" value={applyEmail} onChange={e => setApplyEmail(e.target.value)} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="apply-msg">지원 동기 / 자기소개</Label>
+                            <Textarea
+                                id="apply-msg"
+                                placeholder="안녕하세요! 이번에 동아리에 지원하게 된... (최대 500자)"
+                                value={applyMessage}
+                                onChange={(e) => setApplyMessage(e.target.value)}
+                                className="min-h-[120px]"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setSelectedClub(null)}>취소</Button>
+                        <Button
+                            onClick={handleApply}
+                            disabled={isApplying || !applyName.trim()}
+                        >
+                            {isApplying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            신청하기
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}
+
+
+
