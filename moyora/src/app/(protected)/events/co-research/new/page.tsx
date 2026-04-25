@@ -1,0 +1,293 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import NavBar from '@/components/NavBar';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle, Calendar, MapPin, User, Phone, FileText, Microscope } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+interface FormErrors {
+    [key: string]: string;
+}
+
+export default function NewCoResearchPage() {
+    const router = useRouter();
+    const { data: session } = useSession();
+
+    const [formData, setFormData] = useState({
+        researchName: '',
+        researchType: '',
+        researchDate: '',
+        researchPlace: '',
+        description: '',
+        joiningClubs: '',
+        notices: '',
+        hostName: '',
+        hostPhone: '',
+    });
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (errors[name]) {
+            setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors: FormErrors = {};
+        if (!formData.researchName.trim()) newErrors.researchName = '공동연구명을 입력해주세요';
+        if (!formData.researchType) newErrors.researchType = '분야를 선택해주세요';
+        if (!formData.researchDate) newErrors.researchDate = '기한을 선택해주세요';
+        if (!formData.researchPlace.trim()) newErrors.researchPlace = '장소를 입력해주세요';
+        if (!formData.description.trim()) newErrors.description = '설명을 입력해주세요';
+        if (!formData.hostName.trim()) newErrors.hostName = '주최자 이름을 입력해주세요';
+        if (!formData.hostPhone.trim()) newErrors.hostPhone = '연락처를 입력해주세요';
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateForm()) return;
+
+        setIsLoading(true);
+
+        try {
+            const response = await fetch('/api/events/co-research', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (data.errors) {
+                    const fieldErrors: FormErrors = {};
+                    data.errors.forEach((err: { field: string; message: string }) => {
+                        fieldErrors[err.field] = err.message;
+                    });
+                    setErrors(fieldErrors);
+                } else {
+                    setErrors({ general: data.message || '등록 중 오류가 발생했습니다' });
+                }
+                return;
+            }
+
+            router.push('/schedule');
+        } catch (err) {
+            console.error('Co-research registration error:', err);
+            setErrors({ general: '등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-background relative flex flex-col">
+            <NavBar />
+
+            <main className="flex-1 container max-w-3xl py-12 relative z-10">
+                <div className="mb-8 text-center space-y-2">
+                    <h1 className="text-3xl font-bold tracking-tight">공동연구 등록</h1>
+                    <p className="text-muted-foreground">
+                        공동연구 프로젝트를 등록하고 파트너를 찾으세요.
+                    </p>
+                </div>
+
+                <Card className="border-border/60 shadow-lg bg-card/80 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Microscope className="h-5 w-5 text-primary" />
+                            공동연구 정보
+                        </CardTitle>
+                        <CardDescription>개최하려는 연구 프로젝트의 상세 정보를 입력해주세요.</CardDescription>
+                    </CardHeader>
+
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+
+                            {errors.general && (
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>오류</AlertTitle>
+                                    <AlertDescription>{errors.general}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            {/* Basic Info */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2 col-span-2">
+                                    <Label htmlFor="researchName">공동연구명 <span className="text-destructive">*</span></Label>
+                                    <Input
+                                        id="researchName"
+                                        name="researchName"
+                                        placeholder="예: 고등학생 AI 윤리 연구 프로젝트"
+                                        value={formData.researchName}
+                                        onChange={handleChange}
+                                        className={errors.researchName ? "border-destructive" : ""}
+                                    />
+                                    {errors.researchName && <p className="text-xs text-destructive">{errors.researchName}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="researchType">분야 <span className="text-destructive">*</span></Label>
+                                    <select
+                                        id="researchType"
+                                        name="researchType"
+                                        className={cn(
+                                            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                            errors.researchType ? "border-destructive" : ""
+                                        )}
+                                        value={formData.researchType}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="">분야 선택</option>
+                                        <option value="과학">과학</option>
+                                        <option value="사회">사회</option>
+                                        <option value="환경">환경</option>
+                                        <option value="기술">기술</option>
+                                        <option value="인문">인문</option>
+                                        <option value="기타">기타</option>
+                                    </select>
+                                    {errors.researchType && <p className="text-xs text-destructive">{errors.researchType}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="researchDate">기한 <span className="text-destructive">*</span></Label>
+                                    <Input
+                                        id="researchDate"
+                                        name="researchDate"
+                                        type="date"
+                                        value={formData.researchDate}
+                                        onChange={handleChange}
+                                        className={errors.researchDate ? "border-destructive" : ""}
+                                    />
+                                    {errors.researchDate && <p className="text-xs text-destructive">{errors.researchDate}</p>}
+                                </div>
+
+                                <div className="space-y-2 col-span-2">
+                                    <Label htmlFor="researchPlace">장소 <span className="text-destructive">*</span></Label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            id="researchPlace"
+                                            name="researchPlace"
+                                            placeholder="예: 온라인 또는 각 학교 과학실"
+                                            value={formData.researchPlace}
+                                            onChange={handleChange}
+                                            className={cn("pl-9", errors.researchPlace ? "border-destructive" : "")}
+                                        />
+                                    </div>
+                                    {errors.researchPlace && <p className="text-xs text-destructive">{errors.researchPlace}</p>}
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="description">설명 <span className="text-destructive">*</span></Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    placeholder="연구 주제, 목표, 방법론 등을 설명하세요"
+                                    className={cn("min-h-[120px] resize-y", errors.description ? "border-destructive" : "")}
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                />
+                                {errors.description && <p className="text-xs text-destructive">{errors.description}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="joiningClubs">참여 동아리 (선택)</Label>
+                                <Input
+                                    id="joiningClubs"
+                                    name="joiningClubs"
+                                    placeholder="쉼표로 구분 (예: 과학탐구반, 물리동아리)"
+                                    value={formData.joiningClubs}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="notices">기타 안내사항</Label>
+                                <Textarea
+                                    id="notices"
+                                    name="notices"
+                                    placeholder="참가자들에게 전달할 안내사항"
+                                    className="min-h-[80px]"
+                                    value={formData.notices}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            {/* Host Info */}
+                            <div className="pt-4 border-t">
+                                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                    <User className="h-4 w-4" /> 주최자 정보
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="hostName">이름 <span className="text-destructive">*</span></Label>
+                                        <Input
+                                            id="hostName"
+                                            name="hostName"
+                                            value={formData.hostName}
+                                            onChange={handleChange}
+                                            className={errors.hostName ? "border-destructive" : ""}
+                                        />
+                                        {errors.hostName && <p className="text-xs text-destructive">{errors.hostName}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="hostPhone">연락처 <span className="text-destructive">*</span></Label>
+                                        <Input
+                                            id="hostPhone"
+                                            name="hostPhone"
+                                            type="tel"
+                                            placeholder="010-0000-0000"
+                                            value={formData.hostPhone}
+                                            onChange={handleChange}
+                                            className={errors.hostPhone ? "border-destructive" : ""}
+                                        />
+                                        {errors.hostPhone && <p className="text-xs text-destructive">{errors.hostPhone}</p>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-6 flex gap-4 justify-end">
+                                <Button variant="outline" type="button" onClick={() => router.back()}>
+                                    취소
+                                </Button>
+                                <Button type="submit" disabled={isLoading} className="min-w-[120px]">
+                                    {isLoading ? (
+                                        <>
+                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></div>
+                                            등록 중...
+                                        </>
+                                    ) : (
+                                        '공동연구 등록하기'
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            </main>
+        </div>
+    );
+}
