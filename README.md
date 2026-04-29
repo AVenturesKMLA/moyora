@@ -68,4 +68,38 @@
 
 ---
 
+## Vercel Deployment Checklist
+
+Required environment variables for Vercel:
+
+```bash
+MONGODB_URI=
+NEXTAUTH_URL=
+NEXTAUTH_SECRET=
+PORTONE_API_SECRET=
+NEXT_PUBLIC_PORTONE_STORE_ID=
+NEXT_PUBLIC_PORTONE_CHANNEL_KEY=
+CRON_SECRET=
+```
+
+Recommended values:
+
+- `NEXTAUTH_URL`: your production domain, for example `https://www.moyora.kr`
+- `NEXTAUTH_SECRET`: a long random secret used by NextAuth
+- `CRON_SECRET`: a separate long random secret used to protect the cron endpoint
+
+Deployment notes:
+
+- The repository includes a [vercel.json](./vercel.json) cron definition for `/api/cron/notifications`
+- Vercel cron requests use `GET`, so the notification route supports both `GET` and `POST`
+- Admin and protected API routes now use the shared NextAuth config to avoid session issues in production
+
+Verification:
+
+- Install dependencies with `npm install`
+- Run a production build with `npm run build`
+- Confirm all required environment variables are set in Vercel before promoting to production
+
+---
+
 © 2026 **A:Ventures**. All Rights Reserved.

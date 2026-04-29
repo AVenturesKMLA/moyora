@@ -62,7 +62,7 @@ export default function ClubSearchPage() {
             // Region and Trust filters are placeholders in this mock/db hybrid for now
             return matchesQuery && matchesField;
         });
-    }, [clubs, query, regionFilter, fieldFilter]);
+    }, [clubs, query, fieldFilter]);
 
     const handleApply = async () => {
         if (!selectedClub) return;
@@ -223,4 +223,3 @@ export default function ClubSearchPage() {
         </div>
     );
 }
-
