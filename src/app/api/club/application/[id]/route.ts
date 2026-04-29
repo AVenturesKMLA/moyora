@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { Club, ClubApplication, User, ClubMember } from '@/models';
 import mongoose from 'mongoose';
+import { authOptions } from '@/lib/auth';
 
 // PATCH: Approve / Reject Application
 export async function PATCH(
@@ -10,7 +11,7 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json({ success: false, message: '로그인이 필요합니다' }, { status: 401 });
         }

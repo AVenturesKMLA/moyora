@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { Contest, Forum, CoResearch, User, Participant, Club, ClubMember } from '@/models';
 import mongoose from 'mongoose';
+import { authOptions } from '@/lib/auth';
 
 // GET - Fetch participants for a specific event (host only)
 export async function GET(
@@ -10,7 +11,7 @@ export async function GET(
     { params }: { params: Promise<{ eventType: string; id: string }> }
 ) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json(
                 { success: false, message: '로그인이 필요합니다' },

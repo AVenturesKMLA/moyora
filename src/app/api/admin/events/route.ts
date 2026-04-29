@@ -3,11 +3,12 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { User, Contest, Forum, CoResearch } from '@/models';
+import { authOptions } from '@/lib/auth';
 
 // GET - Fetch all events (admin only)
 export async function GET() {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json(
                 { success: false, message: '로그인이 필요합니다' },

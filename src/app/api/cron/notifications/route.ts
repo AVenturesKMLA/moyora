@@ -3,8 +3,7 @@ import connectDB from '@/lib/mongodb';
 import { Schedule, Notification, User } from '@/models';
 import { ReminderDays } from '@/models/Notification';
 
-// POST - Run notification job (called by cron)
-export async function POST(request: NextRequest) {
+async function runNotificationJob(request: NextRequest) {
     try {
         // Verify cron secret
         const authHeader = request.headers.get('authorization');
@@ -80,12 +79,11 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// GET - For health check
-export async function GET() {
-    return NextResponse.json({
-        success: true,
-        message: 'Notification cron endpoint is active',
-        reminders: [7, 3, 1],
-        description: 'Creates notifications for events 7, 3, and 1 days before',
-    });
+// Vercel Cron invokes route handlers with GET requests in production.
+export async function GET(request: NextRequest) {
+    return runNotificationJob(request);
+}
+
+export async function POST(request: NextRequest) {
+    return runNotificationJob(request);
 }

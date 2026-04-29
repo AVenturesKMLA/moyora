@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { User, Contest, Forum, CoResearch, Club, Participant, Notification, Schedule } from '@/models';
 import mongoose from 'mongoose';
+import { authOptions } from '@/lib/auth';
 
 // DELETE - Delete a user and all their data (admin only)
 export async function DELETE(
@@ -10,7 +11,7 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json(
                 { success: false, message: '로그인이 필요합니다' },

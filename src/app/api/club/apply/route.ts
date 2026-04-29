@@ -3,11 +3,12 @@ import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { Club, ClubApplication, User, ClubMember } from '@/models';
 import mongoose from 'mongoose';
+import { authOptions } from '@/lib/auth';
 
 // POST: Apply to a club
 export async function POST(request: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json({ success: false, message: '로그인이 필요합니다' }, { status: 401 });
         }
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
 // GET: Fetch applications (For Club Chief)
 export async function GET(request: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json({ success: false, message: '로그인이 필요합니다' }, { status: 401 });
         }
