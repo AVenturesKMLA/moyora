@@ -1,0 +1,80 @@
+.signup-flow-container {
+    min-height: 100vh;
+    background: #D6DADF;
+    /* Apple-like light gray */
+    display: flex;
+    flex-direction: column;
+}
+
+@media (prefers-color-scheme: dark) {
+    .signup-flow-container {
+        background: #000000;
+    }
+}
+
+.signup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.8));
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #1F4EF5;
+}
+
+.header-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1A1E27;
+}
+
+.placeholder-w24 {
+    width: 40px;
+}
+
+.progress-bar-container {
+    padding: 0 16px;
+    margin-bottom: 24px;
+}
+
+.progress-track {
+    height: 4px;
+    background: #D6DADF;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #1F4EF5;
+    transition: width 0.3s ease;
+}
+
+.signup-content {
+    flex: 1;
+    padding: 0 20px 40px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+@media (prefers-color-scheme: dark) {
+    .header-title {
+        color: #fff;
+    }
+
+    .progress-track {
+        background: #1A1E27;
+    }
+}
