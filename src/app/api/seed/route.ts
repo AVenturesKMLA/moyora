@@ -63,6 +63,7 @@ export async function POST() {
                 password: hashedPassword,
                 birthday: new Date('2008-03-15'),
                 schoolName: '서울과학고등학교',
+                grade: 1,
                 role: 'user',
                 agreedToTerms: true,
             });

@@ -1,6 +1,19 @@
 import { z } from 'zod';
 import { isAllowedKeywordId } from '@/data/clubKeywords';
 
+// 회원가입 관심분야 선택지
+export const INTEREST_OPTIONS = [
+    '과학',
+    '공학',
+    '수학',
+    '인문사회',
+    '예술/디자인',
+    '체육',
+    '경제',
+    '의학',
+    '창업',
+] as const;
+
 // User Signup Schema
 export const signupSchema = z.object({
     name: z
@@ -18,21 +31,22 @@ export const signupSchema = z.object({
             '비밀번호는 대문자, 소문자, 숫자를 포함해야 합니다'
         ),
     confirmPassword: z.string(),
-    birthday: z
-        .string()
-        .refine((date) => !isNaN(Date.parse(date)), '올바른 날짜를 입력해주세요'),
     phone: z
         .string()
-        .min(10, '올바른 전화번호를 입력해주세요'),
+        .regex(/^01[0-9][-\s]?[0-9]{3,4}[-\s]?[0-9]{4}$/, '올바른 전화번호 형식을 입력해주세요 (예: 010-1234-5678)'),
     schoolName: z
         .string()
         .min(2, '학교명을 입력해주세요'),
     schoolId: z
         .string()
         .min(1, '학교 고유 ID가 필요합니다'),
-    sessionToken: z
-        .string()
-        .min(1, '본인인증을 다시 시도해주세요'),
+    grade: z
+        .coerce.number({ invalid_type_error: '학년을 선택해주세요' })
+        .int()
+        .refine((v) => [1, 2, 3].includes(v), '학년을 선택해주세요'),
+    interests: z
+        .array(z.enum(INTEREST_OPTIONS))
+        .min(1, '관심분야를 1개 이상 선택해주세요'),
     agreedToTerms: z
         .boolean()
         .refine((val) => val === true, '이용약관에 동의해주세요'),

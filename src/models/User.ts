@@ -7,10 +7,14 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
-    birthday: Date;
+    birthday?: Date;
     phone: string;
     schoolName: string;
     schoolId: string;
+    /** 고등학교 학년 (1, 2, 3). 학생(role: 'user')만 보유 */
+    grade?: number;
+    /** 관심분야 (과학, 공학, 수학 등). 1개 이상 선택 */
+    interests: string[];
     role: 'user' | 'admin' | 'superadmin';
     agreedToTerms: boolean;
     /** 동아리 탐색: 인기 우선 vs 희망 진로 맞춤 */
@@ -52,7 +56,6 @@ const UserSchema = new Schema<IUser>(
         },
         birthday: {
             type: Date,
-            required: [true, '생년월일을 입력해주세요'],
         },
         schoolName: {
             type: String,
@@ -62,6 +65,22 @@ const UserSchema = new Schema<IUser>(
         schoolId: {
             type: String,
             required: [true, '학교 고유 ID가 필요합니다'],
+        },
+        grade: {
+            type: Number,
+            enum: [1, 2, 3],
+            // 학생(일반 유저)만 학년 필수. 관리자 계정은 학년 개념이 없음.
+            required: [
+                function (this: IUser) {
+                    return this.role === 'user';
+                },
+                '학년을 선택해주세요',
+            ],
+        },
+        interests: {
+            type: [String],
+            enum: ['과학', '공학', '수학', '인문사회', '예술/디자인', '체육', '경제', '의학', '창업'],
+            default: [],
         },
         role: {
             type: String,

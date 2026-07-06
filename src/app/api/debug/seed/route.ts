@@ -37,6 +37,7 @@ export async function GET() {
                 birthday: new Date('2008-01-01'),
                 schoolName: '서울고등학교',
                 schoolId: 'S0001',
+                grade: 1,
                 role: 'user',
                 agreedToTerms: true,
             },
