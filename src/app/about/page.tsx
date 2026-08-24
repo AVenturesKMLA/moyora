@@ -156,27 +156,27 @@ export default function AboutPage() {
           <p className="text-muted-foreground">분야별 전문성을 기반으로 한 유기적인 협업 체계</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 justify-items-center">
           {/* Marketing */}
-          <div className="space-y-4">
-            <div className="h-12 w-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 border border-orange-500/20">
-              <Megaphone className="h-6 w-6" />
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-14 w-14 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 border border-orange-500/20">
+              <Megaphone className="h-7 w-7" />
             </div>
             <h3 className="text-xl font-bold">마케팅부</h3>
-            <ul className="space-y-2 text-muted-foreground text-sm list-disc list-inside">
+            <ul className="space-y-2 text-muted-foreground text-sm">
               <li>핵심 경영 및 홍보 전략 수립</li>
               <li>파트너십 및 대외협력</li>
               <li>서비스 운영 및 커뮤니티 확장</li>
             </ul>
           </div>
 
-          {/* Design */}
-          <div className="space-y-4">
-            <div className="h-12 w-12 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-500 border border-pink-500/20">
-              <Palette className="h-6 w-6" />
+          {/* Design (화면 중앙) */}
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-14 w-14 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-500 border border-pink-500/20">
+              <Palette className="h-7 w-7" />
             </div>
             <h3 className="text-xl font-bold">디자인부</h3>
-            <ul className="space-y-2 text-muted-foreground text-sm list-disc list-inside">
+            <ul className="space-y-2 text-muted-foreground text-sm">
               <li>UX/UI 디자인 고도화</li>
               <li>제품 디자인 및 로고 제작</li>
               <li>브랜드 아이덴티티 구축</li>
@@ -184,12 +184,12 @@ export default function AboutPage() {
           </div>
 
           {/* Development */}
-          <div className="space-y-4">
-            <div className="h-12 w-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20">
-              <Code2 className="h-6 w-6" />
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-14 w-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20">
+              <Code2 className="h-7 w-7" />
             </div>
             <h3 className="text-xl font-bold">개발부</h3>
-            <ul className="space-y-2 text-muted-foreground text-sm list-disc list-inside">
+            <ul className="space-y-2 text-muted-foreground text-sm">
               <li>플랫폼 기능 구현 및 유지보수</li>
               <li>서비스 운영 구조 설계</li>
               <li>기술 기반 시스템 자동화</li>

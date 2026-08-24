@@ -13,7 +13,11 @@ interface Club {
     _id: string;
     clubName: string;
     description: string;
-    userId: string; // owner id
+    schoolName?: string;
+    clubTheme?: string;
+    presidentName?: string;
+    role?: 'chief' | 'member';
+    pendingCount?: number;
 }
 
 interface Application {
@@ -34,6 +38,7 @@ interface Application {
 export default function ClubManagePage() {
     const { data: session } = useSession();
     const [myClubs, setMyClubs] = useState<Club[]>([]);
+    const [memberClubs, setMemberClubs] = useState<Club[]>([]);
     const [selectedClub, setSelectedClub] = useState<Club | null>(null);
     const [applications, setApplications] = useState<Application[]>([]);
     const [loadingClubs, setLoadingClubs] = useState(true);
@@ -46,21 +51,12 @@ export default function ClubManagePage() {
 
         const fetchClubs = async () => {
             try {
-                const res = await fetch('/api/clubs');
+                const res = await fetch('/api/club/my');
                 const data = await res.json();
                 if (data.success) {
-                    // Filter clubs where current user is the owner (userId matches)
-                    // Note: session.user.id might not be available directly in types depending on configuration,
-                    // but usually we can match structure or relying on updated API that returns only my clubs if prompted.
-                    // Effectively, the /api/clubs returns ALL clubs in school.
-                    // We need to filter by `club.userId === session.user.id`.
-                    // But session.user.id might be missing in client session type.
-                    // A better way is to check `club.presidentEmail === session.user.email` as a fallback or similar.
-                    const userEmail = session.user?.email;
-                    const owned = data.clubs.filter((c: any) =>
-                        c.presidentEmail === userEmail || c.userId === (session.user as any).id
-                    );
+                    const owned: Club[] = data.owned || [];
                     setMyClubs(owned);
+                    setMemberClubs(data.memberOf || []);
                     if (owned.length > 0) {
                         setSelectedClub(owned[0]);
                     }
@@ -127,7 +123,7 @@ export default function ClubManagePage() {
             <NavBar />
             <div className="container py-8 animate-fade-in relative z-10">
                 <div className="mb-6">
-                    <h1 className="text-3xl font-bold tracking-tight">동아리 관리</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">My Club</h1>
                     <p className="text-muted-foreground text-sm">
                         내가 운영 중인 동아리의 가입 신청을 관리하세요.
                     </p>
@@ -177,12 +173,15 @@ export default function ClubManagePage() {
                                                 <CardTitle>{selectedClub.clubName}</CardTitle>
                                                 <CardDescription>가입 신청 관리 ({applications.length})</CardDescription>
                                             </div>
-                                            <div className="flex gap-2 text-sm">
+                                            <div className="flex items-center gap-2 text-sm">
                                                     <span
                                                         className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-yellow-500/10 text-yellow-600 border-yellow-200"
                                                     >
                                                         대기 {applications.filter((a: Application) => a.status === 'pending').length}
                                                     </span>
+                                                    <Button variant="outline" size="sm" className="h-7 px-3 text-xs" asChild>
+                                                        <a href={`/club/${selectedClub._id}/chat`}>채팅</a>
+                                                    </Button>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -284,6 +283,50 @@ export default function ClubManagePage() {
                             )}
                         </Card>
                     </div>
+                </div>
+
+                {/* 소속 동아리 (멤버로 활동 중) */}
+                <div className="mt-10">
+                    <h2 className="text-xl font-bold tracking-tight">소속 동아리</h2>
+                    <p className="text-muted-foreground text-sm mb-4">내가 멤버로 활동 중인 동아리입니다.</p>
+                    {memberClubs.length === 0 ? (
+                        <div className="rounded-xl border bg-muted/20 p-6 text-center text-sm text-muted-foreground">
+                            아직 가입한 동아리가 없습니다.{' '}
+                            <a href="/club/search" className="text-primary underline-offset-4 hover:underline">동아리 찾아보기</a>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {memberClubs.map((club) => (
+                                <Card key={club._id} className="transition-shadow hover:shadow-md">
+                                    <CardHeader className="pb-2">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <CardTitle className="text-lg truncate">{club.clubName}</CardTitle>
+                                            <span className="shrink-0 inline-flex items-center rounded-full border border-blue-200 bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-600">멤버</span>
+                                        </div>
+                                        <CardDescription className="truncate">
+                                            {club.schoolName}{club.clubTheme ? ` · ${club.clubTheme}` : ''}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3">
+                                        <p className="line-clamp-2 text-sm text-muted-foreground">
+                                            {club.description || '소개가 없습니다.'}
+                                        </p>
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>동아리장 {club.presidentName || '—'}</span>
+                                            <div className="flex gap-1">
+                                                <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" asChild>
+                                                    <a href={`/club/${club._id}/chat`}>채팅</a>
+                                                </Button>
+                                                <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" asChild>
+                                                    <a href={`/club/${club._id}`}>상세 보기</a>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

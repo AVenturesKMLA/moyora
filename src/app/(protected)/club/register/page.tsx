@@ -13,13 +13,32 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle, CheckCircle2, ImagePlus, X } from "lucide-react"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog"
+import { AlertCircle, CheckCircle2, ImagePlus, X, CreditCard } from "lucide-react"
 import { cn } from "@/lib/utils"
 import SchoolNameInput from '@/components/ui/SchoolNameInput'
 import { CLUB_KEYWORD_OPTIONS } from '@/data/clubKeywords'
 import { CLUB_THEME_OPTIONS } from '@/data/clubThemes'
+import { CLUB_MONTHLY_PRICE, CLUB_PLAN_LABEL, formatKRW } from '@/lib/billing'
 
 // 3D Removed
+
+// 포트원 실결제 설정 (환경변수). 둘 다 있으면 실결제, 없으면 데모 결제로 동작.
+const PORTONE_STORE_ID = process.env.NEXT_PUBLIC_PORTONE_STORE_ID;
+const PORTONE_CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY;
+const isRealPay = Boolean(PORTONE_STORE_ID && PORTONE_CHANNEL_KEY);
+
+const createId = () =>
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 interface FormErrors {
     [key: string]: string;
@@ -61,7 +80,8 @@ export default function ClubRegisterPage() {
     };
 
     const [errors, setErrors] = useState<FormErrors>({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [showPayment, setShowPayment] = useState(false);
+    const [paying, setPaying] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -109,40 +129,102 @@ export default function ClubRegisterPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // 1단계: 폼 검증 후 결제 다이얼로그 열기
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!validateForm()) return;
+        setErrors((prev) => { const n = { ...prev }; delete n.submit; return n; });
+        setShowPayment(true);
+    };
 
-        setIsLoading(true);
+    // 2단계: 결제 → 결제 확인 후 동아리 생성
+    const handlePayAndCreate = async () => {
+        setPaying(true);
+        setErrors((prev) => { const n = { ...prev }; delete n.submit; return n; });
 
         try {
-            const response = await fetch('/api/clubs', { // Updated endpoint
+            // (1) 결제 — 실결제(정기결제, 설정 시) 또는 데모 결제(미설정 시)
+            let paymentId: string;
+
+            if (isRealPay) {
+                // 카드 빌링키 발급 → 서버가 첫 달 청구 + 매월 자동청구(구독) 시작
+                const PortOne = (await import('@portone/browser-sdk/v2')).default;
+
+                const issueRes = await PortOne.requestIssueBillingKey({
+                    storeId: PORTONE_STORE_ID!,
+                    channelKey: PORTONE_CHANNEL_KEY!,
+                    billingKeyMethod: 'CARD',
+                    issueName: `${CLUB_PLAN_LABEL} (${formData.clubName})`,
+                    issueId: `club_${createId()}`,
+                    customer: {
+                        fullName: session?.user?.name ?? undefined,
+                        email: session?.user?.email ?? undefined,
+                    },
+                });
+
+                // code 가 존재하면 카드 등록 실패/취소
+                if (!issueRes || issueRes.code != null) {
+                    setErrors({ submit: issueRes?.message || '카드 등록이 취소되었습니다.' });
+                    return;
+                }
+
+                const subRes = await fetch('/api/subscriptions/club', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ billingKey: issueRes.billingKey }),
+                });
+                const subData = await subRes.json();
+                if (!subRes.ok || !subData.success) {
+                    setErrors({ submit: subData.message || '결제에 실패했습니다.' });
+                    setShowPayment(false);
+                    return;
+                }
+                paymentId = subData.paymentId;
+            } else {
+                // 데모 결제
+                const payRes = await fetch('/api/payments/club', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}),
+                });
+                const payData = await payRes.json();
+                if (!payRes.ok || !payData.success) {
+                    setErrors({ submit: payData.message || '결제에 실패했습니다.' });
+                    setShowPayment(false);
+                    return;
+                }
+                paymentId = payData.paymentId;
+            }
+
+            // (2) 결제 확인 후 동아리 생성
+            const response = await fetch('/api/clubs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ ...formData, paymentId }),
             });
 
             if (response.ok) {
-                // Success
                 router.push('/dashboard');
-            } else {
-                const data = await response.json();
-                if (data.errors && Array.isArray(data.errors)) {
-                    const fieldErrors: FormErrors = { submit: data.message || '입력값을 확인해주세요.' };
-                    data.errors.forEach((err: { field: string; message: string }) => {
-                        fieldErrors[err.field] = err.message;
-                    });
-                    setErrors(fieldErrors);
-                } else {
-                    setErrors({ submit: data.message || '등록에 실패했습니다.' });
-                }
+                return;
             }
+
+            const data = await response.json();
+            if (data.errors && Array.isArray(data.errors)) {
+                const fieldErrors: FormErrors = { submit: data.message || '입력값을 확인해주세요.' };
+                data.errors.forEach((err: { field: string; message: string }) => {
+                    fieldErrors[err.field] = err.message;
+                });
+                setErrors(fieldErrors);
+            } else {
+                setErrors({ submit: data.message || '등록에 실패했습니다.' });
+            }
+            setShowPayment(false);
         } catch (error) {
             console.error('Registration failed:', error);
             setErrors({ submit: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+            setShowPayment(false);
         } finally {
-            setIsLoading(false);
+            setPaying(false);
         }
     };
 
@@ -374,21 +456,81 @@ export default function ClubRegisterPage() {
                                 <Button variant="outline" type="button" onClick={() => router.back()}>
                                     취소
                                 </Button>
-                                <Button type="submit" disabled={isLoading} className="w-full md:w-auto min-w-[120px]">
-                                    {isLoading ? (
-                                        <>
-                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></div>
-                                            등록 중...
-                                        </>
-                                    ) : (
-                                        '동아리 등록하기'
-                                    )}
+                                <Button type="submit" className="w-full md:w-auto min-w-[120px]">
+                                    {formatKRW(CLUB_MONTHLY_PRICE)}원 결제하고 등록하기
                                 </Button>
                             </div>
                         </form>
                     </CardContent>
                 </Card>
             </main>
+
+            {/* 결제 다이얼로그 (동아리 개설 · 월 5,900원) */}
+            <Dialog open={showPayment} onOpenChange={(o) => { if (!paying) setShowPayment(o); }}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <CreditCard className="h-5 w-5 text-primary" />
+                            {CLUB_PLAN_LABEL} 결제
+                        </DialogTitle>
+                        <DialogDescription>
+                            동아리 개설에는 대표(동아리장)의 멤버십 결제가 필요합니다.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-2">
+                        <div className="rounded-xl border bg-muted/30 p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-semibold">{CLUB_PLAN_LABEL}</p>
+                                    <p className="text-xs text-muted-foreground">동아리 당 · 월간</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-2xl font-bold">
+                                        {formatKRW(CLUB_MONTHLY_PRICE)}<span className="text-sm font-medium">원</span>
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">/ 월</p>
+                                </div>
+                            </div>
+                            {formData.clubName ? (
+                                <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">
+                                    <span className="font-medium text-foreground">{formData.clubName}</span> 동아리를 개설합니다.
+                                </p>
+                            ) : null}
+                        </div>
+
+                        {isRealPay ? (
+                            <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+                                카드 등록 후 첫 달 요금이 즉시 결제되며, 이후 <span className="font-medium text-foreground">매월 자동으로 청구</span>됩니다. 언제든 멤버십 플랜에서 해지할 수 있습니다.
+                            </div>
+                        ) : (
+                            <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+                                데모 결제입니다. 실제 금액은 청구되지 않습니다.
+                            </div>
+                        )}
+
+                        {errors.submit ? (
+                            <p className="text-sm text-destructive">{errors.submit}</p>
+                        ) : null}
+                    </div>
+
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setShowPayment(false)} disabled={paying}>
+                            취소
+                        </Button>
+                        <Button onClick={handlePayAndCreate} disabled={paying} className="min-w-[170px]">
+                            {paying ? (
+                                <>
+                                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></div>
+                                    결제 처리 중...
+                                </>
+                            ) : (
+                                `${formatKRW(CLUB_MONTHLY_PRICE)}원 결제하고 개설하기`
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

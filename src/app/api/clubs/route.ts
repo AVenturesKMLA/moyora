@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
-import { Club, ClubMember } from '@/models';
+import { Club, ClubMember, ClubPayment, Subscription } from '@/models';
 import { clubSchema } from '@/lib/validations';
 import { authOptions } from '@/lib/auth';
 
@@ -96,6 +96,18 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // 결제 확인: 동아리 개설은 결제(현재 데모)가 완료되어야 진행
+        const paymentId = typeof body.paymentId === 'string' ? body.paymentId : '';
+        const payment = paymentId
+            ? await ClubPayment.findOne({ paymentId, userId: userSession.id, status: 'paid' })
+            : null;
+        if (!payment) {
+            return NextResponse.json(
+                { success: false, message: '동아리 개설 결제가 확인되지 않았습니다. 결제 후 다시 시도해주세요.' },
+                { status: 402 }
+            );
+        }
+
         const {
             clubName,
             category,
@@ -149,6 +161,17 @@ export async function POST(request: NextRequest) {
             schoolId: userSession.schoolId,
             role: 'chief'
         });
+
+        // 결제 소진 처리: 개설 완료 → 결제를 이 동아리에 연결
+        payment.status = 'consumed';
+        payment.clubId = club._id;
+        await payment.save();
+
+        // 정기결제(구독)로 개설한 경우, 구독을 이 동아리에 연결
+        await Subscription.updateOne(
+            { lastPaymentId: paymentId, userId: userSession.id, clubId: { $exists: false } },
+            { $set: { clubId: club._id } }
+        );
 
         return NextResponse.json(
             {

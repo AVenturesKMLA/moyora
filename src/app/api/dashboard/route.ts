@@ -4,6 +4,31 @@ import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { Contest, Forum, CoResearch, User, Participant, Club, Notification, ClubMember } from '@/models';
 import { authOptions } from '@/lib/auth';
+import { dbKeysForThemeFilter } from '@/data/clubThemes';
+
+// 회원가입 관심분야(9종) → 동아리 테마 필터 키 매핑
+const INTEREST_TO_THEME_FILTERS: Record<string, string[]> = {
+    '과학': ['과학'],
+    '공학': ['공학'],
+    '수학': ['수학'],
+    '인문사회': ['인문', '사회'],
+    '예술/디자인': ['예술'],
+    '체육': ['체육'],
+    '경제': ['경제'],
+    '의학': ['의학'],
+    '창업': ['창업'],
+};
+
+// 사용자 관심분야 목록 → 매칭되는 DB clubTheme 값 집합
+function buildInterestThemeSet(interests: string[] | undefined): Set<string> {
+    const set = new Set<string>();
+    for (const interest of interests || []) {
+        for (const filterKey of INTEREST_TO_THEME_FILTERS[interest] || []) {
+            for (const themeValue of dbKeysForThemeFilter(filterKey)) set.add(themeValue);
+        }
+    }
+    return set;
+}
 
 // --- Global Cache for Dashboard (Shared across requests) ---
 let globalDashboardCache: {
@@ -85,7 +110,7 @@ export async function GET() {
         const user = await User.findOne({
             email: userSession.email,
             schoolId: userSession.schoolId,
-        }).select('_id name email schoolName role').lean() as any;
+        }).select('_id name email schoolName role interests').lean() as any;
 
         if (!user) {
             return NextResponse.json({ success: false, message: '사용자를 찾을 수 없습니다' }, { status: 404 });
@@ -101,6 +126,8 @@ export async function GET() {
             hostedCoResearch,
             participationsRaw,
             notificationsRaw,
+            schoolClubsRaw,
+            memberCount,
             globalData
         ] = await Promise.all([
             // 1. User's club memberships
@@ -120,7 +147,13 @@ export async function GET() {
             // 4. Notifications
             Notification.find({ userId: user._id, isRead: false })
                 .sort({ createdAt: -1 }).limit(10).select('_id eventName eventDate daysUntil isRead').lean(),
-            // 5. Global Dashboard data (Cached independently from user)
+            // 5. Clubs in the user's school (for interest-matched "활동 중인 동아리")
+            Club.find({ schoolId: userSession.schoolId })
+                .sort({ createdAt: -1 }).limit(40)
+                .select('_id clubName schoolName clubTheme description createdAt').lean(),
+            // 6. 전체 모여라 회원 수
+            User.countDocuments({}),
+            // 7. Global Dashboard data (Cached independently from user)
             getGlobalDashboardData(now)
         ]);
 
@@ -128,7 +161,6 @@ export async function GET() {
             upcomingContests, // Array of global events
             upcomingForums,
             upcomingResearch,
-            activeClubsRaw,
             hostThemeMap
         } = globalData;
 
@@ -138,6 +170,30 @@ export async function GET() {
             .filter((c) => c._id);
 
         const userThemes = new Set(clubs.map((c: any) => c.clubTheme).filter(Boolean));
+
+        // ── 활동 중인 동아리: 사용자 관심분야에 맞춰 정렬 ──────────────────
+        // 이미 가입한 동아리는 제외하고, 관심분야와 테마가 맞는 동아리를 앞에 노출
+        const joinedClubIds = new Set(clubs.map((c: any) => String(c._id)));
+        const interestThemeSet = buildInterestThemeSet(user.interests);
+        const activeClubs = (schoolClubsRaw as any[])
+            .filter((c) => !joinedClubIds.has(String(c._id)))
+            .map((c) => ({
+                club: c,
+                matched: interestThemeSet.has((c.clubTheme || '').trim()),
+            }))
+            .sort((a, b) => {
+                if (a.matched !== b.matched) return a.matched ? -1 : 1; // 관심분야 매칭 우선
+                return new Date(b.club.createdAt).getTime() - new Date(a.club.createdAt).getTime();
+            })
+            .slice(0, 6)
+            .map(({ club, matched }) => ({
+                _id: club._id,
+                name: club.clubName,
+                school: club.schoolName,
+                desc: club.clubTheme || '활동',
+                intro: typeof club.description === 'string' && club.description.trim() ? club.description.trim() : '',
+                matched,
+            }));
 
         // ── Process hosted events ────────────────────────────────────────────
         const hostedEvents = [
@@ -223,19 +279,14 @@ export async function GET() {
                 participations: participationsWithDetails,
                 notifications: notificationsRaw || [],
                 stats: {
+                    memberCount,
                     clubCount: clubs.length,
                     hostedEventCount: hostedEvents.length,
                     participationCount: participationsRaw.length,
                     pendingApprovalCount: pendingParticipantsCount,
                     unreadNotificationCount: (notificationsRaw || []).length,
                 },
-                activeClubs: activeClubsRaw.map((c) => ({
-                    _id: c._id,
-                    name: c.clubName,
-                    school: c.schoolName,
-                    desc: c.clubTheme || '활동',
-                    intro: typeof c.description === 'string' && c.description.trim() ? c.description.trim() : '',
-                })),
+                activeClubs,
                 trendingCollabs,
             },
         });

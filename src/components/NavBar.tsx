@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { ThemeToggle } from './ThemeToggle';
 import NotificationDropdown from './NotificationDropdown';
+import ClubRequestsButton from './ClubRequestsButton';
+import DirectMessageButton from './DirectMessageButton';
 import { useNotifications } from '@/context/NotificationContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +26,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, Bell, User, LogOut, LayoutDashboard, Users, Calendar } from 'lucide-react';
+import { Menu, Bell, User, LogOut, LayoutDashboard, Users, Calendar, MessageSquare, Mail, Shield } from 'lucide-react';
 
 interface NavBarProps {
     showDashboardLink?: boolean;
@@ -54,6 +56,8 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
     const { data: session, status } = useSession();
     const isLoggedIn = !!session?.user;
     const isLoading = status === 'loading';
+    // 운영자 전용 메뉴는 superadmin 에게만 노출 (실제 접근 제어는 서버에서 다시 검사한다)
+    const isSuperAdmin = (session?.user as { role?: string } | undefined)?.role === 'superadmin';
 
     const handleSignOut = async () => {
         await signOut({ callbackUrl: '/login' });
@@ -71,11 +75,13 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
 
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex md:flex-1 md:items-center md:gap-6">
+                    {isLoggedIn && (
+                        <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
+                            홈
+                        </Link>
+                    )}
                     <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
                         회사소개
-                    </Link>
-                    <Link href="/plan" className="text-sm font-medium transition-colors hover:text-primary">
-                        플랜
                     </Link>
                     <Link href="/club/search" className="text-sm font-medium transition-colors hover:text-primary">
                         동아리 찾기
@@ -85,11 +91,11 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     </Link>
                     {isLoggedIn && (
                         <>
-                            <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
-                                홈
-                            </Link>
                             <Link href="/collab" className="text-sm font-medium transition-colors hover:text-primary">
                                 협업
+                            </Link>
+                            <Link href="/chat" className="text-sm font-medium transition-colors hover:text-primary">
+                                전체 채팅
                             </Link>
                         </>
                     )}
@@ -100,6 +106,8 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                     <div className="hidden md:flex md:items-center md:gap-2">
                         {isLoggedIn ? (
                             <>
+                                <DirectMessageButton />
+                                <ClubRequestsButton />
                                 <NotificationButton />
                                 {/* Profile dropdown: ONLY 마이페이지 + 로그아웃 */}
                                 <DropdownMenu>
@@ -127,6 +135,23 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                                 <span>마이페이지 · 계정 설정</span>
                                             </Link>
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/club/manage" className="cursor-pointer">
+                                                <Users className="mr-2 h-4 w-4" />
+                                                <span>My Club</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        {isSuperAdmin && (
+                                            <>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem asChild>
+                                                    <Link href="/admin" className="cursor-pointer text-primary focus:text-primary">
+                                                        <Shield className="mr-2 h-4 w-4" />
+                                                        <span>운영자 대시보드</span>
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                            </>
+                                        )}
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600" onClick={handleSignOut}>
                                             <LogOut className="mr-2 h-4 w-4" />
@@ -184,6 +209,14 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                                 <Users className="h-5 w-5" />
                                                 협업
                                             </Link>
+                                            <Link href="/chat" className="flex items-center gap-2 text-lg font-medium">
+                                                <MessageSquare className="h-5 w-5" />
+                                                전체 채팅
+                                            </Link>
+                                            <Link href="/messages" className="flex items-center gap-2 text-lg font-medium">
+                                                <Mail className="h-5 w-5" />
+                                                메시지
+                                            </Link>
                                             <Link href="/club/search" className="flex items-center gap-2 text-lg font-medium">
                                                 <Users className="h-5 w-5" />
                                                 동아리 찾기
@@ -196,6 +229,19 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                                 <User className="h-5 w-5" />
                                                 마이페이지 · 계정 설정
                                             </Link>
+                                            <Link href="/club/manage" className="flex items-center gap-2 text-lg font-medium">
+                                                <Users className="h-5 w-5" />
+                                                My Club
+                                            </Link>
+                                            {isSuperAdmin && (
+                                                <>
+                                                    <div className="my-2 border-t" />
+                                                    <Link href="/admin" className="flex items-center gap-2 text-lg font-medium text-primary">
+                                                        <Shield className="h-5 w-5" />
+                                                        운영자 대시보드
+                                                    </Link>
+                                                </>
+                                            )}
                                             <div className="my-2 border-t" />
                                             <button onClick={handleSignOut} className="flex items-center gap-2 text-lg font-medium text-red-600">
                                                 <LogOut className="h-5 w-5" />
@@ -226,9 +272,6 @@ export default function NavBar({ showDashboardLink = true }: NavBarProps) {
                                     <div className="my-2 border-t" />
                                     <Link href="/about" className="text-lg font-medium">
                                         회사소개
-                                    </Link>
-                                    <Link href="/plan" className="text-lg font-medium">
-                                        플랜
                                     </Link>
                                 </div>
                             </SheetContent>

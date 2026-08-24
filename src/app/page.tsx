@@ -141,7 +141,7 @@ export default function HomePage() {
                         {session ? (
                             <Link href="/dashboard">
                                 <Button size="lg" className="h-12 rounded-full px-8 text-lg shadow-lg bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 transition-opacity">
-                                    대시보드 열기
+                                    홈 열기
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Button>
                             </Link>

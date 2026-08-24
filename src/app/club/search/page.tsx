@@ -297,7 +297,7 @@ function ClubSearchContent() {
                                     id: club._id,
                                     name: club.clubName,
                                     school: club.schoolName,
-                                    size: club.maxMembers || 0,
+                                    memberCount: club.memberCount ?? 0,
                                     description: club.description,
                                     clubTheme: club.clubTheme,
                                     keywords: club.keywords || [],

@@ -66,6 +66,7 @@ interface DashboardData {
     participations: Participation[];
     notifications: Notification[];
     stats: {
+        memberCount: number;
         clubCount: number;
         hostedEventCount: number;
         participationCount: number;
@@ -78,6 +79,7 @@ interface DashboardData {
         school: string;
         desc: string;
         intro?: string;
+        matched?: boolean;
     }>;
     trendingCollabs: Array<{
         _id: string;
@@ -188,7 +190,7 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <StatsCard
                         title="모여라 회원"
-                        value="128"
+                        value={dashboardData?.stats.memberCount?.toString() || "0"}
                         subtext="명이 함께하고 있어요"
                         icon={<Users className="h-6 w-6 text-blue-500" />}
                         href="/about"
@@ -260,10 +262,11 @@ export default function DashboardPage() {
                                         school={club.school}
                                         desc={club.desc}
                                         intro={club.intro}
+                                        matched={club.matched}
                                     />
                                 ))
                             ) : (
-                                <p className="text-sm text-muted-foreground">현재 프로젝트를 진행 중인 동아리가 없습니다.</p>
+                                <p className="text-sm text-muted-foreground">우리 학교에 등록된 동아리가 아직 없습니다.</p>
                             )}
                         </div>
                     </div>
@@ -442,7 +445,7 @@ function clubInitialsAvatarUrl(seed: string) {
     return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed || '동아리')}&backgroundColor=0a0a0a`;
 }
 
-function RecentClubCard({ id, name, school, desc, intro, logoUrl }: { id: string, name: string, school: string, desc: string, intro?: string, logoUrl?: string }) {
+function RecentClubCard({ id, name, school, desc, intro, logoUrl, matched }: { id: string, name: string, school: string, desc: string, intro?: string, logoUrl?: string, matched?: boolean }) {
     const themeLabel = desc === '체육' || desc === 'startup' ? '운동' : desc;
     const hoverText =
         (intro && intro.trim()) ||
@@ -467,6 +470,11 @@ function RecentClubCard({ id, name, school, desc, intro, logoUrl }: { id: string
                         <Badge variant="outline" className="h-5 border-0 bg-muted/20 px-1.5 py-0 text-[10px] font-normal text-muted-foreground">
                             {themeLabel}
                         </Badge>
+                        {matched ? (
+                            <Badge variant="outline" className="h-5 border-0 bg-primary/10 px-1.5 py-0 text-[10px] font-medium text-primary">
+                                관심분야
+                            </Badge>
+                        ) : null}
                     </div>
                 </div>
             </div>

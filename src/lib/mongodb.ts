@@ -35,6 +35,12 @@ async function connectDB() {
     if (!cached?.promise) {
         const opts = {
             bufferCommands: false,
+            // 커넥션 풀을 미리 확보해 매 요청마다 새로 연결하는 지연을 줄인다.
+            maxPoolSize: 10,
+            minPoolSize: 2,
+            // Atlas 연결이 지연될 때 30초씩 매달리지 않고 빠르게 실패/재시도한다.
+            serverSelectionTimeoutMS: 8000,
+            socketTimeoutMS: 45000,
         };
 
         cached!.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {

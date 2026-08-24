@@ -1,6 +1,8 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
+import GlobalChatPopup from '@/components/GlobalChatPopup';
+import FreePeriodNotice from '@/components/FreePeriodNotice';
 
 export default async function ProtectedLayout({
     children,
@@ -13,5 +15,11 @@ export default async function ProtectedLayout({
         redirect('/login');
     }
 
-    return <>{children}</>;
+    return (
+        <>
+            {children}
+            <FreePeriodNotice />
+            <GlobalChatPopup />
+        </>
+    );
 }

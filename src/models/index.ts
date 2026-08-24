@@ -9,6 +9,11 @@ export { default as Participant } from './Participant';
 export { default as ClubMember } from './ClubMember';
 export { default as ClubApplication } from './ClubApplication';
 export { default as ClubRating } from './ClubRating';
+export { default as ClubPayment } from './ClubPayment';
+export { default as Subscription } from './Subscription';
+export { default as ClubMessage } from './ClubMessage';
+export { default as GlobalMessage } from './GlobalMessage';
+export { default as DirectMessage } from './DirectMessage';
 
 export type { IUser } from './User';
 export type { IClub } from './Club';
@@ -21,4 +26,9 @@ export type { IParticipant } from './Participant';
 export type { IClubMember } from './ClubMember';
 export type { IClubApplication } from './ClubApplication';
 export type { IClubRating } from './ClubRating';
+export type { IClubPayment } from './ClubPayment';
+export type { ISubscription } from './Subscription';
+export type { IClubMessage } from './ClubMessage';
+export type { IGlobalMessage } from './GlobalMessage';
+export type { IDirectMessage } from './DirectMessage';
 

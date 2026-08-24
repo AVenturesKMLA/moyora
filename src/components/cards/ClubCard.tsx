@@ -6,7 +6,8 @@ interface ClubCardData {
     id?: string;
     name: string;
     school?: string;
-    size?: number;
+    /** 실제 가입 회원 수(모집 정원 maxMembers가 아니라 ClubMember 문서 수) */
+    memberCount?: number;
     description?: string;
     clubTheme?: string;
     keywords?: string[];
@@ -62,7 +63,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
                         </Badge>
                     ) : null}
                     <Badge variant="outline" className="rounded-full font-normal text-muted-foreground bg-muted/20 border-0 text-[11px] px-2">
-                        Member {club.size || 10}
+                        Member {club.memberCount ?? 0}
                     </Badge>
                 </div>
 

@@ -59,6 +59,18 @@ export default function AdminDashboard() {
                         👥 사용자 관리
                     </Link>
                     <Link
+                        href="/admin/clubs"
+                        className={`nav-item ${pathname === '/admin/clubs' ? 'active' : ''}`}
+                    >
+                        🏫 동아리 관리
+                    </Link>
+                    <Link
+                        href="/admin/chat"
+                        className={`nav-item ${pathname === '/admin/chat' ? 'active' : ''}`}
+                    >
+                        💬 채팅 관리
+                    </Link>
+                    <Link
                         href="/admin/events"
                         className={`nav-item ${pathname === '/admin/events' ? 'active' : ''}`}
                     >
@@ -109,6 +121,7 @@ export default function AdminDashboard() {
                                 <div className="stat-value">{stats?.totalClubs || 0}</div>
                                 <div className="stat-label">등록된 동아리</div>
                             </div>
+                            <Link href="/admin/clubs" className="stat-link">관리 →</Link>
                         </div>
 
                         <div className="stat-card participants">
@@ -135,6 +148,14 @@ export default function AdminDashboard() {
                         <Link href="/admin/users" className="action-card">
                             <span className="action-icon">👥</span>
                             <span className="action-label">사용자 관리</span>
+                        </Link>
+                        <Link href="/admin/clubs" className="action-card">
+                            <span className="action-icon">🏫</span>
+                            <span className="action-label">동아리 관리</span>
+                        </Link>
+                        <Link href="/admin/chat" className="action-card">
+                            <span className="action-icon">💬</span>
+                            <span className="action-label">채팅 관리</span>
                         </Link>
                         <Link href="/admin/events" className="action-card">
                             <span className="action-icon">📅</span>

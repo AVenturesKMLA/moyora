@@ -4,6 +4,14 @@
     {
       "path": "/api/cron/notifications",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-collabs",
+      "schedule": "30 0 * * *"
+    },
+    {
+      "path": "/api/cron/billing",
+      "schedule": "0 1 * * *"
     }
   ]
 }

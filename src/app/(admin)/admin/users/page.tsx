@@ -95,6 +95,12 @@ export default function AdminUsersPage() {
                     <Link href="/admin/users" className={`nav-item ${pathname === '/admin/users' ? 'active' : ''}`}>
                         👥 사용자 관리
                     </Link>
+                    <Link href="/admin/clubs" className={`nav-item ${pathname === '/admin/clubs' ? 'active' : ''}`}>
+                        🏫 동아리 관리
+                    </Link>
+                    <Link href="/admin/chat" className={`nav-item ${pathname === '/admin/chat' ? 'active' : ''}`}>
+                        💬 채팅 관리
+                    </Link>
                     <Link href="/admin/events" className={`nav-item ${pathname === '/admin/events' ? 'active' : ''}`}>
                         📅 이벤트 관리
                     </Link>
