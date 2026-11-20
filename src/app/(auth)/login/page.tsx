@@ -14,6 +14,19 @@ import { Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
 function LoginParams() {
   const searchParams = useSearchParams();
   const registered = searchParams.get('registered');
+  const reset = searchParams.get('reset');
+
+  if (reset) {
+    return (
+      <div className="mb-6 flex items-center gap-3 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+        <CheckCircle2 className="h-5 w-5" />
+        <div className="flex flex-col">
+          <span className="font-semibold">비밀번호 변경 완료!</span>
+          <span>새 비밀번호로 로그인하세요.</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!registered) return null;
 
@@ -122,12 +135,12 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">비밀번호</Label>
-                  {/* <Link 
-                    href="/forgot-password" 
+                  <Link
+                    href="/forgot-password"
                     className="text-xs text-muted-foreground hover:text-primary"
                   >
-                    비밀번호 찾기
-                  </Link> */}
+                    비밀번호를 잊으셨나요?
+                  </Link>
                 </div>
                 <Input
                   id="password"
